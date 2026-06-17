@@ -1,56 +1,55 @@
-# Welcome to your Expo app 👋
+<p align="center">
+  <img src="./assets/images/profile.jpg" alt="lesa-expo-template" width="180" />
+</p>
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+<h1 align="center">lesa-expo-template</h1>
 
-## Get started
+<p align="center">
+  나만의 의견이 담긴 <b>Expo SDK 55</b> 스타터 — pnpm · CNG-first · 검증된 패턴만.
+</p>
 
-1. Install dependencies
+---
 
-   ```bash
-   npm install
-   ```
+> 🚧 개발 중. 실무에서 반복해서 쓰던 패턴을 모은 개인 템플릿입니다.
 
-2. Start the app
+## What's inside
 
-   ```bash
-   npx expo start
-   ```
+- **Expo SDK 55** · pnpm · CNG-first (no committed `ios`/`android`)
+- **expo-router** 파일 기반 라우팅 + **NativeTabs** (iOS 26 liquid glass)
+- **Uniwind**(무료) + 3계층 디자인 토큰(primitive→semantic→utility) + **다크모드**(`@variant` + MMKV)
+- **i18n** (i18next, 단일언어는 그대로 통과)
+- **환경 전환** — `defineEnv` (env-candidates → env.ts), 시크릿은 `.env` 분리
+- **앱 셸** — providers 역할 분리(감싸기/띄우기) + **Suspensive** ErrorBoundary
+- **단방향 import** ESLint (폴더 지우면 그걸로 끝)
 
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Quick start
 
 ```bash
-npm run reset-project
+pnpm install
+pnpm ios        # 또는: pnpm android  — dev client 빌드 + 실행
+pnpm start      # dev 서버 (dev client)
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+> NativeTabs 등 네이티브 모듈을 쓰므로 Expo Go가 아닌 **dev client**가 필요합니다.
 
-### Other setup steps
+## Verify
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+```bash
+pnpm type-check   # tsc
+pnpm lint         # eslint (단방향·배럴·tailwind)
+pnpm tokens:check # colors 토큰 싱크
+```
 
-## Learn more
+## Structure
 
-To learn more about developing your project with Expo, look at the following resources:
+```
+src/
+  app/          라우팅 전용 (한 줄 재export → features)
+  features/     화면 실체 (라우트와 1:1)
+  providers/    루트 조립 (app-providers 감싸기 / global-overlays 띄우기)
+  components/ui 디자인시스템 (배럴 진입점)
+  styles/       토큰 3계층
+  lib/          인프라 (i18n·storage·theme)
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+설계 결정과 근거는 [`docs/decisions.md`](./docs/decisions.md) 참고.
