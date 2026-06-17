@@ -1,0 +1,5 @@
+# pnpm 10+ 설정 위치 (package.json의 "pnpm" 필드는 더 이상 읽지 않음)
+# tsx가 의존하는 esbuild의 postinstall(바이너리 설치) 승인
+onlyBuiltDependencies:
+  - esbuild
+  - unrs-resolver

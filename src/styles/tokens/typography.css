@@ -1,0 +1,28 @@
+/* ─────────────────────────────────────────────────────────────
+ * TYPOGRAPHY 토큰 — 폰트 원시값 (피그마: text/size, text/weight)
+ * 합성은 utilities/typography.css 가 한다. 여긴 원시값만.
+ * ───────────────────────────────────────────────────────────── */
+@theme {
+  /* font size */
+  --text-size-xs: 0.75rem; /* 12px */
+  --text-size-sm: 0.875rem; /* 14px */
+  --text-size-md: 1rem; /* 16px */
+  --text-size-lg: 1.125rem; /* 18px */
+  --text-size-xl: 1.25rem; /* 20px */
+  --text-size-2xl: 1.5rem; /* 24px */
+  --text-size-3xl: 2rem; /* 32px */
+  --text-size-4xl: 2.5rem; /* 40px */
+
+  /* line height */
+  --leading-size-tight: 1.25;
+  --leading-size-normal: 1.5;
+
+  /* letter spacing */
+  --tracking-size-tight: -0.02em;
+  --tracking-size-normal: 0;
+
+  /* font weight */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-bold: 700;
+}

@@ -1,9 +1,9 @@
-:root {
-  --font-display:
-    Spline Sans, Inter, ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji,
-    Segoe UI Symbol, Noto Color Emoji;
-  --font-mono:
-    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
-  --font-rounded: 'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif;
-  --font-serif: Georgia, 'Times New Roman', serif;
-}
+/* Uniwind 스타일 진입점 (metro.config.js의 cssEntryFile).
+ * 3계층 토큰을 layer 순서대로 조립: tailwind → uniwind → primitive → semantic → typography → utilities */
+@import 'tailwindcss';
+@import 'uniwind';
+
+@import './styles/tokens/colors.css' layer(theme);
+@import './styles/tokens/semantic.css' layer(theme);
+@import './styles/tokens/typography.css' layer(theme);
+@import './styles/utilities/typography.css' layer(utilities);

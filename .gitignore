@@ -2,6 +2,7 @@
 
 # dependencies
 node_modules/
+.pnpm-store/
 
 # Expo
 .expo/
@@ -30,7 +31,8 @@ yarn-error.*
 .DS_Store
 *.pem
 
-# local env files
+# env files — .env 는 빌드 시크릿 전용 (커밋 금지, .env.example 참고)
+.env
 .env*.local
 
 # typescript
@@ -41,3 +43,7 @@ app-example
 # generated native folders
 /ios
 /android
+
+# local tooling / generated indexes (not part of the template)
+.codegraph/
+.omo/

@@ -3,5 +3,20 @@
     "source.fixAll": "explicit",
     "source.organizeImports": "explicit",
     "source.sortMembers": "explicit"
-  }
+  },
+
+  // Tailwind v4 의 @theme / @layer / @apply 를 기본 CSS 린터가 모름 → 경고 끔
+  "css.lint.unknownAtRules": "ignore",
+  "scss.lint.unknownAtRules": "ignore",
+  "less.lint.unknownAtRules": "ignore",
+
+  // Tailwind IntelliSense: className 외에 우리가 쓰는 속성도 자동완성 대상에
+  "tailwindCSS.classAttributes": ["class", "className", "contentContainerClassName"],
+  // tv()/cn() 안의 문자열도 클래스로 인식해 자동완성/검사
+  "tailwindCSS.experimental.classRegex": [
+    ["tv\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
+    ["cn\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"]
+  ],
+  // Uniwind/Tailwind v4 진입점 (자동완성이 우리 토큰을 알도록)
+  "tailwindCSS.experimental.configFile": "./src/global.css"
 }

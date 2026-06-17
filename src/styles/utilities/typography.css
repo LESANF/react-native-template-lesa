@@ -1,0 +1,39 @@
+/* ─────────────────────────────────────────────────────────────
+ * TYPOGRAPHY 유틸 — 합성 텍스트 스타일 (피그마: text/heading/lg 1:1)
+ * size+weight+leading 을 한 클래스로. variant prop 과 매핑된다.
+ * 사용 예: className="text-heading-lg"  /  Text variant="heading-lg"
+ * ───────────────────────────────────────────────────────────── */
+@layer utilities {
+  .text-display {
+    font-size: var(--text-size-4xl);
+    line-height: var(--leading-size-tight);
+    letter-spacing: var(--tracking-size-tight);
+    font-weight: var(--font-weight-bold);
+  }
+  .text-heading-lg {
+    font-size: var(--text-size-2xl);
+    line-height: var(--leading-size-tight);
+    letter-spacing: var(--tracking-size-tight);
+    font-weight: var(--font-weight-bold);
+  }
+  .text-heading-sm {
+    font-size: var(--text-size-lg);
+    line-height: var(--leading-size-tight);
+    font-weight: var(--font-weight-bold);
+  }
+  .text-body-lg {
+    font-size: var(--text-size-lg);
+    line-height: var(--leading-size-normal);
+    font-weight: var(--font-weight-regular);
+  }
+  .text-body {
+    font-size: var(--text-size-md);
+    line-height: var(--leading-size-normal);
+    font-weight: var(--font-weight-regular);
+  }
+  .text-label {
+    font-size: var(--text-size-sm);
+    line-height: var(--leading-size-normal);
+    font-weight: var(--font-weight-medium);
+  }
+}
