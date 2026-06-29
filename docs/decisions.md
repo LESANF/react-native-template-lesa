@@ -191,52 +191,19 @@ an optional later add-on, not a default.
 - dotenv stays out unless a standalone Node script outside Expo CLI/EAS
   truly needs it.
 
-## Styling (decided 2026-06-10)
+## Styling (decided 2026-06-10, superseded 2026-06-16)
 
-### Decision
+The original 2026-06-10 styling direction kept tokens in a JS/TS object.
+That was superseded by the verified 2026-06-16 decision above:
+**CSS `@theme` is the single source of truth**. Do not reintroduce
+`colors.ts`, Tailwind `@config` color sources, or duplicated JS/CSS token
+records.
 
-- Use **Uniwind Free (MIT)** as the Tailwind binding. Not NativeWind.
-- Animations are handled **separately, case by case**: Reanimated values go
-  through `useAnimatedStyle` + the `style` prop, not through className.
-- Skia components use their own props (Canvas/Paint), never className.
+Still current from the original decision:
 
-### Hybrid boundary convention
-
-| Surface | Tool |
-|---|---|
-| Static layout / theme styling | Uniwind className |
-| Animated values | Reanimated `useAnimatedStyle` → `style` prop |
-| Canvas / drawing | Skia props + design tokens imported as JS values |
-
-### Token single source of truth
-
-Design tokens (colors, spacing, typography) are defined once as a JS/TS
-object and imported by BOTH the Tailwind config and runtime code
-(Skia / Reanimated / StyleSheet). This keeps the hybrid surfaces consistent
-and limits the swap cost if the styling library ever changes.
-
-### Reasoning
-
-- SDK 55 pinned + stability-first template character.
-- NativeWind v5 is still in its stabilization phase per its maintainer
-  (official recommended combo was SDK 54 as of June 2026).
-- Uniwind is run in production by the latest Obytes starter, so migration
-  patterns (`withUniwind` metro config, component wrapping) are proven.
-- Uniwind Free's missing features (className animations, zero re-render
-  ShadowTree updates, `group-active:*`) are Pro-only, but the hybrid
-  boundary convention makes className animations unnecessary anyway.
-
-### Known risks
-
-- Uniwind is young with a small community. Mitigated by the token single
-  source of truth and the boundary convention, which keep the library
-  swappable.
-
-### Deferred
-
-- Actual Uniwind setup, tailwind config, token file design, and component
-  conventions happen AFTER env/app.config and folder structure are settled.
-- Do not install any styling dependency until that phase starts.
+- Use Uniwind as the Tailwind binding.
+- Static layout/theme styling uses `className` and component variants.
+- Animated values use Reanimated styles, not className animation tricks.
 
 ## Folder Structure & Routing (decided 2026-06-11)
 
@@ -257,13 +224,13 @@ src/
 ├── components/   # shared design system (ui/), promoted via Rule of Three
 ├── providers/    # root assembly, consumed only by app/_layout.tsx:
 │   ├── app-providers.tsx   # provider pyramid (evidence: Showtime providers/)
-│   ├── global-modals.tsx   # global overlays (evidence: Expensify GlobalModals.tsx)
+│   ├── global-overlays.tsx # global overlays (evidence: Expensify GlobalModals.tsx)
 │   ├── handlers.tsx        # headless boot/runtime handlers
 │   │                       # (evidence: Expensify *Handler.tsx vocabulary)
 │   ├── bootstrap.ts        # module-top side effects (HotUpdater.init, patches)
 │   └── error-boundary.tsx
 ├── lib/          # infrastructure: api client, auth, deep-link, analytics, logger
-├── stores/       # GLOBAL zustand stores, folder-as-module per domain:
+├── stores/       # GLOBAL stores, folder-as-module per domain:
 │   └── <name>/index.ts  (auth/, overlay/, ...) — see stores rules below
 ├── hooks/        # shared hooks (feature-specific hooks live in the feature)
 ├── utils/        # pure functions
@@ -282,7 +249,7 @@ weaker domain cohesion for commerce apps), runners (replaced by Expensify's
 | New domain | create features/<domain>/ | other features |
 | Delete domain | delete features/<x>/ + its app/ route files | nothing else breaks |
 | New global provider | providers/app-providers.tsx | _layout |
-| New global modal/sheet | providers/global-modals.tsx | _layout |
+| New global modal/sheet | providers/global-overlays.tsx | _layout |
 | New boot logic (push, deep link) | providers/handlers.tsx | _layout |
 
 ### Unidirectional imports (ESLint-enforced, bulletproof-react pattern)
@@ -359,14 +326,18 @@ app/ — features and lib cannot import from providers.
 ### Barrel policy (fact-checked 2026-06-11)
 
 Facts:
-- Metro/Expo SDK 55 default has NO import/export tree shaking. It is
-  experimental (SDK 52+), behind `EXPO_UNSTABLE_METRO_OPTIMIZE_GRAPH=1` +
-  `EXPO_UNSTABLE_TREE_SHAKING=1`, production-only, and has open crash
-  issues with reanimated (expo#41620) — which this template uses.
-  (docs.expo.dev/guides/tree-shaking)
-- Therefore a barrel import bundles AND evaluates everything the barrel
-  pulls in. Callstack's official guide rates "Avoid Barrel Exports" as
-  impact: CRITICAL (callstackincubator/agent-skills).
+- Expo import/export tree shaking is experimental (SDK 52+) and opt-in via
+  `EXPO_UNSTABLE_METRO_OPTIMIZE_GRAPH=1` +
+  `EXPO_UNSTABLE_TREE_SHAKING=1`, production-only. This template does not
+  rely on it by default. (docs.expo.dev/guides/tree-shaking)
+- Therefore a barrel import still pulls its dependency graph into the bundle
+  unless that experimental path is explicitly enabled and verified.
+  Callstack's official guide rates "Avoid Barrel Exports" as impact:
+  CRITICAL (callstackincubator/agent-skills).
+- Platform shaking is per-file: `Platform` must be imported directly from
+  `react-native` in the file using `Platform.OS` / `Platform.select`. Do not
+  re-export `Platform` from `components/ui`, or platform-only branches will
+  not be removed.
 - Web intuition does not transfer: Vite/Webpack tree-shake by default,
   Metro does not. This is a design trade (Metro optimizes dev speed).
 
@@ -375,11 +346,27 @@ Policy (differential, cost-proportional):
   Safe because: dependency leaf (no cycles possible), small and
   mostly-all-used (nothing to shake), auto-optimized if experimental
   tree shaking is enabled later.
-  Guardrails: no external-library re-exports in it; heavy components
-  (charts etc.) are imported directly, not via the barrel.
+  Guardrails: no optional heavy library re-exports; heavy components
+  (charts, webview, maps, carousels, icons, etc.) are imported directly or
+  promoted intentionally later.
+- ✅ RN visual primitives are re-exported from `components/ui` to keep
+  screen imports consistent: `View`, `ScrollView`, `FlatList`,
+  `SectionList`, `ActivityIndicator`, and `useWindowDimensions`. Types are
+  not re-exported; import them from their source package with `import type`
+  when needed. RN core is already in the app; this is a governance choice,
+  not a new dependency.
+- ✅ `SafeAreaView = withUniwind(...)` is allowed in `components/ui`
+  because `react-native-safe-area-context` is already installed and the
+  wrapper gives className support.
+- ✅ `StyledSvg = withUniwind(Svg)` is allowed in `components/ui` now that
+  `react-native-svg` is installed. `.svg` file imports are handled by
+  `react-native-svg-transformer` in `metro.config.js`, not by app.config.
+- ❌ Excluded from `components/ui`: `Platform` (platform shaking needs direct
+  import), `TouchableOpacity` (use our `Pressable`), `Animated`/`Easing`
+  (prefer Reanimated), and app-specific wrappers like WebView.
 - ❌ Banned: index.ts barrels in features/**, lib/**, hooks/**
   (screen↔store↔components cycles break HMR), and any barrel
-  re-exporting external libraries (icons etc. — import directly).
+  re-exporting optional external libraries (icons etc. — import directly).
 - ESLint enforces both directions: no deep imports into components/ui/*,
   no index.ts in banned zones.
 
@@ -398,11 +385,31 @@ churn is zero.
   merged; may share fallback UI.
 - ErrorBoundary = render-exception catcher. Library: **Suspensive**
   (`@suspensive/react`, Toss) — chosen for ErrorBoundary + Suspense
-  ergonomics, wired together with react-query suspense. DEFERRED to the
-  data/error phase (needs the dep + Suspense strategy). Layers when added:
-  root + per-route (expo-router named export) + per-component (Suspensive).
+  ergonomics. Root ErrorBoundary is wired now; per-route/per-component
+  Suspense/ErrorBoundary boundaries are deferred to the data/error phase with
+  react-query suspense.
 - ErrorBoundary does NOT catch async/event-handler errors — that is
   crash-reporting territory (Sentry, later phase).
+- Loading fallback delay: do not port JP's `DeferredWrapper` component. The
+  stack already has `@suspensive/react`, whose `Delay` component covers delayed
+  fallback / flash-of-loading-state prevention and can be used outside a custom
+  wrapper. For non-Suspense loading state, the template provides
+  `src/hooks/use-deferred-loading.ts`; import it directly and use
+  `useDeferredLoading(isLoading, hasData, delayMs)` for imperative booleans such
+  as `query.isFetching`.
+- `wait(ms = 1000)` lives in `src/utils/wait.ts` and is Promise-only. Do not
+  add callback overloads; callers should write `await wait(80)` so timing gaps
+  are visible at the call site.
+- Navigation reset is still not fully covered by Expo Router's public
+  `router.replace`/`dismissAll` APIs. A `CommonActions.reset` wrapper is a
+  normal app-level utility for logout, deep links, payment completion, and
+  forced route replacement. The template provides `useNavigationReset`, and the
+  hook reads pure tab route names from `tabRoutes` in `@/constants/tabs` so it
+  does not depend on tab bar icons. `app/(tabs)/_layout.tsx` renders from the
+  visual `tabs` config in the same module. Both
+  single-route resets and tab-stack resets are nested under the Expo Router
+  `__root` route; verify the shape in the simulator when auth/deep-link/preloader
+  flows start calling it.
 - `+native-intent.tsx` (deep-link path interception) DEFERRED to the
   deep-link/auth phase (#11) — a no-op stub now is YAGNI.
 - `+html.tsx` = web-only (static HTML shell). N/A — web dropped.
@@ -421,12 +428,28 @@ churn is zero.
 
 ### Remaining conventions (decided 2026-06-11)
 
-- **Overlays — two tiers, overlay-kit REJECTED**: local overlays are
-  owned by the screen (useState / useModal ref); global overlays are
-  driven by `stores/overlay` and mounted once in
-  providers/global-modals.tsx (`showConfirm()` callable from anywhere).
-  overlay-kit's promise-API benefit acknowledged but not worth the
-  dependency + context magic; add per-project only if truly needed.
+- **Overlays — store-owned globals, overlay-kit banned**: local overlays are
+  owned by the screen/component when they are local. Global overlays are
+  driven by `stores/overlay` and mounted once in `providers/global-overlays.tsx`.
+  Current global store/host scope is toast only. Future popup/dialog/sheet work
+  may extend this store/host pattern when it truly needs global command APIs.
+  `overlay-kit` is not a default, not a later candidate, and must not be
+  installed. Dimmed is not store-owned; it is the common scrim primitive that
+  popup/loading/sheet components render directly:
+  `blur/blurAmount/color/opacity/loader/onPress/children`. `color` uses a
+  narrowed alpha-free `DimmedColor` (`#...`, `rgb`, `hsl`,
+  `black`/`white`/`transparent`) so Tailwind className strings cannot be passed
+  accidentally and opacity has a single owner. Do not add dim color presets
+  until the app has a real design-system need for them. `blurAmount` is only
+  valid when `blur: true` is set. Blur follows JP's
+  `@react-native-community/blur` pattern (`BlurView` with
+  `blurType`/`blurAmount`), without root-level blur wrappers. The color scrim is
+  a separate layer, so loader/children are not faded by overlay opacity. Dimmed
+  has no internal timer/auto-clear; lifecycle is owned by the caller. General
+  dim usage can dismiss via `onPress`, while `loader=true` is treated as a
+  blocking overlay and must be cleared by the caller's loading state. Back
+  prevention is page-owned: screens that must block Android hardware back and
+  iOS swipe use the JP-style `usePreventBack()` hook directly, not a Dimmed prop.
 - **lib/ name KEPT** after explicitly rejecting: services (wrong flavor),
   core (too abstract), shared (collides with components/hooks also being
   shared), infrastructure (too long), dissolved top-levels (src sprawl).
@@ -460,7 +483,7 @@ churn is zero.
 ## App Shell · Startup · Routing — finalized (2026-06-17)
 
 Supersedes parts of "Folder Structure & Routing": the providers/ file plan
-(global-modals/handlers/bootstrap/error-boundary) and the overlay/auth
+(global-overlays/handlers/bootstrap/error-boundary) and the overlay/auth
 specifics evolved during implementation. Verified in the iOS simulator.
 
 ### providers/ — actual (separation by ROLE, no abstraction)
@@ -473,8 +496,10 @@ specifics evolved during implementation. Verified in the iOS simulator.
   sibling components / conditional UI (that mixing is what tangled 참조 앱's
   9-deep pyramid).
 - `global-overlays.tsx` — 【띄우는 것】 things mounted after the navigator
-  (toasts, global sheets, headless runners). Empty slot now; each component
-  lives in its own folder, this file just mounts them. Replaces the old
+  (toasts, global sheets, headless runners). Toast is mounted now;
+  future popup/sheet/runner hosts get added here only when they need a global
+  command surface. Each component owns its
+  implementation, this file only mounts them. Replaces the old
   global-modals.tsx + handlers.tsx split (one slot).
 - `bootstrap.ts` REMOVED — sync module-load setup inlined into
   `app/_layout.tsx` module scope (matches 참조 앱/Obytes). The "bootstrap"
@@ -515,9 +540,10 @@ specifics evolved during implementation. Verified in the iOS simulator.
 
 - WHERE you declare = the scope. Root sibling of `(tabs)` → covers the tab
   bar; inside a tab folder → scoped to that tab.
-- Root modal = `app/modal.tsx` + `<Stack.Screen presentation:'modal'>` +
-  `unstable_settings = { anchor: '(tabs)' }` (deep-link keeps the background,
-  no wipe). Login later = `presentation:'fullScreenModal'` (#16).
+- Root modal = root-level route + `<Stack.Screen presentation:'modal'>` +
+  `unstable_settings = { anchor: '(tabs)' }` when a navigable modal needs the
+  tab tree as background. Demo `app/modal.tsx` was removed; login later uses
+  `presentation:'fullScreenModal'` (#16).
 - presentation fixed by purpose: `modal` / `fullScreenModal` /
   `transparentModal` / `formSheet` (native detents, SDK55 — no gorhom needed).
 - RN `<Modal>` (standalone overlay) vs router modal screen (navigable) — pick
