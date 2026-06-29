@@ -13,10 +13,8 @@
     "doctor": "npx expo-doctor",
     "lint": "expo lint",
     "lint:fix": "expo lint --fix",
-    "tokens:generate": "node --import tsx/esm scripts/generate-colors-ts.mjs",
-    "tokens:check": "node --import tsx/esm scripts/generate-colors-ts.mjs --check",
     "type-check": "tsc --noEmit",
-    "check-all": "pnpm run tokens:check && pnpm run lint && pnpm run type-check",
+    "check-all": "pnpm run lint && pnpm run type-check",
     "start:preview": "cross-env EXPO_PUBLIC_APP_ENV=preview pnpm run start",
     "start:production": "cross-env EXPO_PUBLIC_APP_ENV=production pnpm run start",
     "prebuild:development": "cross-env EXPO_PUBLIC_APP_ENV=development STRICT_ENV_VALIDATION=1 pnpm run prebuild",
@@ -28,6 +26,7 @@
     "ios:production": "cross-env EXPO_PUBLIC_APP_ENV=production pnpm run ios"
   },
   "dependencies": {
+    "@react-native-community/blur": "^4.4.1",
     "@react-navigation/bottom-tabs": "^7.15.5",
     "@react-navigation/elements": "^2.9.10",
     "@react-navigation/native": "^7.1.33",
@@ -47,6 +46,7 @@
     "expo-system-ui": "~55.0.18",
     "expo-web-browser": "~55.0.16",
     "i18next": "^26.3.1",
+    "lottie-react-native": "~7.3.8",
     "react": "19.2.0",
     "react-i18next": "^17.0.8",
     "react-native": "0.83.6",
@@ -55,6 +55,7 @@
     "react-native-reanimated": "4.2.1",
     "react-native-safe-area-context": "~5.6.2",
     "react-native-screens": "~4.23.0",
+    "react-native-svg": "15.15.3",
     "react-native-worklets": "0.7.4",
     "tailwind-merge": "^3.6.0",
     "tailwind-variants": "^3.2.2",
@@ -68,6 +69,7 @@
     "eslint": "^9.39.4",
     "eslint-config-expo": "~55.0.1",
     "eslint-plugin-better-tailwindcss": "^4.6.0",
+    "react-native-svg-transformer": "^1.5.3",
     "tsx": "^4.22.4",
     "typescript": "~5.9.2"
   },
