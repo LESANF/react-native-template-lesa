@@ -1,108 +1,261 @@
-import { Pressable, ScrollView, View } from 'react-native';
-import { useUniwind } from 'uniwind';
+import { router } from "expo-router";
+import { useState, type ReactNode } from "react";
+import { useUniwind } from "uniwind";
 
-import { Text } from '@/components/ui';
-import { useSelectedTheme } from '@/lib/theme/selected-theme';
+import CheckCircleIcon from "@/assets/svg/check-circle.svg";
+import {
+  Button,
+  Dimmed,
+  Image,
+  Input,
+  Pressable,
+  ScrollView,
+  Text,
+  toast,
+  View,
+  type DimmedVisualProps,
+} from "@/components/ui";
+import { useNavigationReset } from "@/hooks/use-navigation-reset";
+import { COLOR_SCHEMES, useSelectedTheme } from "@/lib/theme/selected-theme";
 
-/**
- * 다크모드 실무 사용 패턴 데모.
- *
- * 규칙: 화면은 semantic 토큰(역할 이름)만 쓴다. light/dark 실제 색은
- * styles/tokens/semantic.css 한 곳에서 갈린다. 여기엔 `dark:` 가 하나도 없다.
- *
- * 요소 → 토큰 매핑:
- *   페이지 배경            bg-bg-primary
- *   카드/표면              bg-bg-elevated  + border-border-primary
- *   아바타/칩 배경         bg-layer-secondary
- *   기본 텍스트            (Text 기본) text-text-primary
- *   부제                   color="secondary"  → text-text-secondary
- *   캡션/메타              color="tertiary"   → text-text-tertiary
- *   기본 버튼(CTA)         bg-layer-brand   + color="inverse"
- *   보조 버튼              bg-bg-elevated   + border-border-primary + 기본 텍스트
- *   브랜드 강조 배너        bg-layer-brand-subtle   + color="brand"
- *   성공 배너              bg-layer-success-subtle + text-system-success
- *   구분선                 border-border-primary (border-t)
- */
+type DimmedExampleState = DimmedVisualProps;
+
+function Section({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <View className="gap-3 rounded-2xl border border-border bg-card p-4">
+      <Text variant="heading-sm">{title}</Text>
+      {children}
+    </View>
+  );
+}
+
 export function HomeScreen() {
   const { theme } = useUniwind();
   const { selectedTheme, setSelectedTheme } = useSelectedTheme();
-  const next = theme === 'dark' ? 'light' : 'dark';
+  const resetNavigation = useNavigationReset();
+  const [dimmedExample, setDimmedExample] = useState<DimmedExampleState | null>(
+    null,
+  );
 
   return (
-    <ScrollView
-      contentInsetAdjustmentBehavior="automatic"
-      className="bg-bg-primary"
-      contentContainerClassName="gap-4 p-4"
-    >
-      {/* 테마 토글 (스크린샷 테스트용) — 기본 버튼 패턴 */}
-      <Pressable
-        accessibilityRole="button"
-        onPress={() => setSelectedTheme(next)}
-        className="rounded-2xl bg-layer-brand px-5 py-4"
+    <View className="flex-1 bg-background">
+      <ScrollView
+        className="bg-background"
+        contentContainerClassName="gap-4 p-4"
       >
-        <Text variant="heading-sm" color="inverse">
-          {next === 'dark' ? '다크로 전환' : '라이트로 전환'}
-        </Text>
-        <Text color="inverse">selected: {selectedTheme} · current: {theme}</Text>
-      </Pressable>
+        <Text variant="display">Components</Text>
 
-      {/* 1. 프로필 헤더 카드 — 표면 + 텍스트 위계 + 아바타 */}
-      <View className="flex-row items-center gap-3 rounded-2xl border border-border-primary bg-bg-elevated p-4">
-        <View className="size-14 items-center justify-center rounded-full bg-layer-secondary">
-          <Text variant="heading-sm">L</Text>
-        </View>
-        <View className="flex-1">
-          <Text variant="heading-sm">이산</Text>
-          <Text color="tertiary">@lesa · 프로덕트 엔지니어</Text>
-        </View>
-      </View>
-
-      {/* 2. 버튼 2종 — 기본(brand) / 보조(테두리) */}
-      <View className="flex-row gap-3">
-        <Pressable className="flex-1 items-center rounded-xl bg-layer-brand py-3">
-          <Text variant="heading-sm" color="inverse">팔로우</Text>
-        </Pressable>
-        <Pressable className="flex-1 items-center rounded-xl border border-border-primary bg-bg-elevated py-3">
-          <Text variant="heading-sm">메시지</Text>
-        </Pressable>
-      </View>
-
-      {/* 3. 브랜드 강조 배너 — 새로 등재한 layer-brand-subtle (틴트 배경 + text-brand) */}
-      <View className="gap-1 rounded-2xl bg-layer-brand-subtle p-4">
-        <Text variant="heading-sm" color="brand">프로 멤버십</Text>
-        <Text color="secondary">
-          은은한 브랜드 배경. 이 역할이 사전에 없어서 semantic.css에 1회 등재했다.
-        </Text>
-      </View>
-
-      {/* 4. 성공 배너 — 새 layer-success-subtle 배경 + 기존 text-system-success */}
-      <View className="flex-row items-center gap-2 rounded-2xl bg-layer-success-subtle p-4">
-        <Text variant="heading-sm" className="text-system-success">✓</Text>
-        <Text className="flex-1 text-system-success">결제가 완료되었습니다.</Text>
-      </View>
-
-      {/* 5. 설정 리스트 — 행 사이 구분선 + 제목/부제/쉐브론 위계 */}
-      <View className="overflow-hidden rounded-2xl border border-border-primary bg-bg-elevated">
-        {['알림', '개인정보', '약관'].map((label, i) => (
-          <View key={label}>
-            {i > 0 ? <View className="h-px bg-border-primary" /> : null}
-            <View className="flex-row items-center justify-between p-4">
-              <View>
-                <Text>{label}</Text>
-                <Text color="tertiary">설명 텍스트</Text>
-              </View>
-              <Text color="tertiary">›</Text>
-            </View>
+        <Section title="Theme">
+          <View className="flex-row flex-wrap items-center gap-2">
+            {COLOR_SCHEMES.map((scheme) => (
+              <Button
+                key={scheme}
+                variant={selectedTheme === scheme ? "primary" : "secondary"}
+                size="sm"
+                onPress={() => setSelectedTheme(scheme)}
+              >
+                {scheme}
+              </Button>
+            ))}
           </View>
-        ))}
-      </View>
+          <Text color="muted">
+            selected: {selectedTheme} · current: {theme}
+          </Text>
+        </Section>
 
-      {/* 6. 시스템 상태 텍스트 */}
-      <View className="gap-1 rounded-2xl border border-border-primary p-4">
-        <Text className="text-system-success">success</Text>
-        <Text className="text-system-warning">warning</Text>
-        <Text className="text-system-error">error</Text>
-      </View>
-    </ScrollView>
+        <Section title="Text">
+          <Text variant="display">Display</Text>
+          <Text variant="heading-lg">Heading LG</Text>
+          <Text variant="heading-sm">Heading SM</Text>
+          <Text variant="body-lg">Body LG</Text>
+          <Text>Body (기본)</Text>
+          <Text variant="label">Label</Text>
+          <View className="h-px bg-border" />
+          <View className="flex-row flex-wrap gap-3">
+            <Text color="muted">muted</Text>
+            <Text color="primary">primary</Text>
+            <Text className="text-success">success</Text>
+            <Text className="text-warning">warning</Text>
+            <Text color="destructive">destructive</Text>
+          </View>
+        </Section>
+
+        <Section title="Button">
+          <View className="flex-row flex-wrap items-center gap-2">
+            <Button>Primary</Button>
+            <Button variant="secondary">Secondary</Button>
+            <Button variant="ghost">Ghost</Button>
+            <Button variant="link">Link</Button>
+          </View>
+          <View className="flex-row flex-wrap items-center gap-2">
+            <Button size="sm">Small</Button>
+            <Button disabled>Disabled</Button>
+            <Button loading>Loading</Button>
+          </View>
+        </Section>
+
+        <Section title="ButtonDock">
+          <Button onPress={() => router.push("/button-dock")}>
+            ButtonDock 확인하기
+          </Button>
+        </Section>
+
+        <Section title="Navigation reset">
+          <View className="gap-2">
+            <Button
+              variant="secondary"
+              onPress={() =>
+                resetNavigation({
+                  pathname: "/navigation-reset-example/[id]",
+                  params: {
+                    id: "href-101",
+                    mode: "href",
+                    source: "home",
+                    count: "1",
+                  },
+                })
+              }
+            >
+              Href params reset
+            </Button>
+            <Button
+              variant="secondary"
+              onPress={() =>
+                resetNavigation({
+                  tab: "index",
+                  stack: ["index"],
+                  topRoute: {
+                    name: "navigation-reset-example/[id]",
+                    params: {
+                      id: "top-202",
+                      mode: "topRoute",
+                      source: "home",
+                      count: "2",
+                    },
+                  },
+                })
+              }
+            >
+              topRoute params reset
+            </Button>
+            <Button
+              variant="secondary"
+              onPress={() =>
+                resetNavigation({
+                  tab: "menu-4",
+                  stack: [
+                    "index",
+                    {
+                      name: "[id]",
+                      params: {
+                        id: "stack-303",
+                        mode: "tab-stack",
+                        source: "home",
+                        count: "3",
+                      },
+                    },
+                  ],
+                })
+              }
+            >
+              tab stack params reset
+            </Button>
+          </View>
+          <Text color="muted">각 버튼은 reset 후 도착 화면에서 params를 직접 출력합니다.</Text>
+        </Section>
+
+        <Section title="Input">
+          <Input
+            label="이메일"
+            placeholder="you@example.com"
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
+          <Input label="비밀번호" placeholder="••••••••" secureTextEntry />
+          <Input
+            label="에러 예시"
+            placeholder="입력"
+            error="필수 항목입니다."
+          />
+          <Input label="비활성" placeholder="비활성" disabled />
+        </Section>
+
+        <Section title="Pressable">
+          <Pressable
+            className="rounded-xl border border-border bg-muted p-4"
+            onPress={() => console.log("Pressable Click")}
+          >
+            <Text>탭 타겟 (hitSlop 8 내장)</Text>
+          </Pressable>
+        </Section>
+
+        <Section title="Image">
+          <Image
+            source="https://picsum.photos/seed/lesa/600/300"
+            className="h-40 w-full rounded-xl"
+          />
+          <Text color="muted">
+            placeholder(blurhash)·transition·cachePolicy 는 옵션
+          </Text>
+        </Section>
+
+        <Section title="SVG">
+          <View className="flex-row items-center gap-3">
+            <CheckCircleIcon width={48} height={48} />
+            <Text color="muted">SVG icon import</Text>
+          </View>
+        </Section>
+
+        <Section title="Overlays">
+          <View className="flex-row flex-wrap items-center gap-2">
+            <Button
+              throttleDisabled
+              variant="secondary"
+              onPress={() =>
+                toast.show({ type: "success", text1: "Toast success" })
+              }
+            >
+              Toast
+            </Button>
+            <Button
+              throttleDisabled
+              variant="secondary"
+              onPress={() => {
+                const stamp = Date.now().toString().slice(-4);
+                toast.show({ type: "default", text1: `Toast first ${stamp}` });
+                setTimeout(() => {
+                  toast.show({
+                    type: "warning",
+                    text1: `Toast replaced ${stamp}`,
+                  });
+                }, 350);
+              }}
+            >
+              Toast replace
+            </Button>
+            <Button
+              variant="secondary"
+              onPress={() => setDimmedExample({ blur: true })}
+            >
+              Dimmed
+            </Button>
+            <Button
+              variant="secondary"
+              onPress={() =>
+                setDimmedExample({ color: "#10b981", opacity: 0.35 })
+              }
+            >
+              Dimmed color
+            </Button>
+          </View>
+          <Text color="muted">
+            Toast is global; Dimmed is rendered where it is needed
+          </Text>
+        </Section>
+      </ScrollView>
+      {dimmedExample && (
+        <Dimmed {...dimmedExample} onPress={() => setDimmedExample(null)} />
+      )}
+    </View>
   );
 }
