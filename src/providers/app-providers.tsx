@@ -7,6 +7,7 @@ import { useUniwind } from 'uniwind';
 
 import { ErrorFallback } from '@/components/ui';
 
+// 전역 provider만 감싼다. 화면 위에 뜨는 toast/sheet/runner는 GlobalOverlays에 둔다.
 export function AppProviders({ children }: { children: ReactNode }) {
   const { theme } = useUniwind();
 

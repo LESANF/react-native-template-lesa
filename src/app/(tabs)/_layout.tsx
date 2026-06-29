@@ -4,6 +4,7 @@ import { NativeTabs } from "expo-router/unstable-native-tabs";
 
 import { tabs } from "@/constants/tabs";
 
+// Liquid Glass가 가능한 iOS는 NativeTabs, 그 외(iOS 구버전/Android)는 JS Tabs를 사용한다.
 function LiquidGlassTabsLayout() {
   return (
     <NativeTabs>

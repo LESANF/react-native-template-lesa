@@ -42,6 +42,7 @@ export type LoadingDimmedProps = DimmedVisualProps & {
 
 export type DimmedProps = DismissibleDimmedProps | LoadingDimmedProps;
 
+// Dimmed는 store를 모른다. popup/sheet/loading 화면이 직접 렌더하고 생명주기를 소유한다.
 const DEFAULT_BLUR_AMOUNT = 5;
 const DEFAULT_SCRIM_COLOR = 'black';
 const DEFAULT_SCRIM_OPACITY = 0.5;
