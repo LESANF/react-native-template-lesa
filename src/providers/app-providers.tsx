@@ -1,11 +1,13 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { ErrorBoundary } from '@suspensive/react';
 import { type ReactNode } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import {
+  initialWindowMetrics,
+  SafeAreaProvider,
+} from 'react-native-safe-area-context';
 import { useUniwind } from 'uniwind';
 
-import { ErrorFallback } from '@/components/ui';
+import { QueryProvider } from '@/lib/api/query-provider';
 
 // 전역 provider만 감싼다. 화면 위에 뜨는 toast/sheet/runner는 GlobalOverlays에 둔다.
 export function AppProviders({ children }: { children: ReactNode }) {
@@ -13,9 +15,9 @@ export function AppProviders({ children }: { children: ReactNode }) {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaProvider>
+      <SafeAreaProvider initialMetrics={initialWindowMetrics}>
         <ThemeProvider value={theme === 'dark' ? DarkTheme : DefaultTheme}>
-          <ErrorBoundary fallback={ErrorFallback}>{children}</ErrorBoundary>
+          <QueryProvider>{children}</QueryProvider>
         </ThemeProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>

@@ -164,6 +164,15 @@ export function HomeScreen() {
           <Text color="muted">각 버튼은 reset 후 도착 화면에서 params를 직접 출력합니다.</Text>
         </Section>
 
+        <Section title="Data layer">
+          <Button variant="secondary" onPress={() => router.push('/api-example')}>
+            API example 확인하기
+          </Button>
+          <Text color="muted">
+            regular query, suspense query, mutation을 같은 API concern에서 확인합니다.
+          </Text>
+        </Section>
+
         <Section title="Input">
           <Input
             label="이메일"
