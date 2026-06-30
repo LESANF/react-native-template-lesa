@@ -58,15 +58,14 @@ export const values = {
     },
   },
 
-  // 필요해지면 주석을 풀고 채우세요. 같은 패턴으로 도메인 그룹을 늘려가면 됩니다.
-  // urls: {
-  //   api: {
-  //     development: 'https://api.dev.example.com',
-  //     preview: 'https://api.stage.example.com',
-  //     production: 'https://api.example.com',
-  //   },
-  // },
-  //
+  urls: {
+    api: {
+      development: 'https://jsonplaceholder.typicode.com',
+      preview: 'https://jsonplaceholder.typicode.com',
+      production: 'https://jsonplaceholder.typicode.com',
+    },
+  },
+
   // services: {
   //   sentryDsn: 'https://...@sentry.io/...',   // 전 환경 공통 값 예시
   // },

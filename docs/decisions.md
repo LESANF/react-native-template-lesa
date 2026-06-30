@@ -153,18 +153,19 @@ A working prototype was built and tested in `.tmp-env-proto/`:
   `process.env.EXPO_PUBLIC_APP_ENV` in env.ts (static member access) —
   the identical mechanism the 참조 앱 production app already relies on.
   Final Metro confirmation happens at implementation via
-  `expo config --type public` x3 envs + runtime Env print.
+  `expo config --type public` x3 envs + the strict env summary log.
 
 ### Secrets policy
 
 - Secrets live in `.env` WITHOUT the `EXPO_PUBLIC_` prefix (Metro never
   bundles them) using the `APP_BUILD_ONLY_*` naming convention.
-- app.config.ts reads them directly via `process.env` with a small
-  `requireInStrict()` helper: throw when `STRICT_ENV_VALIDATION=1`
-  (prebuild/CI), warn otherwise.
+- app.config.ts reads them directly via static `process.env.SECRET_NAME`
+  access only when a native config/plugin actually needs them.
 - Graduation path: if secrets grow past ~5, move them to a dedicated
-  `env.build.ts` module (zod schema + boot log) and block `src/**`
-  imports of it via ESLint. NOT part of the template default.
+  `env.build.ts` module (schema + strict CI validation) and block
+  `src/**` imports of it via ESLint. The current template uses
+  `STRICT_ENV_VALIDATION=1` only to print the JP-style env summary during
+  build-oriented commands.
 - Never put secrets in `expo.extra` or `EXPO_PUBLIC_*`.
 
 ### Versions
@@ -548,3 +549,127 @@ specifics evolved during implementation. Verified in the iOS simulator.
   `transparentModal` / `formSheet` (native detents, SDK55 — no gorhom needed).
 - RN `<Modal>` (standalone overlay) vs router modal screen (navigable) — pick
   by "does it need URL/back/deep-link"; don't mix the two mechanisms.
+
+## Data Layer (#15) — decided 2026-06-29
+
+Cross-AI reviewed; keeps 참조 앱 JP (jp) proven core, strips jp's
+backend-coupling, adds what jp lacks (ApiError, QueryClient policy, RN
+online/focus bridge, structured suspense). Auth (token/refresh/interceptor)
+is split out to #16. Client internals keep the refresh/retry seam visible so
+auth endpoint wiring can be added without reshaping the transport layer.
+
+### Stack
+- **TanStack Query** (server state) + **react-query-kit** (definition layer:
+  `createQuery`/`createInfiniteQuery`/`createSuspenseQuery`/`createMutation`).
+  Use rq-kit factories DIRECTLY — NO `createAppQuery` wrapper (over-abstraction).
+- **axios** (interceptors needed). **@suspensive/react** for boundaries.
+- **Orval** (OpenAPI codegen) = opt-in only, for projects with a stable spec.
+  Output in `src/generated/api/*`; feature api wraps it; screens never import
+  generated directly.
+
+### Structure (jp-style central `src/api`, concern-partitioned)
+```
+src/api/<concern>/[<sub>/]   controller.ts · queries.ts · mutations.ts · types.ts
+src/lib/api/                 client.ts · client.types.ts · api-error.ts
+                             auth-token-store.ts · auth-refresh-session.ts
+                             query-client.ts · query-provider.tsx
+                             react-query-native-listeners.ts
+```
+- `controller.ts` = pure HTTP fns (`getProductDetail`). `queries.ts` = rq-kit
+  query hooks. `mutations.ts` = rq-kit mutations + invalidation. `types.ts` =
+  Variables/Request/Response + domain types.
+- `lib/api/client.ts` owns `publicClient` / `privateClient` / `refreshClient`.
+  AT/RT endpoints still live under `src/api/auth/controller.ts` when the
+  backend contract exists; they are plugged into `auth-refresh-session.ts` as a
+  refresh handler.
+- Big concern → sub-folders (`api/shopping/product/`, `api/shopping/cart/`).
+  Small → flat (`api/account/`).
+
+### NO barrel for api — direct imports only
+- `import { useProductDetailQuery } from '@/api/shopping/product/queries'` ✅
+- `@/api/shopping/product` (folder barrel) ❌ · `@/api` (global) ❌
+- Barrel policy UNCHANGED: `components/ui` is still the ONLY barrel.
+  `src/api/index.ts` and `src/api/**/index.ts` are banned. Direct import keeps
+  loading concern-isolated + leanest (importing `queries` doesn't pull
+  `mutations`).
+- **Enforced by ESLint, not review (G4)**: ban `@/api`, `@/api/**/index`,
+  `src/api/index.ts`, `src/api/**/index.ts`; ban `@/lib/api/query-client`
+  direct import in `features/**`. queryClient direct import allowed only in
+  `lib/**`, `preloader/**`, app bootstrap (non-React) — else `useQueryClient()`.
+
+### Query keys — inline, NO factory
+- Key lives in the hook declaration: `queryKey: ['shopping','product','detail']`
+  (concern→sub→type root → hierarchical invalidation works:
+  `invalidateQueries({ queryKey: ['shopping','product'] })`).
+- Dynamic keys via rq-kit helpers: `useX.getKey({ id })` /
+  `useX.getFetchOptions({ id })`. No separate `*.keys.ts` factory, no dup
+  constants.
+- **Raw-array ban is SCOPED (G1)**: forbidden = hand-appending variables
+  (`['shopping','product','detail',{ productId }]`) → use `getKey(variables)`.
+  ALLOWED = static prefixes as invalidation/group targets
+  (`invalidateQueries({ queryKey: ['shopping','product'] })`). Group/domain
+  invalidation depends on this allowance.
+
+### Type naming — NO Dto in app layer
+- `XVariables` (query vars) · `CreateXRequest` (mutation body) · `XResponse`
+  (server shape) · `X`/`XDetail` (UI/domain model, transformed).
+- `Dto` only inside Orval `generated/` (or when a spec literally forces it).
+- **Shared types — 3 tiers (G2)**: `lib/api/types.ts` = cross-cutting
+  (`ApiResponse<T>`, `PageResponse<T>`, `CursorPageResponse<T>`,
+  `PaginationVariables`, `ApiErrorCode`); `api/<concern>/types.ts` = shared
+  across a concern's resources; `api/<concern>/<resource>/types.ts` = leaf-only.
+
+### Suspense — mixed (NOT all-in)
+- **single gate data per screen** → `createSuspenseQuery` + boundary.
+- **dependent / `enabled` / multiple combined / pull-to-refresh / heavy
+  post-mutation refetch** → regular `createQuery` (suspense can't be
+  conditionally enabled, and multiple suspense hooks waterfall).
+- Loading UX: suspense screens = `<Delay>` + Skeleton; regular = `isLoading` +
+  `useDeferredLoading`.
+
+### Boundaries — 3 roles, don't conflate
+- **Root ErrorBoundary** = expo-router `export function ErrorBoundary` in root
+  `_layout.tsx` (verified: wraps the layout's render = AppProviders + all
+  routes; child errors bubble to it). Replaces the Suspensive `<ErrorBoundary>`
+  in app-providers (to be removed). Last safety net for render crashes; NOT for
+  server-state error UX. (expo-router also auto-wraps each route in Suspense;
+  custom `SuspenseFallback` export is SDK 56 — on 55, manual `<Suspense
+  fallback>` per screen.)
+- **QueryBoundary** = OPTIONAL per-screen helper for `createSuspenseQuery`
+  screens needing retry UX (`QueryErrorResetBoundary` + ErrorBoundary onReset
+  + `<Suspense>`). Add when needed (born-from-need), not mandatory.
+- **Regular query screens** = handle `isLoading`/`isError`/`error` in-component.
+
+### QueryClient policy
+- `throwOnError`: NOT global (suspense needs `true`, regular needs `false`) —
+  `createSuspenseQuery` sets it per-query; default stays false.
+- `retry`: skip 4xx (network/5xx only) — don't retry auth/validation failures.
+- staleTime/gcTime: RN-conservative defaults (numbers set at build).
+- **Singleton**: one `queryClient` (lib/api/query-client.ts); QueryProvider
+  uses it. Components/hooks use `useQueryClient()`; direct import only in
+  non-React (preloader/bootstrap). NEVER `new QueryClient()` in a screen/hook.
+
+### Network / offline
+- `onlineManager` (NetInfo) + `focusManager` (AppState) — runtime adapter,
+  set up ONCE (`react-query-native-listeners`, called from `_layout` sync
+  layer alongside `loadSelectedTheme`). INCLUDED by default.
+- `persistQueryClient` — NOT in template. Persistence is product policy
+  (logout purge, PII, version migration, stale-data UX), not a convenience.
+
+### Error
+- `api-error.ts` exports `ApiError { status?, code, message, isNetworkError,
+  raw }` + `toApiError(err)` mapping axios's 4 flavors (HTTP response /
+  no-response network / timeout / cancel→ignore). client response
+  interceptor normalizes to `ApiError`.
+
+### #15 ↔ #16 split
+- #15: api-error · **minimal working client** (env baseURL · axios instances ·
+  response-unwrap · ApiError interceptor · public/private/refresh clients ·
+  refresh/retry seam with no backend endpoint assumed) · query-client ·
+  query-provider(+listeners) · `src/api/example/*` (one suspense example + one
+  regular example). (G3: client MUST run for the example; auth endpoint wiring
+  remains #16.)
+- #16: real token storage · auth endpoint controller · refresh queue/dedup
+  handler · Bearer injection activation · 401(or 403) refresh-retry · auth gate.
+  Token transport defaults to standard Bearer + refresh-only (jp's
+  cookie + per-response rotation is backend-specific → documented option).

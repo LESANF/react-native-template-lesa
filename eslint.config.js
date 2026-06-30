@@ -1,5 +1,6 @@
 // https://docs.expo.dev/guides/using-eslint/
 const path = require('node:path');
+const process = require('node:process');
 const { defineConfig } = require('eslint/config');
 const expoConfig = require('eslint-config-expo/flat');
 const betterTailwindcss = require('eslint-plugin-better-tailwindcss');
@@ -7,7 +8,7 @@ const betterTailwindcss = require('eslint-plugin-better-tailwindcss');
 module.exports = defineConfig([
   expoConfig,
   {
-    ignores: ['dist/*', '.tmp-*/'],
+    ignores: ['dist/*', '.expo/*', '.tmp-*/'],
   },
 
   // ── Tailwind/Uniwind 클래스 검증 ──────────────────────────────────
@@ -17,7 +18,7 @@ module.exports = defineConfig([
     plugins: { 'better-tailwindcss': betterTailwindcss },
     settings: {
       'better-tailwindcss': {
-        entryPoint: path.resolve(__dirname, './src/global.css'),
+        entryPoint: path.resolve(process.cwd(), './src/global.css'),
       },
     },
     rules: {
@@ -68,6 +69,15 @@ module.exports = defineConfig([
               message:
                 'feature barrel 비권장 (Metro는 트리셰이킹을 안 합니다) — 전체 경로로 import 하세요.',
             },
+            {
+              regex: '^@/api$',
+              message: 'api 전역 barrel 금지 — 필요한 concern 파일을 직접 import 하세요.',
+            },
+            {
+              regex: '^@/api/(?!.*(?:controller|queries|mutations|types)$).+',
+              message:
+                'api barrel 금지 — @/api/<concern>/.../(controller|queries|mutations|types) 를 직접 import 하세요.',
+            },
           ],
         },
       ],
@@ -90,6 +100,20 @@ module.exports = defineConfig([
             {
               regex: '^@/components/ui/.+',
               message: 'ui 컴포넌트는 barrel 경유 권장: @/components/ui',
+            },
+            {
+              regex: '^@/api$',
+              message: 'api 전역 barrel 금지 — 필요한 concern 파일을 직접 import 하세요.',
+            },
+            {
+              regex: '^@/api/(?!.*(?:controller|queries|mutations|types)$).+',
+              message:
+                'api barrel 금지 — @/api/<concern>/.../(controller|queries|mutations|types) 를 직접 import 하세요.',
+            },
+            {
+              regex: '^@/lib/api/query-client$',
+              message:
+                'features 에서는 useQueryClient() 를 사용하세요. queryClient direct import 는 non-React bootstrap/preloader 전용입니다.',
             },
           ],
         },

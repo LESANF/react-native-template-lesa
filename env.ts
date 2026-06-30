@@ -81,13 +81,26 @@ export function defineEnv<T>(tree: T): ResolveTree<T> {
 }
 
 export const Env = defineEnv(values);
-export default Env;
 
-// 부팅 확인용 1줄 로그 — 클라이언트(__DEV__)와 Node(app.config.ts) 양쪽 컨텍스트 대응
-const IS_DEV =
-  typeof __DEV__ !== 'undefined' ? __DEV__ : process.env.NODE_ENV !== 'production';
-if (IS_DEV) {
-  console.log(
-    `[env] ${APP_ENV} · ${Env.identity.bundleId} · v${Env.version.app}(${Env.version.iosBuildNumber})`,
-  );
+function logEnvSummary(): void {
+  console.log(`\n${'='.repeat(60)}`);
+  console.log('✅ Environment Variables Loaded Successfully');
+  console.log('='.repeat(60));
+  console.log('📌 APP_ENV:', APP_ENV);
+  console.log('📌 APP_NAME:', Env.identity.name);
+  console.log('📌 SLUG:', Env.identity.slug);
+  console.log('📌 SCHEME:', Env.identity.scheme);
+  console.log('📌 BUNDLE_ID:', Env.identity.bundleId);
+  console.log('📌 PACKAGE:', Env.identity.package);
+  console.log('📌 API_URL:', Env.urls.api);
+  console.log('📌 VERSION:', Env.version.app);
+  console.log('📌 IOS_BUILD_NUMBER:', Env.version.iosBuildNumber);
+  console.log('📌 ANDROID_VERSION_CODE:', Env.version.androidVersionCode);
+  console.log(`${'='.repeat(60)}\n`);
 }
+
+if (process.env.STRICT_ENV_VALIDATION === '1') {
+  logEnvSummary();
+}
+
+export default Env;
