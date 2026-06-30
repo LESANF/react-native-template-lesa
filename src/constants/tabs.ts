@@ -22,11 +22,11 @@ type TabConfig = {
 
 // 순수 route 데이터. 네비게이션 유틸은 아이콘 의존 없이 이 배열만 읽는다.
 export const tabRoutes = [
-  { name: 'index', label: 'Home' },
-  { name: 'menu-2', label: 'Menu 2' },
-  { name: 'menu-3', label: 'Menu 3' },
-  { name: 'menu-4', label: 'Menu 4' },
-  { name: 'menu-5', label: 'Menu 5' },
+  { name: 'index', label: 'Home', href: '/(tabs)' },
+  { name: 'menu-2', label: 'Menu 2', href: '/(tabs)/menu-2' },
+  { name: 'menu-3', label: 'Menu 3', href: '/(tabs)/menu-3' },
+  { name: 'menu-4', label: 'Menu 4', href: '/(tabs)/menu-4' },
+  { name: 'menu-5', label: 'Menu 5', href: '/(tabs)/menu-5' },
 ] as const;
 
 // 탭바 렌더링용 visual config. Liquid Glass는 nativeIcon, Standard 탭은 standardIcon을 쓴다.
