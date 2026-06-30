@@ -57,7 +57,7 @@ export function Input({
         editable={!disabled}
         // Uniwind는 placeholder 색을 accent prefix로 추출한다.
         placeholderTextColorClassName="accent-muted-foreground"
-        style={{ includeFontPadding: false }}
+        style={{ includeFontPadding: false, textAlignVertical: 'center' }}
         className={styles.field({ className })}
         onFocus={(e) => {
           setFocused(true);

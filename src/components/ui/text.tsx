@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Text as RNText, type TextProps } from 'react-native';
+import { StyleSheet, Text as RNText, type TextProps } from 'react-native';
 import { tv, type VariantProps } from 'tailwind-variants';
 
 const text = tv({
@@ -27,11 +27,30 @@ const text = tv({
 type TextVariants = VariantProps<typeof text>;
 type Props = TextProps & TextVariants & { className?: string };
 
-export function Text({ variant, color, className, children, ...props }: Props) {
+export function Text({
+  variant,
+  color,
+  className,
+  children,
+  allowFontScaling = false,
+  style,
+  ...props
+}: Props) {
   const { t } = useTranslation();
   return (
-    <RNText className={text({ variant, color, className })} {...props}>
+    <RNText
+      allowFontScaling={allowFontScaling}
+      className={text({ variant, color, className })}
+      style={[styles.text, style]}
+      {...props}>
       {typeof children === 'string' ? t(children) : children}
     </RNText>
   );
 }
+
+const styles = StyleSheet.create({
+  text: {
+    includeFontPadding: false,
+    textAlignVertical: 'center',
+  },
+});
