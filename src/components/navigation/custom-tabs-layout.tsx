@@ -50,7 +50,7 @@ export function CustomTabsLayout() {
         ]}>
         <View style={styles.tabBarContent}>
           {tabs.map((tab) => {
-            const Icon = tab.standardIcon;
+            const Icon = tab.icon;
             const route = tab.route;
 
             return (

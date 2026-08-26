@@ -6,15 +6,13 @@ import {
   type View,
 } from 'react-native';
 import type { TabTriggerSlotProps } from 'expo-router/ui';
-import { useCSSVariable } from 'uniwind';
 
 import { type TabIconProps } from '@/components/icons/tabs';
+import { TAB_BAR_COLORS } from '@/constants/tab-bar';
 
 import { Text } from '../ui/text';
 
-const ACTIVE_COLOR_FALLBACK = '#18181b';
-const INACTIVE_COLOR_FALLBACK = '#71717a';
-const TAB_ICON_SIZE = 24;
+const TAB_ICON_SIZE = 32;
 
 type TabIconComponent = ComponentType<TabIconProps>;
 
@@ -23,10 +21,6 @@ export type TabButtonProps = TabTriggerSlotProps & {
   readonly icon: TabIconComponent;
   readonly testID?: string;
 };
-
-function resolveColorToken(value: number | string | undefined, fallback: string): string {
-  return typeof value === 'string' ? value : fallback;
-}
 
 export const TabButton = forwardRef<View, TabButtonProps>(function TabButton(
   {
@@ -39,13 +33,7 @@ export const TabButton = forwardRef<View, TabButtonProps>(function TabButton(
   },
   ref,
 ) {
-  const [primaryColorToken, inactiveColorToken] = useCSSVariable([
-    '--color-primary',
-    '--color-muted-foreground',
-  ]);
-  const activeColor = resolveColorToken(primaryColorToken, ACTIVE_COLOR_FALLBACK);
-  const inactiveColor = resolveColorToken(inactiveColorToken, INACTIVE_COLOR_FALLBACK);
-  const color = isFocused ? activeColor : inactiveColor;
+  const color = isFocused ? TAB_BAR_COLORS.selected : TAB_BAR_COLORS.default;
   const pressableProps: PressableProps = props;
 
   return (
@@ -57,7 +45,6 @@ export const TabButton = forwardRef<View, TabButtonProps>(function TabButton(
       {...pressableProps}
       style={styles.root}>
       <Icon
-        active={isFocused}
         color={color}
         pointerEvents="none"
         size={TAB_ICON_SIZE}
