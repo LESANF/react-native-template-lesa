@@ -2,6 +2,10 @@
 
 > 이 문서 하나로 다른 AI가 이어서 작업할 수 있게 한 단일 컨텍스트 파일.
 > 마지막 갱신: 2026-06-25. **세부 결정의 1차 출처는 `docs/decisions.md`** — 충돌 시 decisions.md 우선.
+>
+> ⚠️ 현재 구현 상태와 남은 작업은 2026-08-26에 다시 감사한
+> [`template-completion.md`](./template-completion.md)가 단일 기준이다. 이 문서의
+> 버전 번호와 진행 상태, roadmap은 역사 기록이라 최신 코드와 다를 수 있다.
 
 ---
 
@@ -166,7 +170,7 @@ assets/json/               dot-loading-white.json (jp에서 cp — Button 로딩
 
 1. **ESLint 강제**: feature/route 화면에서 `react-native` 시각 UI 직접 import를 막고 `@/components/ui`로 유도. `Platform` 등 시스템 API는 예외.
 2. **decisions.md 갱신**: 배럴/프리미티브 정책은 2026-06-24 반영됨. 라우팅 결론(router 싱글톤 통일 · Link niche · 리스트=react-query prefetch · 모달 전략)은 아직 반영 안 됨.
-3. **Navigation reset 검증**: `useNavigationReset()` 베이스는 추가됨. 단일 route reset과 tab stack reset 모두 Expo Router의 `__root` 아래로 감싼다. 훅은 `@/constants/tabs`의 순수 `tabRoutes`만 읽고, `app/(tabs)/_layout.tsx`는 같은 파일의 visual `tabs` config를 렌더한다. 실제 호출은 #16 auth/#22 deep-link/preloader에서 붙인다. 검증 케이스는 `reset('/button-dock')`, `reset('/(tabs)')`, `reset({ tab: 'menu-3', stack: ['index', 'settings'] })`, 동적 라우트 params다.
+3. **Navigation reset 검증**: `useNavigationReset()` 베이스는 추가됨. 단일 route reset과 tab stack reset 모두 Expo Router의 `__root` 아래로 감싼다. 훅은 `@/constants/tabs`의 순수 `tabRoutes`만 읽고, `app/(tabs)/_layout.tsx`는 같은 파일의 visual `tabs` config를 렌더한다. 실제 호출은 `_layout` 세션 출구 effect(`resetNavigation('/(tabs)')`)에 붙었다. `__root`는 expo-router 내부값이라 파일 주석에 업그레이드 확인 지점으로 표시됨. 검증 케이스는 `reset('/button-dock')`, `reset('/(tabs)')`, `reset({ tab: 'menu-3', stack: ['index', 'settings'] })`, 동적 라우트 params다.
 4. UI킷 마무리 컷라인은 **Text/Button/ButtonDock/Input/Pressable/Image/SVG**로 합의(나머지 defer).
 
 ---
@@ -177,11 +181,11 @@ assets/json/               dot-loading-white.json (jp에서 cp — Button 로딩
 
 진행/예정 (권장 순서):
 1. **#14 UI킷** (in-progress) — 컷라인 빌드됨, 사용자 런타임 검증 후 닫기.
-2. **#15 데이터 레이어** — axios + react-query + Suspensive. jp `lib/api`(클라이언트) + `utils/get-error-message`(에러 정규화) 데려옴. Suspense fallback 지연은 JP `DeferredWrapper`를 가져오지 말고 Suspensive `Delay`를 사용한다. Suspense 밖의 `query.isFetching` 같은 명령형 loading boolean은 이미 추가한 `src/hooks/use-deferred-loading.ts`의 `useDeferredLoading(isLoading, hasData, delayMs)`를 직접 import해서 쓴다.
-3. **#16 인증 플로우** — 게이트 네이밍 토론 + AT/RT interceptor(여기서 `router` 싱글톤으로 401→로그인 redirect). jp `hooks/use-auth-guard`·`use-logout`·`lib/show-login-popup`. Input의 ControlledInput(RHF) + zod도 여기서.
+2. **#15 데이터 레이어** — axios + react-query + Suspensive. jp `lib/api`(클라이언트) 참고. 에러 정규화는 `lib/api/api-error.ts`(ApiError)로 구현됨. Suspense fallback 지연은 JP `DeferredWrapper`를 가져오지 말고 Suspensive `Delay`를 사용한다. Suspense 밖의 `query.isFetching` 같은 명령형 loading boolean은 이미 추가한 `src/hooks/use-deferred-loading.ts`의 `useDeferredLoading(isLoading, hasData, delayMs)`를 직접 import해서 쓴다.
+3. **#16 인증 플로우** — AT/RT 인터셉터·single-flight refresh·세션 출구는 구현됨(`docs/data-layer.md`). 인터셉터는 라우팅하지 않고 `signOut()` 상태 방출만 하며, 화면 전환은 `_layout` 세션 출구 effect(전역 리셋) + 구역 `_layout`의 `<Redirect>` 가드(jp `(tabs)/account/_layout` 방식)로 한다. 로그인 화면·보호 구역·refresh endpoint는 앱 몫(`TODO(앱)`). Input의 ControlledInput(RHF) + zod는 별건.
 4. **#22 부팅/프리로더** — splash + OTA + force-update + permissions. jp `lib/preloader`·`tracking-permission`·`show-forced-update-popup`·`show-ota-update-popup`.
 5. **#18 실제 팔레트/타이포 교체 + getting-started 문서.**
-6. **#19 테스팅** — Jest + RNTL (+ Maestro). jp `lib/test-utils`.
+6. **#19 테스팅** — 템플릿 기본값에 테스트 인프라를 넣지 않기로 결정(`template-completion.md` A5). 검증은 lint·tsc·Expo Doctor·iOS export·시뮬 확인. 앱이 필요하면 그때 Jest/RNTL을 추가한다.
 7. **#20 EAS 빌드 + CI 워크플로.**
 8. **#26 버저닝 히스토리** — CHANGELOG + GitHub Releases(라이브러리식, 태그 기반).
 9. **#21 create-my-stack CLI** — 마지막. 템플릿 다운로드 + 식별자 치환(`__APP_NAME__` 등) + 의존성 설치 + 클린업. obytes `cli/` 참고.

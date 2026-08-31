@@ -89,7 +89,9 @@ transport detail, not a "public env vars" policy.
 ```
 .env                 <- secrets only, gitignored. Root-FIXED (Expo CLI
                         only loads .env from project root; moving it
-                        would require dotenv, which we rejected)
+                        would require dotenv, which we rejected).
+                        ALWAYS present: `postinstall` copies .env.example
+                        when missing, so every clone has the file.
 env-candidates.ts    <- per-env candidate values. PURE DATA, zero imports.
                         The only file edited day-to-day. Also the single
                         CLI replacement surface for create-my-stack later.
@@ -159,14 +161,23 @@ A working prototype was built and tested in `.tmp-env-proto/`:
 
 - Secrets live in `.env` WITHOUT the `EXPO_PUBLIC_` prefix (Metro never
   bundles them) using the `APP_BUILD_ONLY_*` naming convention.
-- app.config.ts reads them directly via static `process.env.SECRET_NAME`
-  access only when a native config/plugin actually needs them.
+- app.config.ts reads them ONLY through `requireInStrict(key)`: throws when
+  `STRICT_ENV_VALIDATION=1` (prebuild/CI) and the key is missing, warns and
+  continues with "" in everyday dev. The template ships one live placeholder,
+  `APP_BUILD_ONLY_EXAMPLE_SECRET`, read by app.config.ts and shown masked in the
+  strict summary — so the read path is exercised, never dead. Replace it with
+  the real secret and pass it to the plugin that needs it (verified 2026-08-27:
+  value does not appear in `expo config --type public`).
 - Graduation path: if secrets grow past ~5, move them to a dedicated
   `env.build.ts` module (schema + strict CI validation) and block
   `src/**` imports of it via ESLint. The current template uses
   `STRICT_ENV_VALIDATION=1` only to print the JP-style env summary during
   build-oriented commands.
 - Never put secrets in `expo.extra` or `EXPO_PUBLIC_*`.
+- `.env` is ALWAYS present: `postinstall` copies `.env.example` when missing (verified
+  2026-08-27 with and without CI / --frozen-lockfile). Expo CLI parses `.env` with Node's
+  `util.parseEnv`, which (Node 23) mis-reads the file's last comment line as a variable if it contains `=` —
+  `.env.example` therefore ends with a closing comment that has no `=` at all. Keep it.
 
 ### Versions
 
@@ -550,126 +561,84 @@ specifics evolved during implementation. Verified in the iOS simulator.
 - RN `<Modal>` (standalone overlay) vs router modal screen (navigable) — pick
   by "does it need URL/back/deep-link"; don't mix the two mechanisms.
 
-## Data Layer (#15) — decided 2026-06-29
+## Data Layer — current template (updated 2026-08-24)
 
-Cross-AI reviewed; keeps 참조 앱 JP (jp) proven core, strips jp's
-backend-coupling, adds what jp lacks (ApiError, QueryClient policy, RN
-online/focus bridge, structured suspense). Auth (token/refresh/interceptor)
-is split out to #16. Client internals keep the refresh/retry seam visible so
-auth endpoint wiring can be added without reshaping the transport layer.
+상세한 설계 근거와 프로젝트별 교체 지점은 [data-layer.md](data-layer.md)를
+단일 기준으로 삼는다. 이 절은 현재 구조만 요약한다.
 
-### Stack
-- **TanStack Query** (server state) + **react-query-kit** (definition layer:
-  `createQuery`/`createInfiniteQuery`/`createSuspenseQuery`/`createMutation`).
-  Use rq-kit factories DIRECTLY — NO `createAppQuery` wrapper (over-abstraction).
-- **axios** (interceptors needed). **@suspensive/react** for boundaries.
-- **Orval** (OpenAPI codegen) = opt-in only, for projects with a stable spec.
-  Output in `src/generated/api/*`; feature api wraps it; screens never import
-  generated directly.
+### Structure
 
-### Structure (jp-style central `src/api`, concern-partitioned)
 ```
-src/api/<concern>/[<sub>/]   controller.ts · queries.ts · mutations.ts · types.ts
-src/lib/api/                 client.ts · client.types.ts · api-error.ts
-                             auth-token-store.ts · auth-refresh-session.ts
-                             query-client.ts · query-provider.tsx
-                             react-query-native-listeners.ts
+src/api/<domain>/
+  types.ts       Request/Response/Variables 타입
+  requests.ts    순수 HTTP 함수
+  queries.ts     react-query-kit query 선언
+  mutations.ts   react-query-kit mutation 선언
+
+src/lib/api/
+  client.ts      단일 axios instance + 외부 client facade
+  api-error.ts   전송 실패를 ApiError로 정규화
+  query-client.ts
+  query-provider.tsx
+  react-query-native-listeners.ts
+
+src/lib/auth/
+  index.ts             single-flight refresh 오케스트레이션
+  refresh-request.ts   앱이 실제 refresh endpoint를 채우는 raw HTTP seam
+
+src/stores/auth-store.ts
+  인증 state의 단일 진실원 + MMKV 복원
 ```
-- `controller.ts` = pure HTTP fns (`getProductDetail`). `queries.ts` = rq-kit
-  query hooks. `mutations.ts` = rq-kit mutations + invalidation. `types.ts` =
-  Variables/Request/Response + domain types.
-- `lib/api/client.ts` owns `publicClient` / `privateClient` / `refreshClient`.
-  AT/RT endpoints still live under `src/api/auth/controller.ts` when the
-  backend contract exists; they are plugged into `auth-refresh-session.ts` as a
-  refresh handler.
-- Big concern → sub-folders (`api/shopping/product/`, `api/shopping/cart/`).
-  Small → flat (`api/account/`).
 
-### NO barrel for api — direct imports only
-- `import { useProductDetailQuery } from '@/api/shopping/product/queries'` ✅
-- `@/api/shopping/product` (folder barrel) ❌ · `@/api` (global) ❌
-- Barrel policy UNCHANGED: `components/ui` is still the ONLY barrel.
-  `src/api/index.ts` and `src/api/**/index.ts` are banned. Direct import keeps
-  loading concern-isolated + leanest (importing `queries` doesn't pull
-  `mutations`).
-- **Enforced by ESLint, not review (G4)**: ban `@/api`, `@/api/**/index`,
-  `src/api/index.ts`, `src/api/**/index.ts`; ban `@/lib/api/query-client`
-  direct import in `features/**`. queryClient direct import allowed only in
-  `lib/**`, `preloader/**`, app bootstrap (non-React) — else `useQueryClient()`.
+인증 토큰과 일반 설정 모두 MMKV에 둔다(JP와 동일). hydrate는 저장값을 검증하고 깨진
+값은 지운다. MMKV가 동기라 렌더 전에 `signedIn | signedOut` 두 상태로 복원되며
+hydrating 상태는 두지 않는다. expo-secure-store는 2026-08-26 검토 후 미채택 — 사유는
+data-layer.md 거부된 대안.
 
-### Query keys — inline, NO factory
-- Key lives in the hook declaration: `queryKey: ['shopping','product','detail']`
-  (concern→sub→type root → hierarchical invalidation works:
-  `invalidateQueries({ queryKey: ['shopping','product'] })`).
-- Dynamic keys via rq-kit helpers: `useX.getKey({ id })` /
-  `useX.getFetchOptions({ id })`. No separate `*.keys.ts` factory, no dup
-  constants.
-- **Raw-array ban is SCOPED (G1)**: forbidden = hand-appending variables
-  (`['shopping','product','detail',{ productId }]`) → use `getKey(variables)`.
-  ALLOWED = static prefixes as invalidation/group targets
-  (`invalidateQueries({ queryKey: ['shopping','product'] })`). Group/domain
-  invalidation depends on this allowance.
+의존 방향은 `storage → auth-store → lib/auth → client` 단방향이다.
+store는 client를 import하지 않으며, 중앙 client의 raw axios instance는 외부에
+노출하지 않는다.
 
-### Type naming — NO Dto in app layer
-- `XVariables` (query vars) · `CreateXRequest` (mutation body) · `XResponse`
-  (server shape) · `X`/`XDetail` (UI/domain model, transformed).
-- `Dto` only inside Orval `generated/` (or when a spec literally forces it).
-- **Shared types — 3 tiers (G2)**: `lib/api/types.ts` = cross-cutting
-  (`ApiResponse<T>`, `PageResponse<T>`, `CursorPageResponse<T>`,
-  `PaginationVariables`, `ApiErrorCode`); `api/<concern>/types.ts` = shared
-  across a concern's resources; `api/<concern>/<resource>/types.ts` = leaf-only.
+### API declarations
 
-### Suspense — mixed (NOT all-in)
-- **single gate data per screen** → `createSuspenseQuery` + boundary.
-- **dependent / `enabled` / multiple combined / pull-to-refresh / heavy
-  post-mutation refetch** → regular `createQuery` (suspense can't be
-  conditionally enabled, and multiple suspense hooks waterfall).
-- Loading UX: suspense screens = `<Delay>` + Skeleton; regular = `isLoading` +
-  `useDeferredLoading`.
+- `requests.ts`는 React/TanStack Query를 import하지 않는 순수 HTTP 함수만 둔다.
+  query fetcher는 TanStack Query가 주는 `AbortSignal`을 request와 axios까지 전달한다.
+- 읽기는 `createQuery`/`createSuspenseQuery`, 쓰기는 `createMutation`으로 선언한다.
+  read-only POST도 query에 속한다.
+- query key는 factory 선언 안에 한 번만 둔다. 재사용은
+  `useXxxQuery.getKey(variables)`로 하고 별도 `query-keys.ts`는 만들지 않는다.
+- mutation API 선언은 `mutationFn`까지만 담당한다. invalidate, toast, optimistic
+  update 같은 제품 UX는 feature hook에서 조합한다.
+- API barrel은 만들지 않는다. `requests|queries|mutations|types` 파일을 직접 import하며
+  ESLint가 이 경계를 검사한다.
 
-### Boundaries — 3 roles, don't conflate
-- **Root ErrorBoundary** = expo-router `export function ErrorBoundary` in root
-  `_layout.tsx` (verified: wraps the layout's render = AppProviders + all
-  routes; child errors bubble to it). Replaces the Suspensive `<ErrorBoundary>`
-  in app-providers (to be removed). Last safety net for render crashes; NOT for
-  server-state error UX. (expo-router also auto-wraps each route in Suspense;
-  custom `SuspenseFallback` export is SDK 56 — on 55, manual `<Suspense
-  fallback>` per screen.)
-- **QueryBoundary** = OPTIONAL per-screen helper for `createSuspenseQuery`
-  screens needing retry UX (`QueryErrorResetBoundary` + ErrorBoundary onReset
-  + `<Suspense>`). Add when needed (born-from-need), not mandatory.
-- **Regular query screens** = handle `isLoading`/`isError`/`error` in-component.
+### Client and auth
 
-### QueryClient policy
-- `throwOnError`: NOT global (suspense needs `true`, regular needs `false`) —
-  `createSuspenseQuery` sets it per-query; default stays false.
-- `retry`: skip 4xx (network/5xx only) — don't retry auth/validation failures.
-- staleTime/gcTime: RN-conservative defaults (numbers set at build).
-- **Singleton**: one `queryClient` (lib/api/query-client.ts); QueryProvider
-  uses it. Components/hooks use `useQueryClient()`; direct import only in
-  non-React (preloader/bootstrap). NEVER `new QueryClient()` in a screen/hook.
+- client는 응답의 `data`를 unwrap하므로 request 함수 반환 타입은 `Promise<T>`다.
+  `patch`, 성공 응답용 `requestRaw`, endpoint별 선택적 `parse(data: unknown)`도 제공한다.
+- 요청 인증은 `auth: 'none' | 'required'`이며 기본값은 `none`이다. `required`만
+  요청 시점의 auth-store에서 access token을 읽어 Bearer 헤더를 붙이고, 토큰이
+  없으면 네트워크 전에 실패한다.
+- 토큰이 실제로 붙었던 요청의 401만 single-flight refresh 후 한 번 재시도한다.
+  config의 문자열 마커가 인증 자격과 재시도 횟수를 보존한다.
+- refresh adapter가 스텁인 동안 capability는 꺼져 있다. 구현 후 명시적으로 켠다.
+- refresh token 누락이나 refresh의 400/401/403만 세션을 끝낸다. 네트워크,
+  timeout, 429, 5xx, 취소, 알 수 없는 실패는 세션을 보존한다.
+- `ApiError`는 status/code/message/network 여부만 보존하고 Authorization이나 body를
+  품을 수 있는 Axios 원본은 노출하지 않는다.
+- fresh sign-in은 전달받은 토큰 쌍으로 세션을 완전히 교체한다. refresh 응답이 새
+  refresh token을 생략했을 때만 refresh 오케스트레이션이 기존 값을 보존한다.
+- refresh HTTP 호출은 중앙 client를 거치지 않는다. 만료 토큰 첨부와 refresh 재진입을
+  피하기 위해 raw axios/fetch를 사용한다.
+- refresh 도중 로그아웃이나 계정 전환이 일어나면 시작 시점 세션과 비교해 오래된
+  성공/실패 결과를 폐기한다.
+- 세션 종료 후처리는 `app/_layout.tsx`의 세션 출구 effect 한 곳이다. signedIn→signedOut
+  전이를 구독해 `queryClient.clear()`와 내비게이션 리셋을 수행하며, 인터셉터·refresh는
+  `signOut()` 상태 방출까지만 한다. 보호 구역은 해당 구역 `_layout`의 `<Redirect>`로 가드한다.
 
-### Network / offline
-- `onlineManager` (NetInfo) + `focusManager` (AppState) — runtime adapter,
-  set up ONCE (`react-query-native-listeners`, called from `_layout` sync
-  layer alongside `loadSelectedTheme`). INCLUDED by default.
-- `persistQueryClient` — NOT in template. Persistence is product policy
-  (logout purge, PII, version migration, stale-data UX), not a convenience.
+### Deliberately app-owned
 
-### Error
-- `api-error.ts` exports `ApiError { status?, code, message, isNetworkError,
-  raw }` + `toApiError(err)` mapping axios's 4 flavors (HTTP response /
-  no-response network / timeout / cancel→ignore). client response
-  interceptor normalizes to `ApiError`.
-
-### #15 ↔ #16 split
-- #15: api-error · **minimal working client** (env baseURL · axios instances ·
-  response-unwrap · ApiError interceptor · public/private/refresh clients ·
-  refresh/retry seam with no backend endpoint assumed) · query-client ·
-  query-provider(+listeners) · `src/api/example/*` (one suspense example + one
-  regular example). (G3: client MUST run for the example; auth endpoint wiring
-  remains #16.)
-- #16: real token storage · auth endpoint controller · refresh queue/dedup
-  handler · Bearer injection activation · 401(or 403) refresh-retry · auth gate.
-  Token transport defaults to standard Bearer + refresh-only (jp's
-  cookie + per-response rotation is backend-specific → documented option).
+템플릿은 실제 refresh endpoint와 응답 shape, 만료 status(기본 401), query retry 정책,
+인증 종료 후 reset route를 결정하지 않는다. JSONPlaceholder는 development/preview
+시연 전용이며 production의 `.invalid` API 후보는 설정 전 무조건 실패한다. 각 위치의
+`TODO(앱)`을 제품 계약에 맞게 채운다.

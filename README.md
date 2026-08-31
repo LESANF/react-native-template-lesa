@@ -11,6 +11,8 @@
 ---
 
 > 🚧 개발 중. 실무에서 반복해서 쓰던 패턴을 모은 개인 템플릿입니다.
+>
+> 현재 상태와 남은 작업은 [`docs/template-completion.md`](./docs/template-completion.md)를 기준으로 관리합니다.
 
 ## What's inside
 
@@ -20,12 +22,13 @@
 - **i18n** (i18next, 단일언어는 그대로 통과)
 - **환경 전환** — `defineEnv` (env-candidates → env.ts), 시크릿은 `.env` 분리
 - **앱 셸** — providers 역할 분리(감싸기/띄우기) + **Suspensive** ErrorBoundary
+- **데이터 레이어** — Axios + TanStack Query + 명시적 auth + MMKV token
 - **단방향 import** ESLint (폴더 지우면 그걸로 끝)
 
 ## Quick start
 
 ```bash
-pnpm install
+pnpm install    # .env 가 없으면 .env.example 에서 자동 생성 (빌드 시크릿 전용)
 pnpm ios        # 또는: pnpm android  — dev client 빌드 + 실행
 pnpm start      # dev 서버 (dev client)
 ```
@@ -35,9 +38,8 @@ pnpm start      # dev 서버 (dev client)
 ## Verify
 
 ```bash
-pnpm type-check   # tsc
-pnpm lint         # eslint (단방향·배럴·tailwind)
-pnpm tokens:check # colors 토큰 싱크
+CI=true pnpm run check-all
+pnpm doctor
 ```
 
 ## Structure
@@ -49,7 +51,10 @@ src/
   providers/    루트 조립 (app-providers 감싸기 / global-overlays 띄우기)
   components/ui 디자인시스템 (배럴 진입점)
   styles/       토큰 3계층
-  lib/          인프라 (i18n·storage·theme)
+  api/          도메인별 requests·queries·mutations·types
+  lib/          인프라 (api·auth·i18n·storage·theme)
+  stores/       클라이언트 상태 (auth·overlay)
 ```
 
-설계 결정과 근거는 [`docs/decisions.md`](./docs/decisions.md) 참고.
+설계 결정과 근거는 [`docs/decisions.md`](./docs/decisions.md), 데이터 레이어 규칙은
+[`docs/data-layer.md`](./docs/data-layer.md) 참고.
