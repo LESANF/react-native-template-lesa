@@ -2,9 +2,10 @@
   "name": "lesa-expo-template",
   "main": "expo-router/entry",
   "version": "1.0.0",
-  "packageManager": "pnpm@10.29.3",
+  "packageManager": "pnpm@11.10.0",
   "scripts": {
     "preinstall": "npx only-allow pnpm",
+    "postinstall": "[ -f .env ] || cp .env.example .env",
     "start": "expo start",
     "prebuild": "expo prebuild",
     "android": "expo run:android",
@@ -23,7 +24,8 @@
     "android:preview": "cross-env EXPO_PUBLIC_APP_ENV=preview STRICT_ENV_VALIDATION=1 pnpm run android",
     "android:production": "cross-env EXPO_PUBLIC_APP_ENV=production STRICT_ENV_VALIDATION=1 pnpm run android",
     "ios:preview": "cross-env EXPO_PUBLIC_APP_ENV=preview STRICT_ENV_VALIDATION=1 pnpm run ios",
-    "ios:production": "cross-env EXPO_PUBLIC_APP_ENV=production STRICT_ENV_VALIDATION=1 pnpm run ios"
+    "ios:production": "cross-env EXPO_PUBLIC_APP_ENV=production STRICT_ENV_VALIDATION=1 pnpm run ios",
+    "icons:tabs": "sh scripts/gen-tab-icons.sh"
   },
   "dependencies": {
     "@react-native-community/blur": "^4.4.1",
@@ -34,19 +36,19 @@
     "@suspensive/react": "^3.21.2",
     "@tanstack/react-query": "^5.101.2",
     "axios": "^1.18.1",
-    "expo": "~55.0.29",
+    "expo": "~55.0.30",
     "expo-constants": "~55.0.17",
-    "expo-dev-client": "~55.0.38",
-    "expo-device": "~55.0.20",
+    "expo-dev-client": "~55.0.39",
+    "expo-device": "~55.0.21",
     "expo-font": "~55.0.8",
     "expo-glass-effect": "~55.0.11",
     "expo-image": "~55.0.11",
     "expo-linking": "~55.0.17",
     "expo-router": "~55.0.18",
-    "expo-splash-screen": "~55.0.24",
+    "expo-splash-screen": "~55.0.25",
     "expo-symbols": "~55.0.9",
-    "expo-system-ui": "~55.0.21",
-    "expo-web-browser": "~55.0.19",
+    "expo-system-ui": "~55.0.22",
+    "expo-web-browser": "~55.0.20",
     "i18next": "^26.3.1",
     "lottie-react-native": "~7.3.8",
     "react": "19.2.0",
@@ -64,7 +66,8 @@
     "tailwind-merge": "^3.6.0",
     "tailwind-variants": "^3.2.2",
     "tailwindcss": "^4.3.0",
-    "uniwind": "^1.9.0"
+    "uniwind": "^1.9.0",
+    "zustand": "^5.0.14"
   },
   "devDependencies": {
     "@tailwindcss/cli": "^4.3.1",
