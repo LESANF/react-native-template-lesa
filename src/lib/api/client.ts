@@ -1,39 +1,75 @@
 import {
   AxiosHeaders,
   create as createAxios,
+  type AxiosError,
   isAxiosError,
   type AxiosInstance,
   type AxiosRequestConfig,
+  type AxiosResponse,
   type InternalAxiosRequestConfig,
 } from 'axios';
 
 import { Env } from '@env';
+import { refreshAccessToken } from '@/lib/auth';
+import { isAuthRefreshConfigured } from '@/lib/auth/refresh-request';
+import { useAuthStore } from '@/stores/auth-store';
 
-import { toApiError } from './api-error';
-import { configureAuthRefreshSession, refreshAccessTokenOnce } from './auth-refresh-session';
-import { apiTokenStore, configureApiTokenStore } from './auth-token-store';
-import {
-  type ApiAuthConfig,
-  type ApiClient,
-  type ApiTokenStore,
-} from './client.types';
+import { ApiError, toApiError } from './api-error';
 
-const AUTH_RETRY_STATUSES = [401, 403] as const;
+export type ApiAuthMode = 'none' | 'required';
 
-function createAxiosClient(apiAuth: NonNullable<AxiosRequestConfig['apiAuth']>) {
-  const instance = createAxios({
-    baseURL: Env.urls.api,
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
+type ResponseParser<TResponse> = (data: unknown) => TResponse;
 
-  instance.interceptors.request.use((config) => {
-    config.apiAuth = config.apiAuth ?? apiAuth;
-    return config;
-  });
+export type ApiRequestConfig<TBody = unknown, TResponse = unknown> =
+  Omit<AxiosRequestConfig<TBody>, 'auth'> & {
+    readonly auth?: ApiAuthMode;
+    readonly parse?: ResponseParser<TResponse>;
+  };
 
-  return instance;
+export type RawApiRequestConfig<TBody = unknown> = Omit<AxiosRequestConfig<TBody>, 'auth'> & {
+  readonly auth?: ApiAuthMode;
+};
+
+type ApiClient = {
+  get<TResponse>(url: string, config?: ApiRequestConfig<unknown, TResponse>): Promise<TResponse>;
+  post<TResponse, TBody = unknown>(url: string, data?: TBody, config?: ApiRequestConfig<TBody, TResponse>): Promise<TResponse>;
+  put<TResponse, TBody = unknown>(url: string, data?: TBody, config?: ApiRequestConfig<TBody, TResponse>): Promise<TResponse>;
+  patch<TResponse, TBody = unknown>(url: string, data?: TBody, config?: ApiRequestConfig<TBody, TResponse>): Promise<TResponse>;
+  delete<TResponse>(url: string, config?: ApiRequestConfig<unknown, TResponse>): Promise<TResponse>;
+  requestRaw<TResponse, TBody = unknown>(config: RawApiRequestConfig<TBody>): Promise<AxiosResponse<TResponse>>;
+};
+
+type RefreshableAxiosError = AxiosError & {
+  readonly config: InternalAxiosRequestConfig;
+  readonly response: NonNullable<AxiosError['response']>;
+};
+
+const AUTH_ATTACHED_CONFIG_KEY = '_authAttached';
+const AUTH_MODE_CONFIG_KEY = '_authMode';
+const AUTH_RETRIED_CONFIG_KEY = '_authRetried';
+
+function isAuthAttached(config: InternalAxiosRequestConfig): boolean {
+  return Reflect.get(config, AUTH_ATTACHED_CONFIG_KEY) === true;
+}
+
+function isAuthRetried(config: InternalAxiosRequestConfig): boolean {
+  return Reflect.get(config, AUTH_RETRIED_CONFIG_KEY) === true;
+}
+
+function isAuthRequired(config: InternalAxiosRequestConfig): boolean {
+  return Reflect.get(config, AUTH_MODE_CONFIG_KEY) === 'required';
+}
+
+function markAuthAttached(config: InternalAxiosRequestConfig) {
+  Reflect.set(config, AUTH_ATTACHED_CONFIG_KEY, true);
+}
+
+function markAuthMode(config: object, auth: ApiAuthMode) {
+  Reflect.set(config, AUTH_MODE_CONFIG_KEY, auth);
+}
+
+function markAuthRetried(config: InternalAxiosRequestConfig) {
+  Reflect.set(config, AUTH_RETRIED_CONFIG_KEY, true);
 }
 
 function isFormData(value: unknown): value is FormData {
@@ -45,104 +81,166 @@ function ensureHeaders(config: InternalAxiosRequestConfig) {
   return config.headers;
 }
 
-function installFormDataInterceptor(instance: AxiosInstance) {
-  instance.interceptors.request.use((config) => {
-    if (isFormData(config.data)) {
-      ensureHeaders(config).delete('Content-Type');
-    }
-    return config;
-  });
-}
-
-function installAuthHeaderInterceptor(instance: AxiosInstance) {
-  instance.interceptors.request.use(async (config) => {
-    const accessToken = await apiTokenStore.getAccessToken();
-    if (accessToken) {
-      ensureHeaders(config).set('Authorization', `Bearer ${accessToken}`);
-    }
-    return config;
-  });
-}
-
-function shouldRetryWithRefresh(error: unknown) {
+// TODO(앱): 만료 신호가 401이 아닌 서버는 아래 조건을 바꾼다 (예: 403이면 `=== 403`, JP가 그 경우).
+function isRefreshableError(error: unknown): error is RefreshableAxiosError {
+  if (!isAuthRefreshConfigured) return false;
   if (!isAxiosError(error)) return false;
   const { config, response } = error;
   if (!config || !response) return false;
-  if (config._retry || config.skipAuthRefresh) return false;
-  if (config.apiAuth !== 'private') return false;
-  return AUTH_RETRY_STATUSES.some((status) => status === response.status);
+  if (!isAuthRequired(config) || !isAuthAttached(config) || isAuthRetried(config)) {
+    return false;
+  }
+  return response.status === 401;
 }
 
-function installAuthRetryInterceptor(instance: AxiosInstance) {
-  instance.interceptors.response.use(undefined, async (error: unknown) => {
-    if (!shouldRetryWithRefresh(error) || !isAxiosError(error) || !error.config) {
-      return Promise.reject(error);
-    }
-
-    const originalRequest = error.config;
-    originalRequest._retry = true;
-
-    const accessToken = await refreshAccessTokenOnce();
-    ensureHeaders(originalRequest).set('Authorization', `Bearer ${accessToken}`);
-
-    return instance.request(originalRequest);
-  });
+function splitConfig<TBody, TResponse>(
+  config?: ApiRequestConfig<TBody, TResponse>,
+) {
+  if (!config) return { requestConfig: undefined, parse: undefined };
+  const { auth = 'none', parse, ...requestConfig } = config;
+  markAuthMode(requestConfig, auth);
+  return { requestConfig, parse };
 }
 
-function installApiErrorInterceptor(instance: AxiosInstance) {
-  instance.interceptors.response.use(
-    (response) => response.data,
-    (error: unknown) => Promise.reject(toApiError(error)),
-  );
+function prepareRawConfig<TBody>(
+  config: RawApiRequestConfig<TBody>,
+): AxiosRequestConfig<TBody> {
+  const { auth = 'none', ...requestConfig } = config;
+  markAuthMode(requestConfig, auth);
+  return requestConfig;
+}
+
+async function unwrapResponse<TResponse>(
+  request: Promise<AxiosResponse<TResponse>>,
+  parse?: ResponseParser<TResponse>,
+): Promise<TResponse> {
+  const response = await request;
+  if (!parse) return response.data;
+
+  try {
+    return parse(response.data);
+  } catch (error) {
+    throw toApiError(error);
+  }
 }
 
 function createApiClient(instance: AxiosInstance): ApiClient {
   return {
-    get<TResponse>(url: string, config?: AxiosRequestConfig) {
-      return instance.get<TResponse, TResponse>(url, config);
+    get<TResponse>(url: string, config?: ApiRequestConfig<unknown, TResponse>) {
+      const { requestConfig, parse } = splitConfig(config);
+      return unwrapResponse(
+        instance.get<TResponse, AxiosResponse<TResponse>>(url, requestConfig),
+        parse,
+      );
     },
 
     post<TResponse, TBody = unknown>(
       url: string,
       data?: TBody,
-      config?: AxiosRequestConfig<TBody>,
+      config?: ApiRequestConfig<TBody, TResponse>,
     ) {
-      return instance.post<TResponse, TResponse, TBody>(url, data, config);
+      const { requestConfig, parse } = splitConfig(config);
+      const request = instance.post<TResponse, AxiosResponse<TResponse>, TBody>(
+        url,
+        data,
+        requestConfig,
+      );
+      return unwrapResponse(request, parse);
+    },
+
+    put<TResponse, TBody = unknown>(
+      url: string,
+      data?: TBody,
+      config?: ApiRequestConfig<TBody, TResponse>,
+    ) {
+      const { requestConfig, parse } = splitConfig(config);
+      const request = instance.put<TResponse, AxiosResponse<TResponse>, TBody>(
+        url,
+        data,
+        requestConfig,
+      );
+      return unwrapResponse(request, parse);
+    },
+
+    patch<TResponse, TBody = unknown>(
+      url: string,
+      data?: TBody,
+      config?: ApiRequestConfig<TBody, TResponse>,
+    ) {
+      const { requestConfig, parse } = splitConfig(config);
+      const request = instance.patch<TResponse, AxiosResponse<TResponse>, TBody>(
+        url,
+        data,
+        requestConfig,
+      );
+      return unwrapResponse(request, parse);
+    },
+
+    delete<TResponse>(url: string, config?: ApiRequestConfig<unknown, TResponse>) {
+      const { requestConfig, parse } = splitConfig(config);
+      return unwrapResponse(
+        instance.delete<TResponse, AxiosResponse<TResponse>>(url, requestConfig),
+        parse,
+      );
+    },
+
+    requestRaw<TResponse, TBody = unknown>(config: RawApiRequestConfig<TBody>) {
+      return instance.request<TResponse, AxiosResponse<TResponse>, TBody>(
+        prepareRawConfig(config),
+      );
     },
   };
 }
 
-const publicAxiosClient = createAxiosClient('public');
-const privateAxiosClient = createAxiosClient('private');
-const refreshAxiosClient = createAxiosClient('refresh');
+const axiosClient = createAxios({
+  baseURL: Env.urls.api,
+  timeout: 30000,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
 
-installFormDataInterceptor(publicAxiosClient);
-installFormDataInterceptor(privateAxiosClient);
-installFormDataInterceptor(refreshAxiosClient);
-installAuthHeaderInterceptor(privateAxiosClient);
-installAuthRetryInterceptor(privateAxiosClient);
-installApiErrorInterceptor(publicAxiosClient);
-installApiErrorInterceptor(privateAxiosClient);
-installApiErrorInterceptor(refreshAxiosClient);
+axiosClient.interceptors.request.use((config) => {
+  const headers = ensureHeaders(config);
 
-export const publicClient = createApiClient(publicAxiosClient);
-export const privateClient = createApiClient(privateAxiosClient);
-export const refreshClient = createApiClient(refreshAxiosClient);
+  if (isFormData(config.data)) {
+    headers.delete('Content-Type');
+  }
 
-export const apiAxiosClients = {
-  public: publicAxiosClient,
-  private: privateAxiosClient,
-  refresh: refreshAxiosClient,
-} as const;
+  if (!isAuthRequired(config)) return config;
 
-export function configureApiAuth({ tokenStore, refreshAccessToken, onAuthExpired }: ApiAuthConfig) {
-  configureApiTokenStore(tokenStore);
-  configureAuthRefreshSession({
-    nextRefreshAccessToken: refreshAccessToken,
-    nextOnAuthExpired: onAuthExpired,
-  });
-}
+  const accessToken = useAuthStore.getState().token?.accessToken;
+  if (!accessToken) {
+    throw new ApiError({
+      code: 'AUTH_REQUIRED',
+      message: 'This request requires an authenticated session.',
+      isNetworkError: false,
+    });
+  }
 
-export function configureApiTokenAccess(tokenStore: ApiTokenStore) {
-  configureApiTokenStore(tokenStore);
-}
+  headers.set('Authorization', `Bearer ${accessToken}`);
+  markAuthAttached(config);
+  return config;
+});
+
+axiosClient.interceptors.response.use(
+  (response) => response,
+  async (error: unknown) => {
+    if (!isRefreshableError(error)) {
+      return Promise.reject(toApiError(error));
+    }
+
+    const originalRequest = error.config;
+    markAuthRetried(originalRequest);
+
+    try {
+      const accessToken = await refreshAccessToken();
+      ensureHeaders(originalRequest).set('Authorization', `Bearer ${accessToken}`);
+      return await axiosClient.request(originalRequest);
+    } catch (refreshError) {
+      return Promise.reject(toApiError(refreshError));
+    }
+  },
+);
+
+export const client = createApiClient(axiosClient);

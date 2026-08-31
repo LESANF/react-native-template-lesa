@@ -62,7 +62,7 @@ export const values = {
     api: {
       development: 'https://jsonplaceholder.typicode.com',
       preview: 'https://jsonplaceholder.typicode.com',
-      production: 'https://jsonplaceholder.typicode.com',
+      production: 'https://api.example.invalid',
     },
   },
 

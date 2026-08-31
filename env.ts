@@ -18,10 +18,14 @@ export type AppEnv = (typeof APP_ENVS)[number];
 
 function resolveAppEnv(raw: string | undefined): AppEnv {
   if (raw === undefined) return 'development';
-  if ((APP_ENVS as readonly string[]).includes(raw)) return raw as AppEnv;
+  if (isAppEnv(raw)) return raw;
   throw new Error(
     `Invalid EXPO_PUBLIC_APP_ENV="${raw}". Expected one of: ${APP_ENVS.join(', ')}`,
   );
+}
+
+function isAppEnv(value: string): value is AppEnv {
+  return APP_ENVS.some((appEnv) => appEnv === value);
 }
 
 export const APP_ENV: AppEnv = resolveAppEnv(process.env.EXPO_PUBLIC_APP_ENV);
@@ -71,8 +75,10 @@ function resolveNode(node: unknown, appEnv: AppEnv, path: string): unknown {
 }
 
 /** 테스트용 — 환경을 명시해서 트리를 해석한다. */
-export function defineEnvWith<T>(tree: T, appEnv: AppEnv): ResolveTree<T> {
-  return resolveNode(tree, appEnv, 'Env') as ResolveTree<T>;
+export function defineEnvWith<T>(tree: T, appEnv: AppEnv): ResolveTree<T>;
+export function defineEnvWith(tree: unknown, appEnv: AppEnv): unknown;
+export function defineEnvWith(tree: unknown, appEnv: AppEnv): unknown {
+  return resolveNode(tree, appEnv, 'Env');
 }
 
 /** 공개 표면 — 현재 APP_ENV 를 자동 적용한다. */
@@ -81,6 +87,12 @@ export function defineEnv<T>(tree: T): ResolveTree<T> {
 }
 
 export const Env = defineEnv(values);
+
+if (APP_ENV === 'production' && Env.urls.api.endsWith('.invalid')) {
+  throw new Error(
+    '[env] Env.urls.api must be configured for production in env-candidates.ts',
+  );
+}
 
 function logEnvSummary(): void {
   console.log(`\n${'='.repeat(60)}`);

@@ -2,7 +2,7 @@ import { createMutation } from 'react-query-kit';
 
 import type { ApiError } from '@/lib/api/api-error';
 
-import { createExamplePost } from './controller';
+import { createExamplePost } from './requests';
 import type { CreateExamplePostRequest, CreateExamplePostResponse } from './types';
 
 export const useCreateExamplePostMutation = createMutation<

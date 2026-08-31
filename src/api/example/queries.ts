@@ -2,7 +2,7 @@ import { createQuery, createSuspenseQuery } from 'react-query-kit';
 
 import type { ApiError } from '@/lib/api/api-error';
 
-import { getExampleTodo } from './controller';
+import { getExampleTodo } from './requests';
 import type { ExampleTodoResponse, ExampleTodoVariables } from './types';
 
 export const useExampleTodoQuery = createQuery<
@@ -11,7 +11,7 @@ export const useExampleTodoQuery = createQuery<
   ApiError
 >({
   queryKey: ['example', 'todo', 'detail'],
-  fetcher: getExampleTodo,
+  fetcher: (variables, { signal }) => getExampleTodo(variables, signal),
 });
 
 export const useExampleTodoSuspenseQuery = createSuspenseQuery<
@@ -19,6 +19,6 @@ export const useExampleTodoSuspenseQuery = createSuspenseQuery<
   ExampleTodoVariables,
   ApiError
 >({
-  queryKey: ['example', 'todo', 'suspense-detail'],
-  fetcher: getExampleTodo,
+  queryKey: ['example', 'todo', 'detail'],
+  fetcher: (variables, { signal }) => getExampleTodo(variables, signal),
 });

@@ -74,9 +74,9 @@ module.exports = defineConfig([
               message: 'api 전역 barrel 금지 — 필요한 concern 파일을 직접 import 하세요.',
             },
             {
-              regex: '^@/api/(?!.*(?:controller|queries|mutations|types)$).+',
+              regex: '^@/api/(?!.*(?:requests|queries|mutations|types)$).+',
               message:
-                'api barrel 금지 — @/api/<concern>/.../(controller|queries|mutations|types) 를 직접 import 하세요.',
+                'api barrel 금지 — @/api/<concern>/.../(requests|queries|mutations|types) 를 직접 import 하세요.',
             },
           ],
         },
@@ -106,9 +106,9 @@ module.exports = defineConfig([
               message: 'api 전역 barrel 금지 — 필요한 concern 파일을 직접 import 하세요.',
             },
             {
-              regex: '^@/api/(?!.*(?:controller|queries|mutations|types)$).+',
+              regex: '^@/api/(?!.*(?:requests|queries|mutations|types)$).+',
               message:
-                'api barrel 금지 — @/api/<concern>/.../(controller|queries|mutations|types) 를 직접 import 하세요.',
+                'api barrel 금지 — @/api/<concern>/.../(requests|queries|mutations|types) 를 직접 import 하세요.',
             },
             {
               regex: '^@/lib/api/query-client$',

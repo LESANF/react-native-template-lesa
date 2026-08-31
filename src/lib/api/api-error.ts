@@ -1,8 +1,5 @@
 import { AxiosError, isAxiosError, isCancel } from 'axios';
 
-const CLIENT_ERROR_MIN_STATUS = 400;
-const SERVER_ERROR_MIN_STATUS = 500;
-
 export const API_ERROR_CODES = {
   canceled: 'CANCELED',
   http: 'HTTP_ERROR',
@@ -18,7 +15,6 @@ type ApiErrorInit = {
   readonly code: ApiErrorCode;
   readonly message: string;
   readonly isNetworkError: boolean;
-  readonly raw: unknown;
 };
 
 export class ApiError extends Error {
@@ -26,14 +22,12 @@ export class ApiError extends Error {
   readonly status?: number;
   readonly code: ApiErrorCode;
   readonly isNetworkError: boolean;
-  readonly raw: unknown;
 
   constructor(init: ApiErrorInit) {
     super(init.message);
     this.status = init.status;
     this.code = init.code;
     this.isNetworkError = init.isNetworkError;
-    this.raw = init.raw;
   }
 }
 
@@ -59,15 +53,15 @@ function toHttpError(error: AxiosError): ApiError {
       code: API_ERROR_CODES.network,
       message: 'Network request failed.',
       isNetworkError: true,
-      raw: error,
     });
   }
 
   const status = response.status;
   const code = readStringField(response.data, ['code', 'errorCode']) ?? API_ERROR_CODES.http;
+  // statusText는 RN에서 빈 문자열('')인 경우가 흔해 ??가 아니라 ||로 거른다.
   const message =
-    readStringField(response.data, ['message', 'error', 'detail']) ??
-    response.statusText ??
+    readStringField(response.data, ['message', 'error', 'detail']) ||
+    response.statusText ||
     error.message;
 
   return new ApiError({
@@ -75,7 +69,6 @@ function toHttpError(error: AxiosError): ApiError {
     code,
     message,
     isNetworkError: false,
-    raw: error,
   });
 }
 
@@ -88,16 +81,14 @@ export function toApiError(error: unknown): ApiError {
         code: API_ERROR_CODES.canceled,
         message: 'Request was canceled.',
         isNetworkError: false,
-        raw: error,
       });
     }
 
-    if (error.code === AxiosError.ECONNABORTED) {
+    if (error.code === AxiosError.ECONNABORTED || error.code === 'ETIMEDOUT') {
       return new ApiError({
         code: API_ERROR_CODES.timeout,
         message: 'Request timed out.',
         isNetworkError: true,
-        raw: error,
       });
     }
 
@@ -109,7 +100,6 @@ export function toApiError(error: unknown): ApiError {
       code: API_ERROR_CODES.unknown,
       message: error.message,
       isNetworkError: false,
-      raw: error,
     });
   }
 
@@ -117,15 +107,5 @@ export function toApiError(error: unknown): ApiError {
     code: API_ERROR_CODES.unknown,
     message: 'Unknown API error.',
     isNetworkError: false,
-    raw: error,
   });
-}
-
-export function isRetryableApiError(error: unknown): boolean {
-  if (!(error instanceof ApiError)) return false;
-  if (error.code === API_ERROR_CODES.canceled) return false;
-  if (error.isNetworkError) return true;
-  if (error.status === undefined) return false;
-  if (error.status >= CLIENT_ERROR_MIN_STATUS && error.status < SERVER_ERROR_MIN_STATUS) return false;
-  return error.status >= SERVER_ERROR_MIN_STATUS;
 }

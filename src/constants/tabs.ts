@@ -1,3 +1,15 @@
+/**
+ * 탭 정의 — 라우트·라벨·아이콘은 여기서만 바꾼다.
+ *
+ * [아이콘 교체 컨벤션 — 사용자는 이 네 단계만]
+ * 1. assets/icons/tabs/<name>.svg 를 넣는다 (32×32 viewBox, 단색 path, fill="black").
+ * 2. `pnpm icons:tabs` → <name>.png/@2x/@3x(기본색)와 <name>-selected*(선택색) 6장 생성.
+ *    NativeTabs(iOS 26·Android)가 이 PNG 쌍을 쓴다. 색은 scripts/gen-tab-icons.sh 상단 두 값.
+ * 3. components/icons/tabs.tsx 에 같은 path로 SVG 컴포넌트를 추가한다 —
+ *    NativeTabs를 못 쓰는 fallback 커스텀 탭바가 color prop으로 칠한다.
+ * 4. 아래 tabRoutes(순수 데이터)와 tabs(아이콘 매핑)에 한 줄씩 추가한다.
+ *    폴더 탭은 그 폴더에 _layout.tsx 가 있어야 등록된다(없으면 조용히 빠진다).
+ */
 import type { ComponentType } from 'react';
 import type { ImageSourcePropType } from 'react-native';
 
