@@ -4,7 +4,7 @@ import Animated, { FadeInDown, FadeOutUp } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { tv } from 'tailwind-variants';
 
-import { toast, useOverlaySnapshot } from '@/stores/overlay';
+import { toast, useOverlayStore } from '@/stores/overlay';
 
 import { Text } from './text';
 
@@ -38,7 +38,7 @@ const toastDot = tv({
 });
 
 export function GlobalToast() {
-  const { toast: currentToast } = useOverlaySnapshot();
+  const currentToast = useOverlayStore((state) => state.toast);
   const { top } = useSafeAreaInsets();
 
   useEffect(() => {
