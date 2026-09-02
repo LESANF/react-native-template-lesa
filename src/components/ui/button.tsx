@@ -1,12 +1,13 @@
 import LottieView from 'lottie-react-native';
-import { useMemo, useRef, type ReactNode } from 'react';
+import { useRef, type ReactNode } from 'react';
 import { Pressable, type GestureResponderEvent, type PressableProps } from 'react-native';
 import { tv, type VariantProps } from 'tailwind-variants';
 
 import dotLoadingWhite from '@/assets/json/dot-loading-white.json';
-import { throttle } from '@/utils/throttle';
 
 import { Text } from './text';
+
+const BUTTON_THROTTLE_MS = 500; // utils/throttle 기본값과 동일
 
 const button = tv({
   slots: {
@@ -71,16 +72,17 @@ export function Button({
   const styles = button({ variant, size, disabled: isDisabled, loading });
   const isCompact = variant === 'ghost' || variant === 'link';
 
-  // 렌더 사이에 throttle은 유지하고, 실제 호출은 항상 최신 onPress를 바라보게 한다.
-  const onPressRef = useRef(onPress);
-  onPressRef.current = onPress;
-  const handlePress = useMemo(
-    () =>
-      throttleDisabled
-        ? (e: GestureResponderEvent) => onPressRef.current?.(e)
-        : throttle((e: GestureResponderEvent) => onPressRef.current?.(e)),
-    [throttleDisabled],
-  );
+  // 더블탭 방지: leading-edge 500ms. ref 읽기/쓰기를 이벤트 핸들러 안으로 한정해
+  // react-hooks/refs 규칙을 지키면서, onPress는 항상 현재 렌더의 최신 값을 쓴다.
+  const lastPressAtRef = useRef(0);
+  const handlePress = (e: GestureResponderEvent) => {
+    if (!throttleDisabled) {
+      const now = Date.now();
+      if (now - lastPressAtRef.current < BUTTON_THROTTLE_MS) return;
+      lastPressAtRef.current = now;
+    }
+    onPress?.(e);
+  };
 
   return (
     <Pressable

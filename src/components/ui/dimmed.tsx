@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { BlurView } from '@react-native-community/blur';
+import { BlurView } from 'expo-blur';
 import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 
@@ -75,10 +75,12 @@ export function Dimmed(props: DimmedProps) {
       style={StyleSheet.absoluteFill}>
       {blur && (
         <BlurView
-          blurAmount={blurAmount}
-          blurType="dark"
+          // community/blur의 blurAmount(0~10대) 감도를 expo-blur intensity(0~100)로 환산
+          intensity={blurAmount * 10}
+          tint="dark"
+          // Android 기본은 반투명 틴트만 — 실제 블러를 원하면 이 실험 옵션이 필요
+          experimentalBlurMethod="dimezisBlurView"
           pointerEvents="none"
-          reducedTransparencyFallbackColor="dark"
           style={StyleSheet.absoluteFill}
         />
       )}
