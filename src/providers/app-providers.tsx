@@ -1,4 +1,4 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router/react-navigation';
 import { type ReactNode } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import {

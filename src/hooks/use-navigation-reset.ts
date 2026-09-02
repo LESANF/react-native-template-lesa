@@ -1,7 +1,5 @@
-import type { NavigationState, PartialState } from '@react-navigation/native';
-import type { Href } from 'expo-router';
-import { CommonActions } from '@react-navigation/native';
-import { useNavigationContainerRef } from 'expo-router';
+import { type NavigationState, type PartialState, CommonActions } from 'expo-router/react-navigation';
+import { type Href, useNavigationContainerRef } from 'expo-router';
 import { useCallback } from 'react';
 
 import { tabRoutes } from '@/constants/tabs';
@@ -24,7 +22,7 @@ type NavigationTabName = (typeof tabRoutes)[number]['name'];
 // expo-router가 모든 앱 라우트를 감싸는 숨은 루트 네비게이터 이름. reset 페이로드는 실제
 // 상태 트리와 모양이 일치해야 해서 이 래퍼 없이는 reset이 깨진다(실측 확인).
 // 공개 API가 아닌 내부값이므로 SDK 업그레이드 시 expo-router/build/constants.js 의
-// INTERNAL_SLOT_NAME('__root')과 여전히 일치하는지 확인할 것.
+// INTERNAL_SLOT_NAME('__root')과 여전히 일치하는지 확인할 것. (SDK 57 / expo-router 57.0.17 일치 확인)
 const ROOT_NAVIGATION_ROUTE_NAME = '__root';
 const TABS_ROUTE_NAME = '(tabs)';
 const DEFAULT_TAB_STACK = ['index'] as const;

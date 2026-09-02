@@ -1,4 +1,4 @@
-import { useIsFocused } from '@react-navigation/native';
+import { useIsFocused } from 'expo-router/react-navigation';
 import { SystemBars, type SystemBarsProps } from 'react-native-edge-to-edge';
 
 export type ScreenSystemBarsProps = SystemBarsProps;
