@@ -20,6 +20,18 @@
 - [x] `npx expo-doctor` 18/18, `npx expo install --check` "Dependencies are up to date"
 - [x] development iOS export 통과 (`npx expo export -p ios`, Hermes 번들 생성)
 
+## SDK 57 마이그레이션 (2026-08-31)
+
+- [x] expo 55.0.30 → **57.0.18** (Hermes V1 메모리 리그레션 수정 포함 — 57.0.9 미만 금지 가드 통과). RN **0.86.3** · React **19.2.3** · reanimated 4.5.1 · worklets 0.10.1 · GH 2.32 · expo-router 57.0.17
+- [x] lockfile 클린 재생성(잔존 @expo/dom-webview@55 제거) → peers clean
+- [x] SDK 56 규칙: `@react-navigation/*` import 3파일을 `expo-router/react-navigation`으로 codemod, deps 3종 제거. `__root`(INTERNAL_SLOT_NAME)는 57.0.17에서 동일 확인 — reset 훅 무변경
+- [x] app.config plugins 추가(expo-font·image·web-browser, --fix 요구), expo-constants 복원(expo-router 필수 peer — doctor 지적), react-dom 추가(expo-router/ui의 radix peer), typescript ~6.0.3, eslint-config-expo ~57.0.2, uniwind 1.11, mmkv 4.3.2, netinfo 12
+- [x] 신규 lint 규칙 대응(동작 동일): button 스로틀을 프레스 시점 타임스탬프로(react-hooks/refs), use-deferred-loading을 렌더 중 상태 보정 패턴으로(set-state-in-effect)
+- [x] unmaintained `@react-native-community/blur` → **expo-blur** (Dimmed API 무변경, intensity 환산 + Android 실블러 옵션)
+- [x] 게이트: check-all(tsc 6) · doctor 18/18 · `expo install --check` · frozen install · iOS export(--clear) · 하네스 auth 9/9 / client 8/8 / env 13/13
+- [ ] 사용자 시뮬 확인(dev client 재빌드 `pnpm ios` 필수): B1 탭(iOS26 + Android selected 아이콘 — SDK 56부터 지원), B3 API 화면, menu-2 Reanimated 예제, Dimmed blur 시감
+- [ ] 확인 후 커밋 3개: chore(deps·config·AGENTS) / refactor(react-navigation→expo-router) / fix(lint 규칙·expo-blur)
+
 ## 현재 위치
 
 - [x] `6b7c225` NativeTabs 아이콘과 fallback 커밋
