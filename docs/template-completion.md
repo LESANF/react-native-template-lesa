@@ -29,6 +29,7 @@
 - [x] 신규 lint 규칙 대응(동작 동일): button 스로틀을 프레스 시점 타임스탬프로(react-hooks/refs), use-deferred-loading을 렌더 중 상태 보정 패턴으로(set-state-in-effect)
 - [x] unmaintained `@react-native-community/blur` → **expo-blur** (Dimmed API 무변경, intensity 환산 + Android 실블러 옵션)
 - [x] 게이트: check-all(tsc 6) · doctor 18/18 · `expo install --check` · frozen install · iOS export(--clear) · 하네스 auth 9/9 / client 8/8 / env 13/13
+- [x] 2026-09-03 패치 정렬: expo 57.0.19 · router 57.0.18 등 7개. `@expo/metro-runtime`은 expo-router 필수 peer(^57.0.15)라 직접 의존성으로 추가(57.0.15). doctor 18/18 복귀
 - [ ] 사용자 시뮬 확인(dev client 재빌드 `pnpm ios` 필수): B1 탭(iOS26 + Android selected 아이콘 — SDK 56부터 지원), B3 API 화면, menu-2 Reanimated 예제, Dimmed blur 시감
 - [x] 커밋 3개 완료: `959c596` chore(SDK 57) / `e19052e` refactor(react-navigation→expo-router) / `cf7efff` fix(hooks 규칙·expo-blur) + `8d7c51e` vscode 설정 정리
 
