@@ -5,7 +5,7 @@
 <h1 align="center">lesa-expo-template</h1>
 
 <p align="center">
-  나만의 의견이 담긴 <b>Expo SDK 55</b> 스타터 — pnpm · CNG-first · 검증된 패턴만.
+  나만의 의견이 담긴 <b>Expo SDK 57</b> 스타터 — pnpm · CNG-first · 검증된 패턴만.
 </p>
 
 ---
@@ -16,7 +16,7 @@
 
 ## What's inside
 
-- **Expo SDK 55** · pnpm · CNG-first (no committed `ios`/`android`)
+- **Expo SDK 57** · pnpm · CNG-first (no committed `ios`/`android`)
 - **expo-router** 파일 기반 라우팅 + **NativeTabs** (iOS 26 liquid glass)
 - **Uniwind**(무료) + 3계층 디자인 토큰(primitive→semantic→utility) + **다크모드**(`@variant` + MMKV)
 - **i18n** (i18next, 단일언어는 그대로 통과)

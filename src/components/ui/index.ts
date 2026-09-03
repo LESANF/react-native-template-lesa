@@ -25,7 +25,6 @@ export type {
 export { ErrorFallback } from './error-fallback';
 export { Image } from './image';
 export { Input } from './input';
-export { Placeholder } from './placeholder';
 export { Pressable } from './pressable';
 export { ScreenSystemBars } from './screen-system-bars';
 export type { ScreenSystemBarsProps } from './screen-system-bars';

@@ -46,10 +46,10 @@ type TabConfig = {
 // 순수 route 데이터. 네비게이션 유틸은 아이콘 의존 없이 이 배열만 읽는다.
 export const tabRoutes = [
   { name: 'index', label: 'HOME', href: '/(tabs)' },
-  { name: 'menu-2', label: 'SHOP', href: '/(tabs)/menu-2' },
-  { name: 'menu-3', label: 'BRAND', href: '/(tabs)/menu-3' },
-  { name: 'menu-4', label: 'FILTER', href: '/(tabs)/menu-4' },
-  { name: 'menu-5', label: 'LOGIN', href: '/(tabs)/menu-5' },
+  { name: 'menu-2', label: 'MOTION', href: '/(tabs)/menu-2' },
+  { name: 'menu-3', label: 'STACK', href: '/(tabs)/menu-3' },
+  { name: 'menu-4', label: 'DYNAMIC', href: '/(tabs)/menu-4' },
+  { name: 'menu-5', label: 'SETTINGS', href: '/(tabs)/menu-5' },
 ] as const;
 
 export const tabs = [

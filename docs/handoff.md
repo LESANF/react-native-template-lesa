@@ -126,12 +126,12 @@ app/
   (tabs)/
     _layout.tsx            NativeTabs (index + menu-2~5)
     index.tsx              → home-screen (= 컴포넌트 카탈로그)
-    menu-2/ (_layout+index) 단일화면 탭 데모 (Placeholder)
-    menu-3/ (_layout+index+settings)  중첩 스택 탭 데모(push)
-    menu-4/ (_layout+index+[id])      동적 라우트 탭 데모
-    menu-5/ (_layout+index) 단일화면 탭 데모
+    menu-2/ (_layout+index) Reanimated/Worklets 예제 탭 (MOTION)
+    menu-3/ (_layout+index+detail)    중첩 스택 탭 데모(push) (STACK)
+    menu-4/ (_layout+index+[id])      동적 라우트 탭 데모 (DYNAMIC)
+    menu-5/ (_layout+index) Settings 화면(테마 토글) 탭 (SETTINGS)
 components/ui/             ★ 유일 배럴(index.ts) — toast/dimmed 포함
-  text · button · input · pressable · image · error-fallback · placeholder
+  text · button · input · pressable · image · error-fallback
 components/icons/          코드형 SVG 컴포넌트(탭 아이콘 등). ui 배럴에 넣지 않음.
 constants/                 tabRoutes(순수 route 데이터) · tabs(탭바 visual config)
 features/                  home(카탈로그) · menu-2~5 · settings

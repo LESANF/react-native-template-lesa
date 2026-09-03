@@ -192,7 +192,7 @@ export function HomeScreen() {
         <Section title="Pressable">
           <Pressable
             className="rounded-xl border border-border bg-muted p-4"
-            onPress={() => console.log("Pressable Click")}
+            onPress={() => toast.show({ text1: "Pressable" })}
           >
             <Text>탭 타겟 (hitSlop 8 내장)</Text>
           </Pressable>
@@ -200,11 +200,11 @@ export function HomeScreen() {
 
         <Section title="Image">
           <Image
-            source="https://picsum.photos/seed/lesa/600/300"
+            source={require("@/assets/images/react-logo.png")}
             className="h-40 w-full rounded-xl"
           />
           <Text color="muted">
-            placeholder(blurhash)·transition·cachePolicy 는 옵션
+            원격 URL도 같은 API — placeholder(blurhash)·transition·cachePolicy 는 옵션
           </Text>
         </Section>
 

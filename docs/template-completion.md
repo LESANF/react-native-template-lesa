@@ -30,15 +30,15 @@
 - [x] unmaintained `@react-native-community/blur` → **expo-blur** (Dimmed API 무변경, intensity 환산 + Android 실블러 옵션)
 - [x] 게이트: check-all(tsc 6) · doctor 18/18 · `expo install --check` · frozen install · iOS export(--clear) · 하네스 auth 9/9 / client 8/8 / env 13/13
 - [ ] 사용자 시뮬 확인(dev client 재빌드 `pnpm ios` 필수): B1 탭(iOS26 + Android selected 아이콘 — SDK 56부터 지원), B3 API 화면, menu-2 Reanimated 예제, Dimmed blur 시감
-- [ ] 확인 후 커밋 3개: chore(deps·config·AGENTS) / refactor(react-navigation→expo-router) / fix(lint 규칙·expo-blur)
+- [x] 커밋 3개 완료: `959c596` chore(SDK 57) / `e19052e` refactor(react-navigation→expo-router) / `cf7efff` fix(hooks 규칙·expo-blur) + `8d7c51e` vscode 설정 정리
 
 ## 현재 위치
 
 - [x] `6b7c225` NativeTabs 아이콘과 fallback 커밋
 - [x] `5f0da26` 로컬 로그·도구 산출물 ignore 커밋
-- [~] API/auth, Zustand overlay, 세션 출구, 탭 아이콘 컨벤션 — 작업 트리에 있음, 게이트 green, 시뮬 확인·커밋 대기
+- [x] 스냅샷 커밋 4개 (2026-08-31): `c03fcea` pnpm 11·의존성 / `67c29c4` 오버레이 Zustand / `aea9e04` 데이터 레이어 / `1145153` 문서
 - [x] **PeelSticker 제거 (2026-08-27)** — Skia 셰이더 스티커 데모(827 LOC, 네이티브 의존). 테스트용으로 들어온 것, 템플릿 범위 아님. 폴더·`@shopify/react-native-skia`·allowBuilds 제거, menu-2는 HEAD(Reanimated 예제)로 복원. 복사본은 세션 scratchpad
-- [ ] `.vscode/settings.json`은 사용자 로컬 변경이라 커밋하지 않음. `docs/superpowers/`는 gitignore됨(의도)
+- [x] `.vscode/settings.json` — Pods 생성물 경로 제거 후 커밋(`8d7c51e`). `docs/superpowers/`는 gitignore(의도)
 
 ## A. 지금 끝낼 커밋 큐
 
@@ -51,7 +51,7 @@
 - [~] Expo 55 당일 버전만 `minimumReleaseAgeExclude`에 버전 한정으로 기록
 - [x] `pnpm install` → lockfile 갱신
 - [x] frozen 재현 확인 (`CI=true pnpm run check-all`의 install 단계)
-- [ ] 커밋: `chore: pnpm 11 설치 정책 정리`
+- [x] 커밋: `c03fcea chore: pnpm 11 마이그레이션과 의존성 정렬` (A1·A2 통합 — lockfile은 쪼갤 수 없음)
 
 완료 조건: clean install이 pnpm 11에서 재현되고 package manager 변경만 독립적으로 되돌릴 수 있다.
 
@@ -60,7 +60,7 @@
 - [~] `expo` 55.0.30 및 SDK 55 호환 패치 버전 manifest 반영
 - [x] `npx expo install --check` — up to date
 - [x] `npx expo-doctor` — 18/18
-- [ ] 커밋: `chore: Expo SDK 55 패치 의존성 정렬`
+- [x] 커밋: A1에 통합(`c03fcea`), 이후 SDK 57로 대체(`959c596`)
 
 완료 조건: Expo가 권장 버전 불일치를 보고하지 않고 Doctor가 전체 통과한다.
 
@@ -68,7 +68,7 @@
 
 - [~] 수제 `useSyncExternalStore` 제거, transient toast를 Zustand store로, React 외부용 `toast.show/hide` 유지
 - [x] `CI=true pnpm run check-all`
-- [ ] 커밋: `refactor: 오버레이 상태를 Zustand로 통합`
+- [x] 커밋: `67c29c4`
 
 완료 조건: 기존 toast 호출부를 바꾸지 않고 전역 overlay가 한 store를 구독한다.
 
@@ -93,7 +93,7 @@
 - [x] **결정 — `auth: 'required'` 배선은 앱 안에서 시연하지 않는다.** 서버 로직(AT/RT 발급·검증)은 앱 몫이고 템플릿은 endpoint·속성 매칭 지점(`refresh-request.ts`, `signIn(tokens)`)만 제공한다. 예제 화면에 가짜 로그인 버튼을 넣는 안은 거부. 401→refresh→재시도는 앱이 `refresh-request.ts`를 채울 때 그 앱에서 검증한다 (의도적 미검증, data-layer.md에 기록됨)
 - [x] **결정 — `expo-secure-store` 미채택.** Keychain 성질(~2KB·재설치 잔존·비동기 삭제)이 얹던 결정 3개와 `usesNonExemptEncryption` 항목은 함께 소멸. 토큰은 JP처럼 MMKV
 - [x] lib/auth 로직 재검증 — 2026-08-26 스크래치 하네스 9/9 (실제 `lib/auth/index.ts`·`auth-store.ts`·`storage`·`api-error` 로드, `react-native-mmkv`와 `./refresh-request`만 목): RT 없음 거절 / single-flight 1회 / RT 보존 / 좀비 가드 / 계정 전환 가드 / 401만 로그아웃 / 네트워크·5xx 세션 보존 / 해제 후 재요청 / hydrate 검증·정리. 하네스는 커밋하지 않음(템플릿 정책). 재현 레시피: `node --require tsx/cjs run.cts` + `Module._resolveFilename` 래핑으로 specifier→가짜 경로, `Module._cache`에 목 주입 (tsx는 이 레포에서 `.ts`를 CJS로 변환하므로 `--import tsx`·ESM 훅은 안 통함)
-- [ ] 커밋: `feat: API와 인증 데이터 레이어 완성`
+- [x] 커밋: `aea9e04`
 
 앱 TODO: refresh endpoint와 응답 shape, 만료 status, query retry 정책, 로그인 화면, 보호 구역 가드, 세션 출구 reset route.
 
@@ -109,7 +109,7 @@
 - [x] 순간 상태(커밋 수, suite 수, 임시 경로) — grep 결과 없음, 해당 없음
 - [x] 잔재 삭제: `src/hooks/.gitkeep` `src/utils/.gitkeep`
 - [x] README 검증 명령·폴더 구조 재확인 — 데이터 레이어 한 줄만 MMKV token으로 정정
-- [ ] 커밋: `docs: 템플릿 완료 상태와 데이터 레이어 문서화`
+- [x] 커밋: `1145153`
 
 완료 조건: 새 사용자가 README와 데이터 레이어 문서만 읽고 시작할 수 있고, 세 문서(data-layer·decisions·handoff)가 서로 모순되지 않는다.
 
@@ -123,6 +123,8 @@
 - [ ] 선택 라벨 색과 Liquid Glass 전환 확인
 - [ ] 하단 safe area와 탭 이동 확인
 - [ ] fallback 환경에서 선택 색, 터치 영역, 하단 inset 확인
+- [ ] 중립 라벨 5개(HOME/MOTION/STACK/DYNAMIC/SETTINGS) 잘림 없이 표시 — NativeTabs·fallback 둘 다
+- [ ] SETTINGS 탭 테마 토글 동작, STACK 탭 → detail push/back, HOME Image 로컬 렌더, Pressable → toast
 
 ### B3. API 예제
 
@@ -136,13 +138,14 @@
 
 ## C. 템플릿 마감
 
-### C1. 스타터 화면
+### C1. 스타터 화면 — 완료 (2026-09-03)
 
-- [ ] `features/menu-5/menu-5-screen.tsx:4` Placeholder 제거
-- [ ] `features/home/home-screen.tsx:195` 의미 없는 `console.log` 제거
-- [ ] `features/home/home-screen.tsx:203` 외부 Picsum 의존 → 로컬 asset 또는 fallback 있는 예제
-- [ ] 탭 이름과 예제 화면 의미 정렬
-- [ ] 첫 실행 화면을 최소 starter와 UI catalog 중 하나로 확정
+- [x] **결정**: 첫 실행 화면 = 컴포넌트 카탈로그 유지(템플릿 가치 = UI 킷 시연, 사용자는 `home-screen.tsx` 하나 지우고 시작). 탭은 중립 라벨 + 5개
+- [x] 탭 라벨 화면 의미로 정렬: HOME / MOTION(Reanimated) / STACK(중첩) / DYNAMIC(동적 라우트) / SETTINGS. 라우트 폴더 `menu-N`·아이콘은 자리표시 유지
+- [x] menu-5 Placeholder → Settings(테마 토글) 실화면 승격, `Placeholder` 컴포넌트 삭제(사용처 0)
+- [x] menu-3 중첩 예제의 하위 화면 settings → 일반 `detail` (Settings 중복 제거)
+- [x] home `console.log` → toast, Picsum 외부 의존 → 로컬 `react-logo.png`
+- [x] README "SDK 55" 문구 2곳 → 57
 
 ### C2. 부팅과 splash
 
