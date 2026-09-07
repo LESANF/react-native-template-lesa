@@ -25,6 +25,7 @@ Each section records: the decision, the reasoning, and what is deferred.
 | 2026-09-07 | anchor — `unstable_settings` 는 Stack prop 과 같은 값          | [routing.md](routing.md) |
 | 2026-09-07 | 어트리뷰션 SDK — 선택, 뗐다 붙였다                             | [boot.md](boot.md)       |
 | 2026-09-07 | 푸시 표시 정책 — KR 방식(백그라운드/종료는 OS)                 | [push.md](push.md)       |
+| 2026-09-07 | CLI `create-lesa-app` — slug 하나에서 전 필드 파생             | [cli.md](cli.md)         |
 
 ## Data Layer — current template (updated 2026-08-24)
 
