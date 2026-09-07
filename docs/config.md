@@ -317,6 +317,24 @@ dev 번들이 들어가고**, `:186` 의 Release 분기도 건너뛴다. `XcodeB
 **release configuration 빌드에 네트워크 로거가 포함된다.** 스토어 빌드가 아니라 로컬 release
 스모크 테스트용이라 의도대로 둔다(2026-09-07 사용자 결정).
 
+## 릴리즈 (템플릿 자체 버전)
+
+버전이 두 곳에 있고 **뜻이 다르다**:
+
+| 어디                              | 무엇                 | 누가 바꾸나       |
+| --------------------------------- | -------------------- | ----------------- |
+| `package.json` `version`          | 템플릿 자체 버전     | 템플릿 메인테이너 |
+| `env-candidates.ts` `version.app` | **생성된 앱의** 버전 | 받는 쪽           |
+
+절차:
+
+1. `CHANGELOG.md` 맨 위에 새 절을 쓴다(무엇이 바뀌었는지 · 고친 버그).
+2. `package.json` `version` 을 올린다.
+3. `pnpm run check-all` green 확인.
+4. 커밋 → `git tag -a v<버전> -m "<한 줄 요약>"` → `git push --follow-tags`.
+
+`1.0.0` 은 clean clone 검증(완료 정의 #1)과 CLI(C5)가 끝난 뒤에 단다. 그 전까지 0.0.x.
+
 ## 거부된 대안 (다시 제안하지 말 것)
 
 - `dotenv` → Node 내장 `process.loadEnvFile`(20.12+). `scripts/load-build-env.cjs`.

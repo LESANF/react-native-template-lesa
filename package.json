@@ -1,7 +1,7 @@
 {
   "name": "lesa-expo-template",
   "main": "index.js",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "packageManager": "pnpm@11.10.0",
   "scripts": {
     "preinstall": "npx only-allow pnpm",
