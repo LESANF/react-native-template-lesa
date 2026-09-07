@@ -1,7 +1,7 @@
 # lesa-expo-template — AI 핸드오프 (A–Z)
 
 > 이 문서 하나로 다른 AI가 이어서 작업할 수 있게 한 단일 컨텍스트 파일.
-> 마지막 갱신: 2026-06-25. **세부 결정의 1차 출처는 `docs/decisions.md`** — 충돌 시 decisions.md 우선.
+> 마지막 갱신: 2026-06-25. **세부 결정의 1차 출처는 섹션 문서**(`AGENTS.md` 표 참고) — `decisions.md` 는 날짜 색인이다.
 >
 > ⚠️ 현재 구현 상태와 남은 작업은 2026-08-26에 다시 감사한
 > [`template-completion.md`](./template-completion.md)가 단일 기준이다. 이 문서의
@@ -57,7 +57,7 @@
 
 ---
 
-## 4. 아키텍처 & 컨벤션 (결정됨 — 1차 출처 decisions.md)
+## 4. 아키텍처 & 컨벤션 (결정됨 — 1차 출처는 섹션 문서, `AGENTS.md` 표)
 
 ### 4.1 앱 셸 — 루트 `_layout.tsx`는 "조립만"
 
@@ -200,7 +200,7 @@ assets/json/               dot-loading-white.json (jp에서 cp — Button 로딩
 4. **#22 부팅/프리로더 — 완료(2026-09-03)** `docs/boot.md`. 권한 라이브러리·ATT는 앱 몫(`onPermissions` 주입).
 5. **#18 실제 팔레트/타이포 교체 + getting-started 문서.**
 6. **#19 테스팅** — 템플릿 기본값에 테스트 인프라를 넣지 않기로 결정(`template-completion.md` A5). 검증은 lint·tsc·Expo Doctor·iOS export·시뮬 확인. 앱이 필요하면 그때 Jest/RNTL을 추가한다.
-7. **#20 CI 워크플로.** EAS 는 기본 미연결이고 `eas.json` 존재로 갈린다(`decisions.md` "EAS") — 기본 경로는 로컬 프리빌드 + `run:ios/android`, Gradle env 서명.
+7. **#20 CI 워크플로.** EAS 는 기본 미연결이고 `eas.json` 존재로 갈린다(`config.md` "EAS") — 기본 경로는 로컬 프리빌드 + `run:ios/android`, Gradle env 서명.
 8. **#26 버저닝 히스토리** — CHANGELOG + GitHub Releases(라이브러리식, 태그 기반).
 9. **#21 create-my-stack CLI** — 마지막. 템플릿 다운로드 + 식별자 치환(`__APP_NAME__` 등) + 의존성 설치 + 클린업. obytes `cli/` 참고.
 
@@ -220,6 +220,6 @@ assets/json/               dot-loading-white.json (jp에서 cp — Button 로딩
 
 ## 10. 포인터
 
-- **세부 결정 1차 출처**: `docs/decisions.md` (이 핸드오프보다 상세. 단 이번 세션 결론 일부 미반영 — 7번 참고).
+- **세부 결정 1차 출처**: 섹션 문서(`AGENTS.md` 표). `decisions.md` 는 날짜 색인.
 - **사용자 글로벌 메모리**: `(사용자 로컬)/projects/-Users-lesa-Desktop-Repo-lesa-expo-template/memory/` → `MEMORY.md`(인덱스) · `verify-before-commit` · `use-expo-mcp` · `deterministic-generation` · `native-tabs-folder-needs-layout`.
 - **사용자 커뮤니케이션**: 한국어. 느리게, 하나씩. 과한 토론·미리 만들기(YAGNI 위반) 싫어함. 리스트 뽑아 검증받고 진행. 틀리면 "추측 말고 검증" 요구.

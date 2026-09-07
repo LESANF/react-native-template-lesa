@@ -3,7 +3,7 @@
 > 앱이 켜져서 첫 화면이 뜨기까지의 뼈대를 **왜 이렇게 짰는지** 기록한다. 되돌리거나 "개선"하기 전에 여기부터 읽어라.
 > 근거: 참조 앱 KR · 참조 앱 JP의 실운영 코드(2026-09-03 파일 단위 분석). 두 앱은 동일 계보라 이 문서가 그 공통분모다.
 
-## 두 층 (decisions.md "Startup = TWO layers")
+## 두 층
 
 ```
 ① 동기 모듈 로드   app/_layout.tsx 모듈 스코프 — React 렌더 전. splash를 거치지 않는 진입(딥링크·푸시)에도 실행
@@ -11,6 +11,18 @@
                     SplashScreen.preventAutoHideAsync() · initHotUpdater()
 ② 비동기 프리로더   app/splash → lib/preloader — 네이티브 splash 뒤에서 순차 스테이지, 끝나면 (tabs)로
 ```
+
+### 왜 두 층인가 (2026-06-17 결정 원문 — 현재 구현은 아래 절들)
+
+- ① **Sync module-load** (`app/_layout.tsx` module scope): `global.css`,
+  i18n, `loadSelectedTheme`. Runs before React; covers entries that skip the
+  splash (deep link / push).
+- ② **Async preloader** (`lib/preloader/`, #22): staged pipeline
+  (hydrate → forced-update → ota → permissions) + prefetch, behind the splash.
+  `preventAutoHideAsync()` in global scope (race-critical: in a hook = too
+  late, splash already gone). `hideAsync()` owned by the initializer (app
+  enters even on failure). Callbacks injected (DI) = "주입하면 활성화".
+  `splash.tsx` = custom preloader route. Modeled on 참조 앱's lib/preloader.
 
 ## 파일 지도 & 의존 방향
 

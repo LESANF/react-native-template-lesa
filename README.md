@@ -54,7 +54,7 @@ pnpm start      # dev 서버 (dev client)
 | `identity.package`     | `write.your.bundlename.*`    | Android 패키지 3환경                                                                                                  |
 
 > `name`에 한글을 넣으면 iOS 프로젝트 이름이 `app`이 됩니다 — sanitizer가 non-word 문자를
-> 전부 지우기 때문입니다. 실측표와 사유는 [`docs/decisions.md`](./docs/decisions.md) "표시명" 절.
+> 전부 지우기 때문입니다. 실측표와 사유는 [`docs/config.md`](./docs/config.md) "표시명" 절.
 
 ### 2. API URL — `urls.api`
 
@@ -88,7 +88,7 @@ splash 배경색은 **두 곳을 같이** 바꿉니다 — `app.config.ts`의 `e
 **기본은 로컬 프리빌드 + 로컬 네이티브 빌드**입니다. 템플릿에 `eas.json`을 넣지 않았으니 EAS는
 꺼진 상태이고, 붙이려면 `eas init`을 돌리거나 `app.config.ts`의 주석 두 줄
 (`owner`·`extra.eas.projectId`)을 채웁니다 — **파일 존재로 갈립니다.**
-사유는 [`docs/decisions.md`](./docs/decisions.md) "EAS" 절.
+사유는 [`docs/config.md`](./docs/config.md) "EAS" 절.
 
 ```bash
 pnpm prebuild:production      # expo prebuild (네이티브 폴더 재생성이 기본, STRICT 검증)
@@ -157,5 +157,5 @@ src/
   stores/       클라이언트 상태 (auth·overlay)
 ```
 
-설계 결정과 근거는 [`docs/decisions.md`](./docs/decisions.md), 데이터 레이어 규칙은
+섹션별 문서는 [`AGENTS.md`](./AGENTS.md) 의 표에서 찾는다. 데이터 레이어 규칙은
 [`docs/data-layer.md`](./docs/data-layer.md) 참고.

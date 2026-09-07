@@ -17,7 +17,7 @@ import type { PluginOptions } from './with-plugin';
  *       ANDROID_UPLOAD_KEYSTORE_PATH (기본 `<repo>/upload.jks`) · ANDROID_UPLOAD_KEYSTORE_PASSWORD ·
  *       ANDROID_UPLOAD_KEY_ALIAS · ANDROID_UPLOAD_KEY_PASSWORD
  *     EAS 미연결이 기본이므로 이 블록이 release 서명의 경로다. EAS 를 붙이면 EAS credentials 가
- *     자체 signingConfig 를 주입해 이 블록은 쓰이지 않는다(docs/decisions.md "EAS").
+ *     자체 signingConfig 를 주입해 이 블록은 쓰이지 않는다(docs/config.md "EAS").
  *
  *  3) 표시명 분리: `displayName` 이 있으면 strings.xml 의 `app_name` 만 그 값으로 바꾼다.
  *     `name` 은 ASCII 를 유지해야 iOS 프로젝트·스킴이 멀쩡하다(env-candidates 주석 참고).

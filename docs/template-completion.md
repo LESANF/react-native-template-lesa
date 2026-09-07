@@ -1,7 +1,7 @@
 # 템플릿 완성 TODO
 
 > 마지막 감사: 2026-07-28 — 작업 트리 실측 기준 (문서 주장이 아니라 파일·명령 결과로 확인한 것만 적음)
-> 이 문서가 구현 순서와 완료 상태의 단일 기준이다. 세부 설계 근거는 `docs/data-layer.md`, `docs/decisions.md`.
+> 이 문서가 구현 순서와 완료 상태의 단일 기준이다. 세부 설계 근거는 섹션 문서(`AGENTS.md` 표).
 
 ## 상태
 
@@ -9,7 +9,7 @@
 - `[~]` 작업 트리에 구현됨, 커밋 또는 최종 검증 대기
 - `[!]` 외부 승인이나 환경 복구가 필요함
 - `[ ]` 아직 시작하지 않음
-- `결정` 코드가 아니라 판단이 필요한 항목. 결정 내용을 `decisions.md`에 한 줄 남기고 닫는다
+- `결정` 코드가 아니라 판단이 필요한 항목. 결정 내용을 해당 섹션 문서에 남기고 `decisions.md` 색인에 한 줄 추가한다
 - `앱 TODO` 실제 앱의 서버·브랜드·제품 정책이 있어야 결정 가능함
 
 ## 0. 선행 블로커 — 해소됨 (2026-08-26)
@@ -178,7 +178,7 @@
 - 앱 TODO: Firebase 파일 3환경·APNs 키·토큰 어댑터(등록/해제 API)·로그아웃 전 `unregisterPushToken()`·서버 `buildNotifyKitPayload`·배지/권한 blocked UX·small icon·NSE 서명 (`docs/push.md` 표)
 - 의도적 미검증: 실기 FCM·APNs·NSE 이미지(Firebase 프로젝트 필요), 푸시 on 빌드(사용자가 dev 설정 파일 제공 시만), Android 활성 빌드(패키지명 일치 json 필요)
 
-### C2c. app.config 플러그인 이식 — 구현 완료, 빌드 검증 대기 (2026-09-03, 매핑표 `docs/decisions.md` "Config plugins")
+### C2c. app.config 플러그인 이식 — 구현 완료, 빌드 검증 대기 (2026-09-03, 매핑표 `docs/config.md` "Config plugins")
 
 - [x] KR/JP `plugins`·`ios`·`android` 블록 항목 단위 대조 → 제네릭만 이식: `appleTeamId`(.env 선택) · 유니버설 링크(`DEEP_LINK_HTTPS_HOSTS` 한 곳에서 `associatedDomains`+`intentFilters` 파생) · `app-icon-badge`(dev/preview 배지) · `plugins/with-plugin.ts`(→ `with-android-plugin.ts` · `with-ios-plugin.ts`)(폴더블 + production release 서명 Gradle env) · proguard. 제외 사유는 매핑표
 - [x] 검증: `check-all` · `expo config --type prebuild`(플러그인 6종 순서, 호스트 비었을 때 associatedDomains/intentFilters 미설정) · `prebuild -p android --no-install` → MainActivity `configChanges`/`resizeableActivity` 적용, 배지 아이콘 생성, dev 에서 서명 블록 미주입 · `patchAppBuildGradle` 단위 테스트(release 블록 주입·buildTypes.release 교체·debug 유지·멱등)
@@ -202,9 +202,9 @@
 
 ### C3. 설정과 onboarding
 
-- [x] `write-your-*` identity 교체 체크리스트 — README "Make it yours" §1 표(6필드). `name` 은 ASCII 유지, 한글·일본어 표시명은 `displayName` 에 (사유 `decisions.md` "표시명")
+- [x] `write-your-*` identity 교체 체크리스트 — README "Make it yours" §1 표(6필드). `name` 은 ASCII 유지, 한글·일본어 표시명은 `displayName` 에 (사유 `config.md` "표시명")
 - [x] production API URL 교체 체크리스트 — README §2. `env.ts` 가 production `.invalid` 를 부팅 시 throw 하는 것이 방어이고, 문서는 그 동작이 **의도**임을 밝히는 역할
-- [x] **결정 — EAS 는 열어만 둔다(2026-09-07, 사용자 지시).** 템플릿은 `eas.json` 을 넣지 않고 `owner`·`extra.eas.projectId` 는 주석 이음새로 남긴다 — **활성화는 파일 존재로 갈린다**(푸시의 `firebase/`, OTA 의 `urls.ota` 와 같은 관용구). 참조 앱 KR/JP 는 안 쓴다. 기본 경로는 로컬 프리빌드 + `run:ios/android`(`:release`), Android 서명은 `with-android-plugin` 의 Gradle env, iOS 는 `appleTeamId`/Xcode. README §5 · `decisions.md` "EAS"
+- [x] **결정 — EAS 는 열어만 둔다(2026-09-07, 사용자 지시).** 템플릿은 `eas.json` 을 넣지 않고 `owner`·`extra.eas.projectId` 는 주석 이음새로 남긴다 — **활성화는 파일 존재로 갈린다**(푸시의 `firebase/`, OTA 의 `urls.ota` 와 같은 관용구). 참조 앱 KR/JP 는 안 쓴다. 기본 경로는 로컬 프리빌드 + `run:ios/android`(`:release`), Android 서명은 `with-android-plugin` 의 Gradle env, iOS 는 `appleTeamId`/Xcode. README §5 · `config.md` "EAS"
 - [x] `.env`는 항상 존재 — `postinstall`이 `.env.example`에서 자동 생성 (2026-08-27, CI/frozen 유무 모두 실행 확인). `.env.example` 마지막 줄은 `=` 없는 주석 유지 — Node 23 `util.parseEnv`(Expo CLI 사용)가 파일 마지막 주석 줄에 `=`가 있으면 변수로 읽는 버그 우회
 - [x] `.env` 예시 시크릿 `APP_BUILD_ONLY_EXAMPLE_SECRET` + `app.config.ts`의 `requireInStrict()` 복원(초기 커밋에 있던 것, 5767693에서 유실). STRICT 마스킹 표시·누락 시 throw/warn·공개 config 누출 0 확인 (2026-08-27)
 - [x] `.env.example`·app config·CNG 규칙 연결 — README §6. `.env`=빌드 시크릿 전용 · 런타임 공개값은 `env-candidates` · `STRICT_ENV_VALIDATION=1` 스크립트 · `ios`/`android` 는 산출물(직접 수정 금지, `plugins/` 로) · `.env.example` 마지막 줄 `=` 없는 주석 유지. README §3(에셋)·§4(빈 값=비활성 표)도 같이 추가

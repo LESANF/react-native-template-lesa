@@ -22,7 +22,7 @@ app/_layout       컴포지션 루트. 부팅 배선(hydrate 등) + 세션 출�
 
 **store는 lib/api를 import하지 않는다.** 이게 순환 방지의 핵심. client·lib/auth가 store를 단방향으로 읽는다.
 
-## 현재 설계 결정
+## 확정 결정
 
 ### client / 요청
 
