@@ -23,6 +23,8 @@
 - **환경 전환** — `defineEnv` (env-candidates → env.ts), 시크릿은 `.env` 분리
 - **앱 셸** — providers 역할 분리(감싸기/띄우기) + **Suspensive** ErrorBoundary
 - **데이터 레이어** — Axios + TanStack Query + 명시적 auth + MMKV token
+- **부팅 파이프라인** — splash 뒤 프리로더(강제 업데이트 · OTA(hot-updater) · 권한 슬롯) + 콜드 딥링크 큐 + 프리페치 ([`docs/boot.md`](./docs/boot.md))
+- **푸시 알림** — FCM(RNFB 26) + notify-kit FCM Mode, 알림 탭 → 딥링크 큐, 토큰 동기화 어댑터, 알림 권한. `firebase/`에 설정 파일을 넣으면 활성 ([`docs/push.md`](./docs/push.md))
 - **단방향 import** ESLint (폴더 지우면 그걸로 끝)
 
 ## Quick start
@@ -52,7 +54,7 @@ src/
   components/ui 디자인시스템 (배럴 진입점)
   styles/       토큰 3계층
   api/          도메인별 requests·queries·mutations·types
-  lib/          인프라 (api·auth·i18n·storage·theme)
+  lib/          인프라 (api·auth·preloader·ota·deep-link·push·i18n·storage·theme)
   stores/       클라이언트 상태 (auth·overlay)
 ```
 

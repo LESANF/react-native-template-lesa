@@ -148,13 +148,57 @@
 - [x] home `console.log` → toast, Picsum 외부 의존 → 로컬 `react-logo.png`
 - [x] README "SDK 55" 문구 2곳 → 57
 
-### C2. 부팅과 splash
+### C2. 부팅과 splash — 구현 완료, **시뮬 검증 대기** (커밋 전, `docs/boot.md`)
 
-- [x] theme, query listener, auth hydration 동기 초기화
-- [x] SDK 55 splash config 적용
-- [x] 존재하지 않는 async preloader 계획을 코드에서 제거
-- [ ] `결정` OTA를 기본 제공할지
-- [ ] OTA를 채택할 때만 `expo-updates`와 splash lifecycle 구현
+- [x] theme, query listener, auth hydration 동기 초기화 (① 층)
+- [x] **결정**: OTA 기본 제공 = **hot-updater**(KR/JP 표준, 자체 서버). expo-updates 거부. `Env.urls.ota` 비면 비활성
+- [~] 팝업 오버레이(`popup.confirm` Promise 표면)
+- [~] 프리로더 엔진 + splash 라우트 + 프리페치 (하네스 13/13)
+- [~] hot-updater 통합(어댑터·플러그인·CLI 설정·배포 스크립트)
+- [~] 딥링크 모듈 — 뼈대만(캡처·큐·라우트 테이블·native-intent, 하네스 10/10). 게이트·보류 재생은 프로젝트 정책으로 제외
+- [~] 문서: docs/boot.md + decisions/handoff/data-layer/README/AGENTS
+- [x] **iOS 네이티브 splash 흰색 버그 수정(2026-09-03)**: `expo-splash-screen` 플러그인에 `image` 를 `android` 밑에만 두면 SDK 57 iOS storyboard 는 imageView 를 제거하고 배경색을 `systemBackgroundColor`(흰색)로 남긴다(플러그인 `applySplashScreenStoryboard` 동작) → JS splash(#208AEF)와 이음새 깨짐. `image`·`imageWidth` 를 루트로 이동 → storyboard 에 imageView + `SplashScreenBackground`(#208AEF) 확인(`prebuild --clean --no-install`)
+- [!] **dev client 흰 화면(2026-09-03, 내 시뮬 관측 — QA 는 사용자 몫)**: `expo run:ios` 빌드 성공 후 dev client 로 열면 흰 화면 + dev 메뉴 버튼만 보임. Metro 는 `iOS Bundled index.js` 와 headless `[push] disabled` 로그까지만 찍고, `_layout.tsx` 모듈 스코프 probe(임시 console.log, 제거함)는 **한 줄도 안 찍힘** → 루트 레이아웃 청크(`src/app/_layout.tsx`)가 요청조차 안 됨(Metro 로그에 청크 빌드 없음; curl 로 직접 요청하면 정상 빌드됨). `main` 을 `expo-router/entry` 로 되돌려도 동일 → **푸시 커스텀 엔트리와 무관, C2/SDK 57 부팅 상태의 문제**. 후보: expo-router `ExpoRoot` 가 라우터 초기화 전 `null` 렌더 상태에 머무름(initial URL / dev-client URL 처리) — 사용자 QA 에서 dev 메뉴 → 에러/로그 확인 필요. 워밍 딥링크(`openurl …://menu-4/42`)도 `[deep-link]` 로그 없음(트리 미마운트와 일치)
+- [ ] **시뮬(사용자) — 커밋의 마지막 관문**: `npx expo prebuild --clean -p ios` 후 `pnpm ios`(ios/ 는 splash 수정으로 재생성됨, Pods 는 run:ios 가 설치) → 콜드 부팅 splash→tabs 이음새 · dev에서 `[Preloader/ota] skipped` 로그 · `xcrun simctl openurl booted <scheme>://menu-4/42` 콜드(앱 종료 후 → splash 거쳐 detail)/웜(즉시) · 홈 Overlays의 Popup confirm · 강제 업데이트는 `fetchForcedUpdatePolicy` 스텁을 잠깐 outdated로 바꿔 팝업·스토어 이동 1회 확인 후 복원
+- [ ] 검증 후 커밋 5개(팝업 / 프리로더·splash / OTA / 딥링크 / 문서) — 관련 파일만 stage
+- 앱 TODO: `urls.ota`·S3 버킷·AWS 키·정책 API·권한 주입·프리페치 목록·딥링크 호스트/라우트 (`docs/boot.md` 표)
+
+### C2b. 푸시 알림 — 구현 중 → **시뮬 검증 대기** (커밋 전, `docs/push.md`)
+
+- [x] **SDK 57 호환성 검수(2026-09-03)**: KR/JP 네이티브 스택 매트릭스 — 깨지는 8개(nitro <0.37 · restart 0.0.27 · moti · render-html · community/blur · notifee 아카이브 · hot-updater 서버 0.30 · deploymentTarget 16.0), 경고 수준 9개, hot-updater 0.30→0.36 체크리스트(서버 import 경로·routes.bundles opt-in·db migrate·infra floor 0.33). Airbridge는 템플릿 제외(KR 전용, AppDelegate 앵커 `import Expo` → `internal import Expo` 정규식 1줄)
+- [x] **결정**: RNFB **26.3.3 exact**(RN 0.86 CI 검증 유일) + **notify-kit 10.7 FCM Mode**(notifee 포크, Android data-only·iOS alert+NSE — 중복/유실 구조적 해소) + react-native-permissions 5.6 하나 + NSE는 notify-kit 플러그인(apple-targets 제외). 활성화 = `firebase/` 파일 존재. iOS static + `$RNFirebaseDisableSPM` 무조건(flavor 하나). 참조 앱 결함 D1(권한 전 토큰)·D2(로그아웃 재등록)·D3(채널 지연)·D4/D5(탭 이벤트 누락)·D6(이중 enqueue)·D10(권한 API 3종)·D13(채널 문자열 3곳) 수정
+- [~] deps 설치 + allowBuilds(`@firebase/util`·`protobufjs` false) 기록
+- [~] `index.js` custom entry(headless) · `firebase.json` · `firebase/README.md` · `constants/push`
+- [~] `lib/push/{core,background,taps,permission,token-sync}` · dispatcher 보강 2줄(splash 열림 → cold 강제, markHandled 선행) · use-deep-link/splash/sources 배선 · app.config 게이트 · 홈 Push 시연 버튼
+- [x] 하네스 구성 15/15 · 미구성 11/11 (token-sync 상태기계 D1/D2·extract-url·background 가드·dispatcher dedup·permission 사다리) · `check-all` · `expo config` 3회 게이트(파일 0/더미 2/STRICT+1 throw) · `expo export -p ios`(custom entry) 통과. hot-updater doctor 는 stale `ios/`·fingerprint.json 부재 3건(entry 무관, prebuild 후 재확인)
+- [x] 게이트: frozen install · `check-all` · expo-doctor 18/18 · `expo install --check` up to date (2026-09-03)
+- [x] 실빌드(2026-09-03, 푸시 off): `CI=1 expo prebuild --clean -p ios` → pod install이 `$RNFirebaseDisableSPM = true` 인식("SPM disabled, using CocoaPods") + static → `run:ios --device` **Build Succeeded**(RNFB 26.3.3·notify-kit 10.7·permissions 5.6 on RN 0.86.3, 0 error / 경고 3: RNFB Core Configuration·Dev Launcher 스크립트 의존성 — 무해). 17 Pro Max에 설치·실행
+- [x] 부팅 로그: 번들 `index.js` 엔트리 로드 · headless `[push] disabled — Firebase 미구성(getApps()=0)` 출력 · 크래시 없음. 단 C2 항목의 dev client 흰 화면(위 C2 `[!]`) 때문에 그 이후(프리로더·권한 다이얼로그·홈 Push 버튼)는 사용자 QA 에서 확인
+- [ ] **시뮬(사용자) — 커밋의 마지막 관문**: 첫 부팅 권한 다이얼로그 1회 · 홈 Push 버튼 → 배너 → 탭 → menu-4/42(fg, enqueue 1회) · 백그라운드 탭 · 앱 종료 후 `xcrun simctl push <UDID> <bundleId> p.apns`(aps.alert + deep_link) → splash 거쳐 detail, navigate 1회 · C2 항목 재확인
+- [ ] 검증 후 커밋 2개(feat 푸시 / docs) — C2 5커밋 뒤에. C2 시점 스냅샷은 세션 scratchpad `c2-snapshot/`
+- 앱 TODO: Firebase 파일 3환경·APNs 키·토큰 어댑터(등록/해제 API)·로그아웃 전 `unregisterPushToken()`·서버 `buildNotifyKitPayload`·배지/권한 blocked UX·small icon·NSE 서명 (`docs/push.md` 표)
+- 의도적 미검증: 실기 FCM·APNs·NSE 이미지(Firebase 프로젝트 필요), 푸시 on 빌드(사용자가 dev 설정 파일 제공 시만), Android 활성 빌드(패키지명 일치 json 필요)
+
+### C2c. app.config 플러그인 이식 — 구현 완료, 빌드 검증 대기 (2026-09-03, 매핑표 `docs/decisions.md` "Config plugins")
+
+- [x] KR/JP `plugins`·`ios`·`android` 블록 항목 단위 대조 → 제네릭만 이식: `appleTeamId`(.env 선택) · 유니버설 링크(`DEEP_LINK_HTTPS_HOSTS` 한 곳에서 `associatedDomains`+`intentFilters` 파생) · `app-icon-badge`(dev/preview 배지) · `plugins/with-plugin.ts`(→ `with-android-plugin.ts` · `with-ios-plugin.ts`)(폴더블 + production release 서명 Gradle env) · proguard. 제외 사유는 매핑표
+- [x] 검증: `check-all` · `expo config --type prebuild`(플러그인 6종 순서, 호스트 비었을 때 associatedDomains/intentFilters 미설정) · `prebuild -p android --no-install` → MainActivity `configChanges`/`resizeableActivity` 적용, 배지 아이콘 생성, dev 에서 서명 블록 미주입 · `patchAppBuildGradle` 단위 테스트(release 블록 주입·buildTypes.release 교체·debug 유지·멱등)
+- [ ] 빌드(사용자 QA 또는 다음 세션): Android `pnpm android`(SDK 57 첫 빌드 — compileSdk 36, notify-kit 35 경고 예상) · iOS 는 `prebuild --clean` 후 배지 아이콘·appleTeamId 반영 확인 · production 프리빌드는 env 가 `.invalid` API 를 거부하므로 앱에서
+- 앱 TODO: `.env` `APP_BUILD_ONLY_APPLE_TEAM_ID` · 유니버설 링크 호스트 · release 키스토어(`ANDROID_UPLOAD_*`) · 표시명이 non-ASCII 면 `CFBundleDisplayName` + Android `app_name` 분리(KR `with-display-name` 참고) · 브랜드 폰트(`expo-font` fonts)
+
+### C2d. 프레임 정렬 — KR 뼈대 이식(SDK 57 대응), 구현·컴파일 검증 완료, **시뮬 QA 대기** (2026-09-03)
+
+- [x] KR `app.config`·루트 설정·src 인프라를 파일 단위로 대조(Explore 매핑) → 제네릭만 이식: pnpm **hoisted** 링커(`.npmrc` + `nodeLinker`, KR·Expo 권장; stale 55.x releaseAge 제거) · `_layout` 모듈 스코프 `configureReanimatedLogger`·`enableFreeze(true)` · `unstable_settings.anchor` 제거(initialRouteName 과 충돌) · `experiments.reactCompiler` 제거(KR = typedRoutes 만) · `KeyboardProvider` · `react-native-network-logger` + dev FAB(`/dev/network-logger`) · `firebase.json` messaging 키 · prettier 설정+스크립트(`format:check` 75파일 대기, `--write` 는 별도 커밋) · 스크립트 체계(`start*`, `prebuild`=rm -rf, `ios|android:development`, `:release`) · `.gitignore` · `expo-localization` 초기 언어
+- [x] SDK 57 Δ 반영: dev-client `launchMode:'most-recent'` 는 57 기본값(플러그인 자동 적용) → 추가 안 함, `developmentClient.silentLaunch` 는 Expo Go 전용 죽은 키 · React 19 `Text.defaultProps` 불가 → `Text`/`Input` 컴포넌트 기본 `allowFontScaling=false` · `@react-navigation/*` 직접 import 없음 · `__mocks__/react-native-gesture-handler` 경로 2.32 대응
+- [x] **테스트는 레포에 넣지 않는다(2026-09-07, 사용자 지시 — A5·`handoff.md` #19 원래 결정 유지)**: 부팅/푸시/딥링크 검증용 jest 스위트(최종 17 스위트 123 케이스)는 세션 내에서 작성·실행하고 커밋 전 제거했다. jest 인프라(`jest.config.js`·`jest-setup.ts`·`__mocks__/`·devDeps 4종·`test`/`test:ci` 스크립트) 미포함, `check-all` = lint + tsc. 앱이 필요하면 그때 추가한다(`decisions.md`: 대상 옆 colocated `x.test.tsx`, `__tests__/` 폴더 금지). 남는 코드 사실: mmkv 목은 `remove` 가 필요하다(lib/storage.removeItem), `bindContext` 는 큐를 비우지 않는다(의도), `onProgress` 는 시도 기준 카운트
+- [x] 게이트: frozen install · check-all · doctor 18/18 · `expo install --check` · export · iOS/Android prebuild
+- [x] **컴파일 전용 빌드(시뮬 미설치)**: iOS pod install(hoisted, 135 pods: ExpoLogBox·RNNotifee 10.7·RNFB 26.3.3·keyboard-controller 1.21.9·RNPermissions·HotUpdater) + `xcodebuild` BUILD SUCCEEDED · Android SDK 57 첫 빌드 `assembleDebug` 성공(compileSdk 36)
+- [ ] **시뮬(사용자)**: `pnpm ios:development`(ios/ 는 방금 생성됨; 처음부터면 `pnpm prebuild:development` 먼저) → ① 로고 아래 `js splash · <stage> n/m` 표식 유무(없으면 루트 렌더 미도달 → Metro `j` DevTools 콘솔 확인) ② splash → 탭 ③ 알림 권한 다이얼로그 ④ 홈 Push 버튼 → 배너 → 탭 → menu-4/42 ⑤ dev 아이콘 배지·네트워크 로거 FAB ⑥ Android `pnpm android:development`
+- [x] **프리로더 KR 원본 이식(2026-09-03, 사용자 지시)**: 템플릿 재구현(타임아웃·OtaAdapter·주입 옵션) 제거 → KR `lib/preloader/*`·`permissions/*`·`splash-initializer`·`utils/show-*-popup`·`lib/api/prefetch` 그대로(core/types/permissions 바이트 동일). 허용 변경: Env 경로·auth `status`·`api/app` 스텁·popup.confirm·OTA URL 가드. 인트로 게이트 `features/splash/intro-gate.ts`(KR 영상 자리, 기본 최소 노출 1s, TODO(앱) 영상)
+- [x] **딥링크 안전 탈출 계보 복원(2026-09-04, 사용자 지시)**: KR `gates/index.ts`(runGates·GATE_MAP) · `RouteHandler.gates`/`safeFallbackExpoPath` · `peekSafeFallback()` · `enqueueOrFallback()` · splash `goToTabs` safeFallback 분기 이식. 발견된 구멍: 미등록 링크 콜드 진입 시 dispatcher noop → splash 잔류(`peekSafeFallback` 로 해소). 템플릿 추가 가드: cold navigate throw → `SAFE_FALLBACK_PATH` replace
+- [x] **딥링크 모듈 KR 파일 단위 이식(2026-09-04, 사용자 지시)**: parser(웹 경로 정규화 테이블·선행 슬래시 없는 KR 경로 규약) · matcher 엔진(인덱스·DYNAMIC queryDriven→STATIC→EXTERNAL_WEB→DYNAMIC·inferResetFromTo·whenAuthenticated·외부 웹페이지) · 스펙 테이블 `constants/deep-link.ts`(예제 1개씩) · gates/auth(deferred) + pending-intent + `providers/auth-deferred-runner` · native-intent 전체(safeFallback→auth→expoPath) · extractors 복원 · dispatcher `enqueueExternalSdkUrl`. 유일한 구조 변경: KR 라우트별 bespoke 동적 핸들러 switch → 제네릭 기본(cold replace / 외부 navigate / 인앱 push) + `spec.navigate` 오버라이드(KR 시그니처). 결정: headless 체인의 스토어 import 허용(KR 동일; React·화면만 금지). `/auth/login`·`/external-web` 라우트는 TODO(앱)
+- [x] **iOS 26 NativeTabs 하드코딩 OFF(2026-09-04, 사용자 지시)**: `(tabs)/_layout.tsx` `USE_LIQUID_GLASS_TABS = false` — 모든 플랫폼 JS CustomTabsLayout. 활성화는 상수를 `isLiquidGlassAvailable()` 로 되돌리기(파일 주석)
+- [ ] 커밋(QA 뒤): 툴링·의존성 1개 → C2 5개 → 푸시 2개 → 프레임 정렬 1개 → (별도) `pnpm format` 1개
 
 ### C3. 설정과 onboarding
 
@@ -186,9 +230,9 @@
 1. clean clone → `pnpm install --frozen-lockfile` → `CI=true pnpm run check-all` → `npx expo-doctor` → `npx expo export -p ios` 전부 green
 2. 작업 트리 clean — A1~A6(A5 삭제)의 모든 `[~]`가 커밋됨
 3. B1·B3 사용자 확인 완료
-4. `grep -rn "TODO(앱)" src` 결과가 `data-layer.md` "채우는 곳"과 1:1
+4. `grep -rn "TODO(앱)" src` 결과가 `data-layer.md`·`boot.md`·`push.md` "채우는 곳"과 1:1
 5. A4의 결정(SecureStore 미채택·required 미시연)이 `decisions.md`/`data-layer.md`에 기록됨이 `decisions.md`에 기록됨
-6. C1 잔재 0, C2 OTA 결정 기록, C3 온보딩 체크리스트 존재
+6. C1 잔재 0, C2 OTA 결정 기록, C2b 푸시 결정 기록, C3 온보딩 체크리스트 존재
 7. 새 사용자가 README + `data-layer.md`만으로 identity·API URL을 교체하고 실행할 수 있다
 
 **v1.x** — C4 CI·EAS·릴리즈 절차 → **v2** — C5 CLI

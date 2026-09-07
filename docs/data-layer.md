@@ -93,6 +93,8 @@ query fetcher는 TanStack Query의 `context.signal`을 request 함수에 넘기�
 
 ## 프로젝트가 채우는 곳 (`grep -rn "TODO(앱)" src`)
 
+부팅·OTA·딥링크 쪽 채우는 곳은 `docs/boot.md`에 따로 있다.
+
 - `lib/auth/refresh-request.ts` — raw refresh endpoint를 구현하고 동시에 `isAuthRefreshConfigured`를 `true`로 변경
 - `lib/api/client.ts` — 만료 신호 코드(401→403 등)
 - `lib/api/query-client.ts` — 재시도 정책 튜닝

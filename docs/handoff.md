@@ -67,7 +67,7 @@
 - **띄우는 것** → `providers/global-overlays.tsx` (현재 toast 전역 호스트 — 나중에 필요한 전역 host 추가 자리).
 
 ### 4.2 스타트업 2층
-① 동기 모듈로드(위) vs ② 비동기 프리로더(`lib/preloader`, **#22**: hydrate→force-update→OTA→permission, splash). 둘을 섞지 말 것.
+① 동기 모듈로드(위) vs ② 비동기 프리로더(`lib/preloader`, **#22 구현됨** — `docs/boot.md`: hydrate→forced-update→OTA(hot-updater)→permissions, splash 라우트, 딥링크 큐). 둘을 섞지 말 것.
 
 ### 4.3 라우팅 (expo-router, 검증됨)
 - 라우트는 **파일시스템에서 자동 등록.** `<Stack.Screen>`은 **옵션 바꿀 때만** 적는다(옵션 없으면 생략 — 루트는 빈 `<Stack/>`).
@@ -183,7 +183,7 @@ assets/json/               dot-loading-white.json (jp에서 cp — Button 로딩
 1. **#14 UI킷** (in-progress) — 컷라인 빌드됨, 사용자 런타임 검증 후 닫기.
 2. **#15 데이터 레이어** — axios + react-query + Suspensive. jp `lib/api`(클라이언트) 참고. 에러 정규화는 `lib/api/api-error.ts`(ApiError)로 구현됨. Suspense fallback 지연은 JP `DeferredWrapper`를 가져오지 말고 Suspensive `Delay`를 사용한다. Suspense 밖의 `query.isFetching` 같은 명령형 loading boolean은 이미 추가한 `src/hooks/use-deferred-loading.ts`의 `useDeferredLoading(isLoading, hasData, delayMs)`를 직접 import해서 쓴다.
 3. **#16 인증 플로우** — AT/RT 인터셉터·single-flight refresh·세션 출구는 구현됨(`docs/data-layer.md`). 인터셉터는 라우팅하지 않고 `signOut()` 상태 방출만 하며, 화면 전환은 `_layout` 세션 출구 effect(전역 리셋) + 구역 `_layout`의 `<Redirect>` 가드(jp `(tabs)/account/_layout` 방식)로 한다. 로그인 화면·보호 구역·refresh endpoint는 앱 몫(`TODO(앱)`). Input의 ControlledInput(RHF) + zod는 별건.
-4. **#22 부팅/프리로더** — splash + OTA + force-update + permissions. jp `lib/preloader`·`tracking-permission`·`show-forced-update-popup`·`show-ota-update-popup`.
+4. **#22 부팅/프리로더 — 완료(2026-09-03)** `docs/boot.md`. 권한 라이브러리·ATT는 앱 몫(`onPermissions` 주입).
 5. **#18 실제 팔레트/타이포 교체 + getting-started 문서.**
 6. **#19 테스팅** — 템플릿 기본값에 테스트 인프라를 넣지 않기로 결정(`template-completion.md` A5). 검증은 lint·tsc·Expo Doctor·iOS export·시뮬 확인. 앱이 필요하면 그때 Jest/RNTL을 추가한다.
 7. **#20 EAS 빌드 + CI 워크플로.**
