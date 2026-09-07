@@ -6,7 +6,7 @@ import {
 import { type Href, useNavigationContainerRef } from 'expo-router';
 import { useCallback } from 'react';
 
-import { tabRoutes } from '@/constants/tabs';
+import { tabRoutes } from '@/constants/tab-routes';
 
 export class NavigationResetError extends Error {
   readonly code: 'empty-route' | 'unknown-tab';

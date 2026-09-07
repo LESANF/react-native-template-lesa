@@ -26,13 +26,17 @@ let isProcessing = false;
 let navigateContext: NavigateContext | null = null;
 const lastHandled = new Map<string, number>();
 
-/** source 와 무관한 canonical key — 같은 화면을 가리키면 같은 키가 나와야 중복이 잡힌다. */
+/**
+ * source 와 무관한 canonical key — 같은 화면을 가리키면 같은 키가 나와야 중복이 잡힌다.
+ *
+ * 손으로 `k=v` 를 이어붙이면 서로 다른 링크가 같은 키로 뭉개진다
+ * (`{a:'b&c=d'}` 와 `{a:'b', c:'d'}` 가 둘 다 `a=b&c=d`) → 멀쩡한 링크가 중복으로 버려진다.
+ * URLSearchParams 가 값을 인코딩하고 `sort()` 가 키 순서를 정규화한다.
+ */
 function makeKey(payload: DeepLinkPayload): string {
-  const queryKey = Object.keys(payload.parsed.query)
-    .sort()
-    .map(key => `${key}=${payload.parsed.query[key]}`)
-    .join('&');
-  return `${payload.parsed.path}?${queryKey}`;
+  const params = new URLSearchParams(payload.parsed.query);
+  params.sort();
+  return `${payload.parsed.path}?${params.toString()}`;
 }
 
 function isDuplicate(payload: DeepLinkPayload): boolean {
@@ -67,8 +71,11 @@ async function processNextEntry() {
 
   isProcessing = true;
 
+  // 처리 중에도 큐에 남겨 둔다 — 먼저 빼면 아래 `await runGates` 동안 이 항목이 중복 검사에서
+  // 사라져, 같은 링크가 다시 들어왔을 때 두 검사(lastHandled·queue)를 모두 통과한다.
+  // (게이트가 있는 라우트에서만 열리는 틈: 게이트가 없으면 runGates 가 await 전에 동기 완료한다.)
+  // 큐에 남겨두면 "큐 = 대기 중이거나 처리 중인 링크 전부"가 되어 상태가 하나로 유지된다.
   const payload = queue[readyIndex];
-  queue.splice(readyIndex, 1);
 
   try {
     const handler = matchRoute(payload.parsed);
@@ -97,6 +104,8 @@ async function processNextEntry() {
       }
     }
   } finally {
+    const processedIndex = queue.indexOf(payload);
+    if (processedIndex !== -1) queue.splice(processedIndex, 1);
     isProcessing = false;
     if (queue.length > 0) void processNextEntry();
   }

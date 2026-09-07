@@ -7,9 +7,11 @@
  *    NativeTabs(iOS 26·Android)가 이 PNG 쌍을 쓴다. 색은 scripts/gen-tab-icons.sh 상단 두 값.
  * 3. components/icons/tabs.tsx 에 같은 path로 SVG 컴포넌트를 추가한다 —
  *    NativeTabs를 못 쓰는 fallback 커스텀 탭바가 color prop으로 칠한다.
- * 4. 아래 tabRoutes(순수 데이터)와 tabs(아이콘 매핑)에 한 줄씩 추가한다.
+ * 4. `constants/tab-routes.ts` 의 tabRoutes(순수 데이터)와 아래 tabs(아이콘 매핑)에 한 줄씩 추가한다.
  *    폴더 탭은 그 폴더에 _layout.tsx 가 있어야 등록된다(없으면 조용히 빠진다).
  */
+import { tabRoutes } from './tab-routes';
+
 import type { ComponentType } from 'react';
 import type { ImageSourcePropType } from 'react-native';
 
@@ -43,14 +45,9 @@ type TabConfig = {
   readonly nativeIcon: NativeTabIcon;
 };
 
-// 순수 route 데이터. 네비게이션 유틸은 아이콘 의존 없이 이 배열만 읽는다.
-export const tabRoutes = [
-  { name: 'index', label: 'HOME', href: '/(tabs)' },
-  { name: 'menu-2', label: 'MOTION', href: '/(tabs)/menu-2' },
-  { name: 'menu-3', label: 'STACK', href: '/(tabs)/menu-3' },
-  { name: 'menu-4', label: 'DYNAMIC', href: '/(tabs)/menu-4' },
-  { name: 'menu-5', label: 'SETTINGS', href: '/(tabs)/menu-5' },
-] as const;
+// 순수 route 데이터는 `./tab-routes` 에 있다 — 아이콘 없이 읽어야 하는 곳(딥링크 matcher,
+// 네비게이션 유틸)이 이 파일의 SVG·PNG import 를 끌고 오지 않게 하기 위해서다.
+export { tabRoutes } from './tab-routes';
 
 export const tabs = [
   {

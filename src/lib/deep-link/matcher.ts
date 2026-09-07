@@ -12,6 +12,7 @@ import {
   SAFE_FALLBACK_PATH,
   STATIC_DEEP_LINK_ROUTES,
 } from '@/constants/deep-link';
+import { tabRoutes } from '@/constants/tab-routes';
 import { useAuthStore } from '@/stores/auth-store';
 
 import type { DynamicRouteSpec, StaticRoute } from '@/constants/deep-link';
@@ -172,7 +173,7 @@ function inferResetFromTo(to: string): NavigationResetToTabOptions | null {
   const remaining = to.slice(TABS_PREFIX.length);
 
   if (remaining.startsWith('?')) {
-    const params = parseQueryString(remaining.slice(1));
+    const params = Object.fromEntries(new URLSearchParams(remaining.slice(1)));
     return { tab: 'index', stack: [{ name: 'index', params }] };
   }
 
@@ -182,20 +183,24 @@ function inferResetFromTo(to: string): NavigationResetToTabOptions | null {
   }
 
   const parts = pathPart.split('/').filter(Boolean);
-  if (parts.length === 1) {
-    return { tab: parts[0] as NavigationTabName, stack: ['index'] };
-  }
-  const [tab, ...rest] = parts;
-  return { tab: tab as NavigationTabName, stack: ['index', ...rest] };
+  const tab = toTabName(parts[0]);
+  // 등록된 탭이 아니면 reset 을 만들지 않는다 — 잘못된 tab 으로 reset 하면 네비게이션이
+  // 통째로 실패한다. null 을 돌려주면 호출부가 평범한 router.navigate 로 떨어진다.
+  if (!tab) return null;
+
+  if (parts.length === 1) return { tab, stack: ['index'] };
+  return { tab, stack: ['index', ...parts.slice(1)] };
 }
 
-function parseQueryString(query: string): Record<string, string> {
-  const params: Record<string, string> = {};
-  for (const pair of query.split('&')) {
-    const [key, value] = pair.split('=');
-    if (key && value !== undefined) params[key] = decodeURIComponent(value);
+const TAB_NAMES: readonly string[] = tabRoutes.map(route => route.name);
+
+/** spec 의 `to` 에서 뽑은 세그먼트가 실제 탭인지 확인한다(오타를 조용한 실패로 만들지 않는다). */
+function toTabName(candidate: string | undefined): NavigationTabName | null {
+  if (!candidate || !TAB_NAMES.includes(candidate)) {
+    if (candidate) console.warn(`[deep-link] 등록되지 않은 탭 이름: ${candidate}`);
+    return null;
   }
-  return params;
+  return candidate as NavigationTabName;
 }
 
 // ─── EXTERNAL WEB PAGE ─────────────────────────────────────
@@ -207,7 +212,9 @@ function matchExternalWebPage(parsed: ParsedDeepLink): boolean {
 }
 
 function buildExternalWebPageHandler(path: string): RouteHandler {
-  const expoPath = `/external-web?path=/${path}`;
+  // 쿼리는 손으로 만들지 않는다 — path 에 '&'·'=' 가 있으면 잘린다(파서가 %26 을 이미 디코드해
+  // 넘겨주므로 재삽입 시 인코딩이 필수다). spec 테이블의 toExpoPath 도 같은 방식이다.
+  const expoPath = `/external-web?${new URLSearchParams({ path: `/${path}` }).toString()}`;
   return {
     name: `external-web:${path}`,
     expoPath,
