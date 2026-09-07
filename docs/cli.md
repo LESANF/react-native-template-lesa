@@ -169,6 +169,10 @@ CLI 가 `.env` 를 미리 만들어 그 줄만 채운다.
 
 ```bash
 cd ~/Desktop/Repo/future/ascii-cli-test
-pnpm create ../my-new-app --template ~/Desktop/Repo/lesa-expo-template
-# 또는 LESA_TEMPLATE_DIR=~/Desktop/Repo/lesa-expo-template pnpm create ../my-new-app
+pnpm start ../my-new-app --template ~/Desktop/Repo/lesa-expo-template
+# 또는 LESA_TEMPLATE_DIR=~/Desktop/Repo/lesa-expo-template pnpm start ../my-new-app
 ```
+
+스크립트 이름은 `start` 다 — `create` 로 두면 **pnpm 내장 `pnpm create`**(npm 에서
+`create-*` 패키지를 받아 실행)와 충돌해서 인자를 패키지 이름으로 해석한다(실측 확인).
+npm 발행 후에는 `bin` 이 등록돼 `npx create-lesa-app <dir>` 로 쓴다.
