@@ -1,6 +1,6 @@
 {
   "name": "lesa-expo-template",
-  "main": "expo-router/entry",
+  "main": "index.js",
   "version": "1.0.0",
   "packageManager": "pnpm@11.10.0",
   "scripts": {

@@ -1,7 +1,9 @@
 import { router } from "expo-router";
 import { useState, type ReactNode } from "react";
+import notifee from "react-native-notify-kit";
 import { useUniwind } from "uniwind";
 
+import { Env } from "@env";
 import CheckCircleIcon from "@/assets/svg/check-circle.svg";
 import {
   Button,
@@ -9,13 +11,16 @@ import {
   Image,
   Input,
   Pressable,
+  popup,
   ScrollView,
   Text,
   toast,
   View,
   type DimmedVisualProps,
 } from "@/components/ui";
+import { PUSH_CHANNEL_ID } from "@/constants/push";
 import { useNavigationReset } from "@/hooks/use-navigation-reset";
+import { ensurePushChannel } from "@/lib/push/core";
 import { COLOR_SCHEMES, useSelectedTheme } from "@/lib/theme/selected-theme";
 
 type DimmedExampleState = DimmedVisualProps;
@@ -256,9 +261,45 @@ export function HomeScreen() {
             >
               Dimmed color
             </Button>
+            <Button
+              variant="secondary"
+              onPress={async () => {
+                const choice = await popup.confirm({
+                  title: "확인 팝업",
+                  message: "popup.confirm은 Promise로 선택을 돌려줍니다.",
+                });
+                toast.show({ text1: `popup → ${choice}` });
+              }}
+            >
+              Popup confirm
+            </Button>
           </View>
           <Text color="muted">
-            Toast is global; Dimmed is rendered where it is needed
+            Toast·Popup은 전역(GlobalOverlays); Dimmed는 필요한 화면이 직접 렌더
+          </Text>
+        </Section>
+
+        <Section title="Push">
+          <Button
+            variant="secondary"
+            onPress={async () => {
+              await ensurePushChannel();
+              await notifee.displayNotification({
+                title: "Push 예제",
+                body: "탭하면 menu-4/42로 이동합니다",
+                data: { deep_link: `${Env.identity.scheme}://menu-4/42` },
+                android: {
+                  channelId: PUSH_CHANNEL_ID,
+                  pressAction: { id: "default" },
+                },
+              });
+              toast.show({ text1: "알림 표시 — 배너를 탭하세요" });
+            }}
+          >
+            로컬 알림 표시
+          </Button>
+          <Text color="muted">
+            Firebase 없이도 notify-kit·채널·탭→딥링크를 확인합니다
           </Text>
         </Section>
       </ScrollView>
