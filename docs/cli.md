@@ -8,12 +8,13 @@ CLI 코드는 이 레포가 아니라 `future/ascii-cli-test`(→ `create-lesa-a
 
 ```
 create-lesa-app/                     (`future/ascii-cli-test` 를 살림. 지금은 npm 미발행)
-  src/intro.tsx                      .asciimtn 파서 + ink 렌더 (기존 lesa-appkit-intro.tsx)
-  src/prompts.tsx                    질문 플로우 (기존 preview.js 의 StepRail·StatusLine·HelpText)
+  lesa-appkit-intro.tsx              .asciimtn 파서 + ink 렌더 (아직 배선 안 함)
   src/derive.ts                      slug → 전 필드 파생 (순수 함수, 테스트 대상)
   src/apply.ts                       env-candidates.ts 치환 · .env 생성
-  src/copy.ts                        로컬 템플릿 폴더 복사 (배포 방식이 바뀌면 이 파일만 교재)
-  src/index.ts                       오케스트레이션 + 실패 시 cleanup
+  src/copy.ts                        `git ls-files` 로 추적 파일만 복사 (배포 방식이 바뀌면 이 파일만 교체)
+  src/create.ts                      오케스트레이션 + 실패 시 cleanup (UI 없이 테스트 가능)
+  src/index.tsx                      진입점 — 인자 파싱 + ink render
+  src/ui.tsx                         프롬프트(ink). preview.js 의 팔레트·StepRail 재사용
   assets/lesa-appkit.asciimtn        인트로 애니메이션
 ```
 
@@ -84,7 +85,9 @@ CLI 가 `.env` 를 미리 만들어 그 줄만 채운다.
 ## 생성 순서
 
 1. 대상 디렉터리가 비어 있는지 확인 (아니면 중단)
-2. 로컬 템플릿 폴더 복사 (`.git` · `node_modules` · `ios` · `android` · `.expo` · `.env` 제외)
+2. 로컬 템플릿 폴더 복사 — **복사 대상 = `git ls-files`**. 제외 목록을 손으로 들면 템플릿에
+   새 gitignore 항목이 생길 때마다 놓친다(실제로 `.pnpm-store`·`expo-env.d.ts`·`npmlogin.log`
+   를 놓쳤다). git 추적 파일은 산출물·로컬 상태를 정의상 제외한다.
 3. `env-candidates.ts` 치환 → 잔여 자리표시 검사
 4. Apple Team ID 를 받았으면 `.env` 생성
 5. `git init` + 초기 커밋
@@ -136,9 +139,36 @@ CLI 가 `.env` 를 미리 만들어 그 줄만 채운다.
 | `assets/lesa-appkit.asciimtn` | 822KB. 로컬 복사 방식에선 문제없지만 npm 발행 시 자를지 결정 필요         |
 | 배포 방식                     | 템플릿 완성 후 결정 — public + tarball(docs 일반화 선행) 또는 private npm |
 
-## 검증 상태
+## 검증 상태 (2026-09-07 구현·검증)
 
-- **미착수.** 이 문서는 설계만이다.
-- `derive.ts` 는 순수 함수라 node 로 입력→출력 표를 검증한다.
-- 전 과정은 빈 디렉터리에 실제 생성 → `pnpm install` → `check-all` 로 확인한다
-  (템플릿의 clean clone 검증과 같은 게이트).
+**통과:**
+
+| 무엇                     | 결과                                                                                                                                            |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `validateSlug` 12케이스  | `workout`·`my-app`·`a`·`app2` 통과 / 한글·대문자·숫자시작·공백·언더스코어·빈값·하이픈끝·하이픈시작 거부                                         |
+| `derive` 파생            | scheme·bundleId 3환경 · `package === bundleId` · 영문 시 `displayName=''`                                                                       |
+| 치환(실제 템플릿 파일)   | identity 전부 · `urls`·`version` 미변경 · 잔여 자리표시 0                                                                                       |
+| 잔여 자리표시 가드       | 자리표시를 바꾼 템플릿에서 `ApplyError` + **줄번호까지** 출력                                                                                   |
+| 복사                     | 33개 → **30개**. gitignore 대상 11종 전부 제외, 필수 파일·중첩 구조 보존                                                                        |
+| 복사 가드                | 템플릿 아닌 폴더 거부 · 비어있지 않은 대상 거부 · git 레포 아님 거부                                                                            |
+| 실패 시 cleanup          | 치환 실패 시 대상 디렉터리 삭제 확인                                                                                                            |
+| 생성 프로젝트            | `git` 초기 커밋(216파일) · frozen install · **`check-all` green**                                                                               |
+| `.env`                   | Team ID 가 `postinstall` 에 덮이지 않고 `expo lint` 가 실제로 export                                                                            |
+| **한글 이름 → 네이티브** | `CFBundleDisplayName`=`워크아웃` · `strings.xml app_name`=`워크아웃` · `rootProject.name`=`workout` · `applicationId`=`com.workout.development` |
+| 인자 검증                | 대상·템플릿 경로 누락 시 사용법 출력                                                                                                            |
+| `tsc --noEmit`           | 통과(`@types/node` + tsconfig 추가)                                                                                                             |
+
+**미검증 — 사용자 몫:**
+
+- **대화형 UI 조작.** `useInput` 이 raw mode 를 요구해 TTY 가 아닌 환경에서는 렌더 자체가
+  안 된다. 실제 화면·키 입력(↑↓/jk·Enter·Esc·백스페이스)은 터미널에서 확인해야 한다.
+- 인트로 애니메이션(`lesa-appkit-intro.tsx`)은 아직 배선하지 않았다.
+- 생성된 프로젝트의 실기 빌드·실행.
+
+**실행 방법 (지금):**
+
+```bash
+cd ~/Desktop/Repo/future/ascii-cli-test
+pnpm create ../my-new-app --template ~/Desktop/Repo/lesa-expo-template
+# 또는 LESA_TEMPLATE_DIR=~/Desktop/Repo/lesa-expo-template pnpm create ../my-new-app
+```
