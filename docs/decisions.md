@@ -564,9 +564,11 @@ specifics evolved during implementation. Verified in the iOS simulator.
 
 - WHERE you declare = the scope. Root sibling of `(tabs)` → covers the tab
   bar; inside a tab folder → scoped to that tab.
-- Root modal = root-level route + `<Stack.Screen presentation:'modal'>` +
-  `unstable_settings = { anchor: '(tabs)' }` when a navigable modal needs the
-  tab tree as background. Demo `app/modal.tsx` was removed; login later uses
+- Root modal = root-level route + `<Stack.Screen presentation:'modal'>`. The
+  root layout's `anchor` is `'splash'` (see "anchor" below) — do NOT flip it to
+  `'(tabs)'` for a modal, that skips splash on cold start. A modal needing the
+  tab tree as background belongs inside `(tabs)`, or gets its background from
+  the stack it is pushed onto. Demo `app/modal.tsx` was removed; login later uses
   `presentation:'fullScreenModal'` (#16).
 - presentation fixed by purpose: `modal` / `fullScreenModal` /
   `transparentModal` / `formSheet` (native detents, SDK55 — no gorhom needed).
@@ -803,3 +805,33 @@ dev 번들이 들어가고**, `:186` 의 Release 분기도 건너뛴다. `XcodeB
 `index.js` 의 네트워크 로거 게이트(`__DEV__ || APP_ENV !== 'production'`)를 통과한다 —
 **release configuration 빌드에 네트워크 로거가 포함된다.** 스토어 빌드가 아니라 로컬 release
 스모크 테스트용이라 의도대로 둔다(2026-09-07 사용자 결정).
+
+### anchor — 루트 레이아웃의 `unstable_settings` 는 Stack prop 과 같은 값이어야 한다 (2026-09-07)
+
+`src/app/_layout.tsx` 는 `export const unstable_settings = { anchor: 'splash' }` 와
+`<Stack initialRouteName="splash">` 를 **둘 다** 둔다. 한때 anchor 를 통째로 지웠는데
+(사유: `anchor: '(tabs)'` 가 splash 를 건너뛴다) 관찰은 맞았지만 결론이 틀렸다 —
+**고칠 것은 값이었지 메커니즘이 아니었다.**
+
+`expo-router` 소스 확인:
+
+- 라우트 노드의 `initialRouteName` 은 **오직** `unstable_settings` 에서만 만들어진다:
+  `anchor ?? initialRouteName ?? <group 기본값>` (`getRoutesCore.js:651-676`).
+- JSX prop 은 `withLayoutContext.js:117,128` 의 `{...props}` 로 navigator 에만 전달된다.
+  그래서 첫 화면 자체는 prop 만으로도 뜬다.
+- 하지만 expo-router 자신의 두 경로는 노드 값을 본다:
+  자식 정렬 `getSortedChildren(children, order, node?.initialRouteName)`
+  (`useScreens.js:131`) 와 딥링크 path→state 랭킹의 `isInitial`
+  (`fork/getStateFromPath-forks.js:361`).
+
+anchor 를 빼면 그 둘이 splash 가 첫 화면임을 모른다. 두 값을 **같게** 두는 것이 맞다.
+`anchor` 는 SDK 57 이름이고 `initialRouteName` 키도 아직 읽히지만(위 `??` 체인), 새 코드는
+`anchor` 를 쓴다.
+
+주의: 루트 anchor 를 `'(tabs)'` 로 바꾸면 콜드 부팅이 splash 를 건너뛴다. 탭 트리를 배경으로
+깔아야 하는 모달은 루트 anchor 를 바꾸지 말고 `(tabs)` 안에 두거나, push 되는 스택에서 배경을
+얻는다.
+
+미검증: 소스 근거는 확실하나 **런타임 확인은 시뮬 QA 몫이다**(부팅 경로 변경). C2 흰 화면
+블로커와는 별개다 — 그쪽은 `_layout.tsx` 청크가 Metro 에 요청조차 되지 않는 단계라 라우팅
+이전의 문제다.
