@@ -101,7 +101,9 @@ const PUSH_PLUGINS: NonNullable<ExpoConfig['plugins']> = pushEnabled
   ? [
       ['@react-native-firebase/app', { ios: { disableSPM: true } }],
       '@react-native-firebase/messaging',
-      ['react-native-notify-kit', { ios: { notificationServiceExtension: true } }],
+      // NSE 는 FCM Mode 에서만 필요하다(타깃 1개 + 수동 프로비저닝이 따라온다).
+      // 켜려면 `['react-native-notify-kit', { ios: { notificationServiceExtension: true } }]`.
+      'react-native-notify-kit',
     ]
   : [];
 

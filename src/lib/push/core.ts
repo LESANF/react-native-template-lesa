@@ -30,13 +30,13 @@ export function getPushMessaging() {
 let ensureChannelPromise: Promise<void> | null = null;
 
 /**
- * 채널 생성 + notify-kit FCM Mode 기본값 등록. 최초 1회만 실제로 수행하고 이후엔 같은 promise 를 돌려준다.
+ * Android 알림 채널 생성. 최초 1회만 실제로 수행하고 이후엔 같은 promise 를 돌려준다.
  *
  * 참조 앱은 채널을 React 마운트 뒤에 만들어서, 앱이 꺼진 채 도착한 **첫 푸시**가 fallback 채널로
- * 떨어졌다(결함 D3). 여기서는 entry 모듈 스코프에서 시작하고, 백그라운드 핸들러·onMessage 진입 시
- * 한 번 더 `await` 한다 — 메모이즈라 비용은 0이다.
+ * 떨어졌다(결함 D3). 여기서는 entry 모듈 스코프에서 시작하고, 포그라운드 표시 직전에 한 번 더
+ * `await` 한다 — 메모이즈라 비용은 0이다.
  *
- * 절대 reject 하지 않는다. headless 호출자가 죽으면 알림 자체가 사라진다.
+ * 절대 reject 하지 않는다. 여기서 throw 하면 알림 자체가 사라진다.
  */
 export function ensurePushChannel(): Promise<void> {
   ensureChannelPromise ??= (async () => {
@@ -50,15 +50,8 @@ export function ensurePushChannel(): Promise<void> {
           vibration: true,
         });
       }
-
-      // FCM Mode: 서버가 notifee_options 를 안 보내는 구 페이로드(title/body만)도 'display' 로 표시된다.
-      await notifee.setFcmConfig({
-        defaultChannelId: PUSH_CHANNEL_ID,
-        defaultPressAction: { id: 'default', launchActivity: 'default' },
-        fallbackBehavior: 'display',
-      });
     } catch (error) {
-      console.warn('[push] 채널/FCM 설정 실패 — 알림은 기본 채널로 표시된다', error);
+      console.warn('[push] 채널 생성 실패 — 알림은 기본 채널로 표시된다', error);
     }
   })();
 

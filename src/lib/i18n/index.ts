@@ -5,13 +5,7 @@ import { initReactI18next } from 'react-i18next';
 /** 기본 언어 — resources 에 없는 언어면 fallbackLng 가 받는다. */
 const DEFAULT_LANGUAGE = 'ko';
 
-// ── 디바이스 언어 따라가기 — 기본 off ──────────────────────────────────────
-// 템플릿 기본은 DEFAULT_LANGUAGE 고정이다. resources 가 하나뿐인 단일 언어 앱에서는
-// 디바이스 언어를 읽어도 결과가 같고(없는 언어 → fallbackLng → 빈 맵 → 키=원문),
-// 부팅 언어만 기기마다 달라진다.
-//
-// 다국어를 시작하는 날 이 상수를 true 로 바꾼다 — expo-localization 은 이미 설치돼 있다.
-// (getLocales() 는 네이티브 동기 호출이라 모듈 스코프에서 안전하다.)
+// 디바이스 언어 따라가기 — 다국어를 시작할 때 true 로. 단일 언어면 켜도 결과가 같다.
 const USE_DEVICE_LANGUAGE = false;
 
 const initialLanguage = USE_DEVICE_LANGUAGE

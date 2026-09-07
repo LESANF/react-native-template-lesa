@@ -184,8 +184,7 @@ function inferResetFromTo(to: string): NavigationResetToTabOptions | null {
 
   const parts = pathPart.split('/').filter(Boolean);
   const tab = toTabName(parts[0]);
-  // 등록된 탭이 아니면 reset 을 만들지 않는다 — 잘못된 tab 으로 reset 하면 네비게이션이
-  // 통째로 실패한다. null 을 돌려주면 호출부가 평범한 router.navigate 로 떨어진다.
+  // 미등록 탭으로 reset 하면 네비게이션이 통째로 실패한다 → null 이면 호출부가 navigate 로 떨어진다.
   if (!tab) return null;
 
   if (parts.length === 1) return { tab, stack: ['index'] };
@@ -212,8 +211,7 @@ function matchExternalWebPage(parsed: ParsedDeepLink): boolean {
 }
 
 function buildExternalWebPageHandler(path: string): RouteHandler {
-  // 쿼리는 손으로 만들지 않는다 — path 에 '&'·'=' 가 있으면 잘린다(파서가 %26 을 이미 디코드해
-  // 넘겨주므로 재삽입 시 인코딩이 필수다). spec 테이블의 toExpoPath 도 같은 방식이다.
+  // 파서가 %26 을 디코드해 넘기므로 재삽입 시 인코딩이 필수다(안 하면 '&' 에서 잘린다).
   const expoPath = `/external-web?${new URLSearchParams({ path: `/${path}` }).toString()}`;
   return {
     name: `external-web:${path}`,

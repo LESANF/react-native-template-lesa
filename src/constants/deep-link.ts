@@ -16,10 +16,7 @@ import type { EntrySource, GateName, NavigateContext, ParsedDeepLink } from '@/l
  */
 export const DEEP_LINK_HTTPS_HOSTS: readonly string[] = [
   // TODO(앱): 유니버설 링크 호스트 (예: 'www.example.com')
-  // 어트리뷰션 SDK 를 붙였다면 그 링크 도메인도 여기 넣는다 — iOS associatedDomains ·
-  // Android intentFilters · +native-intent 인식이 전부 이 한 곳에서 파생된다.
-  // (KR = Airbridge: `<app>.airbridge.io` · `<app>.abr.ge` · 커스텀 도메인 3개.
-  //  KR 은 이 목록을 app.config 와 +native-intent 두 곳에 중복으로 갖고 있다 — 여기선 하나다.)
+  // 어트리뷰션 SDK 링크 도메인도 여기 — associatedDomains·intentFilters·native-intent 가 파생된다.
 ];
 
 /**
@@ -32,13 +29,8 @@ export const SAFE_REDIRECT_PATH = '/splash';
 export const SAFE_FALLBACK_PATH = '/(tabs)';
 
 /**
- * 같은 링크가 여러 source(OS Linking + 푸시 등)로 동시에 들어올 때의 중복 판정 창.
- *
- * 어트리뷰션 SDK 와 커플링된다 — SDK 가 링크를 OS Linking 으로 **재전파하도록** 설정하면
- * 전달 경로가 둘이 되고, SDK 는 보통 자기 서버를 왕복하므로 그 간격이 2초를 넘겨 같은 화면으로
- * 두 번 이동할 수 있다. KR 이 이 값으로 문제없이 도는 이유는 재전파를 껐기 때문이다
- * (`iosPropagateDeeplink: false`). 전파를 켜야 한다면 이 값을 함께 올린다.
- * 자세한 것은 `lib/deep-link/attribution.ts`.
+ * 같은 링크가 여러 source 로 동시에 들어올 때의 중복 판정 창.
+ * 어트리뷰션 SDK 가 링크를 OS Linking 으로 재전파하면 이 값을 올려야 한다 — `docs/boot.md`.
  */
 export const HANDLED_TTL_MS = 2000;
 

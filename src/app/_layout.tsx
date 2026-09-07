@@ -43,11 +43,8 @@ SplashScreen.preventAutoHideAsync();
 // KR 은 모듈 스코프에서 무조건 init 한다. 템플릿은 기본 OTA 서버가 없어 URL 이 비면 건너뛴다.
 if (Env.urls.ota) HotUpdater.init({ baseURL: Env.urls.ota });
 
-// anchor 는 아래 Stack 의 initialRouteName 과 **같은 값**이어야 한다.
-// expo-router 는 라우트 노드의 initialRouteName 을 오직 unstable_settings 에서만 만든다
-// (getRoutesCore.js: `anchor ?? initialRouteName`). JSX prop 은 navigator 로만 전달되므로,
-// anchor 를 빼면 자식 정렬(useSortedScreens)과 딥링크 path→state 랭킹(isInitial)이
-// splash 가 첫 화면인 것을 모른다. '(tabs)' 로 잡으면 반대로 splash 를 건너뛴다.
+// anchor 는 아래 Stack 의 initialRouteName 과 같은 값이어야 한다 — expo-router 는 노드의
+// initialRouteName 을 unstable_settings 에서만 만든다(빼면 자식 정렬·딥링크 랭킹이 모른다).
 export const unstable_settings = { anchor: 'splash' };
 
 export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
