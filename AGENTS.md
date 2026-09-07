@@ -15,6 +15,7 @@ Read the exact versioned docs at https://docs.expo.dev/versions/v57.0.0/ before 
 | `components/ui` · `styles/` · 토큰 · 다크모드 · 배럴                                        | [docs/ui.md](docs/ui.md)                 |
 | `env-candidates.ts` · `env.ts` · `.env` · `app.config.ts` · `plugins/` · 빌드 스크립트      | [docs/config.md](docs/config.md)         |
 
+- [docs/cli.md](docs/cli.md) — `create-lesa-app` 프로젝트 생성 CLI. **치환 대상의 단일 출처** — `env-candidates.ts` 필드를 바꾸면 여기와 CLI 를 같이 고친다
 - [docs/decisions.md](docs/decisions.md) — 날짜별 결정 색인(본문은 위 섹션 문서에 있다)
 - [docs/template-completion.md](docs/template-completion.md) — 진행 상황과 남은 작업
 - [docs/handoff.md](docs/handoff.md) — 세션 인수인계
