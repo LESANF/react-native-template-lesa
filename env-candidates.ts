@@ -64,6 +64,13 @@ export const values = {
       preview: 'https://jsonplaceholder.typicode.com',
       production: 'https://api.example.invalid',
     },
+    // OTA(hot-updater) 서버. 빈 문자열 = 비활성(프리로더 ota 스테이지 스킵).
+    // TODO(앱): 자체 서버 주소로 교체 (예: 'https://ota.example.com/hot-updater'). 참고: 자체 OTA 서버
+    ota: {
+      development: '',
+      preview: '',
+      production: '',
+    },
   },
 
   // services: {

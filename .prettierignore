@@ -1,0 +1,27 @@
+dist
+node_modules
+coverage
+.expo
+.expo-shared
+android
+ios
+.vscode
+*.log
+*.lock
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# Build outputs
+build
+out
+
+# Generated files
+expo-env.d.ts
+uniwind-types.d.ts
+fingerprint.json
+
+# local tooling / generated indexes (not part of the template)
+docs/superpowers
+.codegraph
+.omo

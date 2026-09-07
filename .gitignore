@@ -45,6 +45,17 @@ app-example
 /ios
 /android
 
+# hot-updater 플러그인이 prebuild마다 다시 만든다 (KR/JP도 ignore)
+fingerprint.json
+
+# hot-updater 번들 빌드 산출물
+.hot-updater/output
+
+# test / build 산출물
+coverage/
+build/
+.gradle/
+
 # local tooling / generated indexes (not part of the template)
 .codegraph/
 .omo/
