@@ -734,9 +734,9 @@ Xcode 프로젝트·스킴·`PRODUCT_NAME` 을 파생하는데, `sanitizedName()
 
 기본(EAS 미연결) 경로:
 
-- **프리빌드** — `pnpm prebuild:<env>` (`rm -rf ios android && expo prebuild`, `STRICT_ENV_VALIDATION=1`)
+- **프리빌드** — `pnpm prebuild:<env>` (`expo prebuild`, `STRICT_ENV_VALIDATION=1`. 재생성이 기본 — 아래 "prebuild clean" 절)
 - **빌드** — `pnpm ios:release` · `pnpm android:release`
-  (`expo run:ios --configuration release` · `expo run:android --variant release`)
+  (`expo run:ios --configuration Release` · `expo run:android --variant release`)
 - **Android release 서명** — `plugins/with-android-plugin.ts` 가 production 프리빌드에서만
   `signingConfigs.release` 를 주입하고, 값은 Gradle 실행 시점 env `ANDROID_UPLOAD_*` 에서 읽는다.
   EAS 를 붙이면 EAS credentials 가 자체 signingConfig 를 넣어 이 블록은 쓰이지 않는다.
@@ -763,3 +763,43 @@ Xcode 프로젝트·스킴·`PRODUCT_NAME` 을 파생하는데, `sanitizedName()
 영향: `slug` 는 EAS 를 붙이기 전까지 사실상 라벨이다 — `@expo/config` 는 `slug` 가 비면
 `name` 을 slugify 해서 채운다(`Config.js`, 필수 필드가 아니다). C4 의 `eas.json` 프로필 항목은
 지웠고, CI 는 로컬 툴체인(frozen install → check-all → Doctor → export) 기준으로 남긴다.
+
+### prebuild clean 과 iOS configuration 대소문자 (2026-09-07, `@expo/cli` 소스 확인)
+
+참조 앱(KR/JP)에서 그대로 넘어온 두 가지를 SDK 57 CLI 소스로 검증해 고쳤다.
+
+**1. `rm -rf ios android` 접두 제거 → `EXPO_NO_GIT_STATUS=1`**
+
+- `--clean` 은 **선언만 되고 읽히지 않는다.** 실제 값은 `clean: !args['--no-clean']`
+  (`prebuild/index.js:70,112`) — **재생성이 기본**이고 `--clean` 은 no-op 이다.
+- 삭제 자체는 `fs.rm(folder, { recursive: true, force: true })`
+  (`clearNativeFolder.js:123`) — `rm -rf` 와 같은 호출이라 삭제력에 차이가 없다.
+- 다만 삭제 **전에** 프리빌드 전체를 `return null` 로 중단시키는 가드가 둘 있다
+  (`prebuildAsync.js:107-124`, 네이티브 폴더가 이미 있을 때만 실행):
+  `maybeBailOnGitStatusAsync()`(git dirty 프롬프트) · `maybeBailOnNativeModuleAsync()`.
+  **예전 SDK 에서 git 가드가 기본 on 이었다면 dirty 트리에서 프리빌드가 중단됐고,
+  `rm -rf` 는 그 우회였다** — 붙인 이유로 합리적이다.
+- SDK 57 에서는 `EXPO_NO_GIT_STATUS` 가 `boolish('EXPO_NO_GIT_STATUS', true)`
+  (`utils/env.js:87`) 라 **기본값 true** — 가드가 꺼져 있다. 그래서 `rm -rf` 는 잉여가 됐다.
+- 유지 비용은 실재했다: `pnpm prebuild -p ios` 가 `rm -rf ios android` 를 먼저 돌려
+  **`android/` 를 지우고 재생성하지 않았고**, `--no-clean` 이 무력화됐으며,
+  `rm -rf` 가 `getConfig()` 보다 먼저라 `app.config.ts` 가 throw 하면(STRICT 시크릿 누락)
+  네이티브 폴더만 날아간 채 실패했다.
+- 결론: `"prebuild": "cross-env EXPO_NO_GIT_STATUS=1 expo prebuild"`.
+  삭제는 기본 clean 에 맡기고, `rm -rf` 가 막아주던 것(git 가드)만 명시적으로 끈다 —
+  Expo 가 기본값을 되돌려도 동작이 고정된다. `ios`/`android` 는 gitignore 대상이라
+  이 프롬프트는 무관한 파일의 dirty 에 반응하는 것뿐이다.
+
+**2. `ios:release` 의 `--configuration release` → `Release`**
+
+`runIosAsync.js:106` 이 `setNodeEnv(options.configuration === 'Release' ? 'production' : 'development')`
+로 **정확 문자열 비교**를 한다. 소문자면 조용히 `NODE_ENV=development` 가 되어 **release 빌드에
+dev 번들이 들어가고**, `:186` 의 Release 분기도 건너뛴다. `XcodeBuild.js:262` 는 그 값을
+`-configuration` 으로 그대로 넘기는데 프로젝트 configuration 은 `Debug`/`Release` 뿐이다
+(`xcodebuild -list` 확인). Android 는 `variant?.toLowerCase().endsWith('release')`
+(`runAndroidAsync.js:54`) 라 케이스 무관이어서 우연히 맞았다 — 그래서 두 스크립트가 비대칭이었다.
+
+알려진 성질(고치지 않음): `:release` 스크립트는 `EXPO_PUBLIC_APP_ENV=development` 라
+`index.js` 의 네트워크 로거 게이트(`__DEV__ || APP_ENV !== 'production'`)를 통과한다 —
+**release configuration 빌드에 네트워크 로거가 포함된다.** 스토어 빌드가 아니라 로컬 release
+스모크 테스트용이라 의도대로 둔다(2026-09-07 사용자 결정).

@@ -91,10 +91,15 @@ splash 배경색은 **두 곳을 같이** 바꿉니다 — `app.config.ts`의 `e
 사유는 [`docs/decisions.md`](./docs/decisions.md) "EAS" 절.
 
 ```bash
-pnpm prebuild:production      # rm -rf ios android → expo prebuild (STRICT 검증)
-pnpm ios:release              # expo run:ios --configuration release
+pnpm prebuild:production      # expo prebuild (네이티브 폴더 재생성이 기본, STRICT 검증)
+pnpm ios:release              # expo run:ios --configuration Release
 pnpm android:release          # expo run:android --variant release
 ```
+
+> `prebuild`는 네이티브 폴더를 **지우고 다시 만드는 것이 기본**입니다(`--clean`은 SDK 57에서
+> no-op). 증분 적용은 `pnpm prebuild --no-clean`, 한 플랫폼만은 `-p ios`입니다.
+> `:release` 스크립트는 `EXPO_PUBLIC_APP_ENV=development`라 **네트워크 로거가 포함**됩니다 —
+> 스토어 빌드가 아니라 로컬 release 스모크 테스트용입니다.
 
 - **Android release 서명** — `plugins/with-android-plugin.ts`가 production 프리빌드에서만
   `signingConfigs.release`를 주입합니다. 값은 `.env`가 아니라 **Gradle 실행 시점의 환경 변수**
