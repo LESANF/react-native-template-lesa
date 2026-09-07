@@ -204,15 +204,14 @@
 
 - [x] `write-your-*` identity 교체 체크리스트 — README "Make it yours" §1 표(6필드). `name` 은 ASCII 유지, 한글·일본어 표시명은 `displayName` 에 (사유 `decisions.md` "표시명")
 - [x] production API URL 교체 체크리스트 — README §2. `env.ts` 가 production `.invalid` 를 부팅 시 throw 하는 것이 방어이고, 문서는 그 동작이 **의도**임을 밝히는 역할
-- [x] EAS owner/projectId 설정 안내 — README §5(`eas init` 또는 `app.config.ts` 주석 2줄, `slug` 일치 조건)
+- [x] **결정 — EAS 는 열어만 둔다(2026-09-07, 사용자 지시).** 템플릿은 `eas.json` 을 넣지 않고 `owner`·`extra.eas.projectId` 는 주석 이음새로 남긴다 — **활성화는 파일 존재로 갈린다**(푸시의 `firebase/`, OTA 의 `urls.ota` 와 같은 관용구). 참조 앱 KR/JP 는 안 쓴다. 기본 경로는 로컬 프리빌드 + `run:ios/android`(`:release`), Android 서명은 `with-android-plugin` 의 Gradle env, iOS 는 `appleTeamId`/Xcode. README §5 · `decisions.md` "EAS"
 - [x] `.env`는 항상 존재 — `postinstall`이 `.env.example`에서 자동 생성 (2026-08-27, CI/frozen 유무 모두 실행 확인). `.env.example` 마지막 줄은 `=` 없는 주석 유지 — Node 23 `util.parseEnv`(Expo CLI 사용)가 파일 마지막 주석 줄에 `=`가 있으면 변수로 읽는 버그 우회
 - [x] `.env` 예시 시크릿 `APP_BUILD_ONLY_EXAMPLE_SECRET` + `app.config.ts`의 `requireInStrict()` 복원(초기 커밋에 있던 것, 5767693에서 유실). STRICT 마스킹 표시·누락 시 throw/warn·공개 config 누출 0 확인 (2026-08-27)
 - [x] `.env.example`·app config·CNG 규칙 연결 — README §6. `.env`=빌드 시크릿 전용 · 런타임 공개값은 `env-candidates` · `STRICT_ENV_VALIDATION=1` 스크립트 · `ios`/`android` 는 산출물(직접 수정 금지, `plugins/` 로) · `.env.example` 마지막 줄 `=` 없는 주석 유지. README §3(에셋)·§4(빈 값=비활성 표)도 같이 추가
 
 ### C4. 자동화와 릴리즈
 
-- [ ] CI: frozen install → check-all → Expo Doctor → iOS export
-- [ ] EAS development/preview/production profile 확정, `eas.json` 추가
+- [ ] CI: frozen install → check-all → Expo Doctor → iOS export (기본은 로컬 툴체인 — EAS Build 전제 없음)
 - [ ] CHANGELOG와 tag 기반 릴리즈 절차
 - [ ] clean clone 전체 검증
 
@@ -241,7 +240,7 @@
 6. C1 잔재 0, C2 OTA 결정 기록, C2b 푸시 결정 기록, C3 온보딩 체크리스트 존재
 7. 새 사용자가 README + `data-layer.md`만으로 identity·API URL을 교체하고 실행할 수 있다
 
-**v1.x** — C4 CI·EAS·릴리즈 절차 → **v2** — C5 CLI
+**v1.x** — C4 CI·릴리즈 절차 → **v2** — C5 CLI
 
 ## 공통 커밋 게이트
 

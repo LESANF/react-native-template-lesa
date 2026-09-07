@@ -77,20 +77,20 @@ app.config.ts            파일 존재 → RNFB·notify-kit 플러그인·google
 
 ## 프로젝트가 채우는 곳 (`grep -rn "TODO(앱)" src app.config.ts firebase`)
 
-| 어디                                     | 무엇                                                                                                                                          |
-| ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| `firebase/`                              | `GoogleService-Info.<env>.plist` · `google-services.<env>.json` (3환경). Firebase 콘솔에 APNs 키 업로드                                       |
-| `lib/push/token-sync.ts`                 | `pushTokenSyncAdapter.register/unregister` — 서버 endpoint·바디(KR `{deviceId,deviceType,pushToken}` / JP `{platform,token}`처럼 앱마다 다름) |
-| 로그아웃 흐름                            | `await unregisterPushToken()` **후** `signOut()`                                                                                              |
-| `lib/push/taps.ts`                       | 배지 리셋 정책(예: 포그라운드 복귀 시 `notifee.setBadgeCount(0)`)                                                                             |
-| `lib/preloader/permissions/` 결과 소비처 | 알림 거부(`shouldGuide`)일 때 설정 이동 UX(참조 앱은 팝업 → `openSettings`)                                                                   |
-| `lib/push/core.ts` `setFcmConfig`        | `ios.suppressForegroundBanner` 등 표시 정책, 채널 추가                                                                                        |
-| `app.config.ts` notify-kit 플러그인      | Android small icon(`android.icons`), 포그라운드 서비스 타입                                                                                   |
-| EAS / 서명                               | NSE는 `extra.eas.build.experimental.ios.appExtensions`에 자동 등록. 수동 프로비저닝이면 `<bundleId>.NotifyKitNSE` 프로필                      |
+| 어디                                     | 무엇                                                                                                                                                                                           |
+| ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `firebase/`                              | `GoogleService-Info.<env>.plist` · `google-services.<env>.json` (3환경). Firebase 콘솔에 APNs 키 업로드                                                                                        |
+| `lib/push/token-sync.ts`                 | `pushTokenSyncAdapter.register/unregister` — 서버 endpoint·바디(KR `{deviceId,deviceType,pushToken}` / JP `{platform,token}`처럼 앱마다 다름)                                                  |
+| 로그아웃 흐름                            | `await unregisterPushToken()` **후** `signOut()`                                                                                                                                               |
+| `lib/push/taps.ts`                       | 배지 리셋 정책(예: 포그라운드 복귀 시 `notifee.setBadgeCount(0)`)                                                                                                                              |
+| `lib/preloader/permissions/` 결과 소비처 | 알림 거부(`shouldGuide`)일 때 설정 이동 UX(참조 앱은 팝업 → `openSettings`)                                                                                                                    |
+| `lib/push/core.ts` `setFcmConfig`        | `ios.suppressForegroundBanner` 등 표시 정책, 채널 추가                                                                                                                                         |
+| `app.config.ts` notify-kit 플러그인      | Android small icon(`android.icons`), 포그라운드 서비스 타입                                                                                                                                    |
+| NSE 서명                                 | 기본(EAS 미연결)은 **수동 프로비저닝** — `<bundleId>.NotifyKitNSE` 프로필을 따로 만든다(타깃이 하나 늘어난다). EAS 를 붙이면 `extra.eas.build.experimental.ios.appExtensions` 에 자동 등록된다 |
 
 ## 운영
 
-- 푸시 on/off는 파일 존재로 갈리므로 **CI/EAS에도 같은 파일이 있어야** 프로덕션 빌드에 푸시가 들어간다. 없으면 조용히 off로 빌드된다 → `STRICT_ENV_VALIDATION=1`에서는 한쪽만 있을 때 throw, 둘 다 없으면 `[push] disabled` 로그.
+- 푸시 on/off는 파일 존재로 갈리므로 **빌드하는 머신·CI(EAS 를 붙였다면 EAS)에도 같은 파일이 있어야** 프로덕션 빌드에 푸시가 들어간다. 없으면 조용히 off로 빌드된다 → `STRICT_ENV_VALIDATION=1`에서는 한쪽만 있을 때 throw, 둘 다 없으면 `[push] disabled` 로그.
 - 네이티브가 바뀌므로(RNFB·notify-kit·NSE) hot-updater fingerprint가 바뀐다 — 스토어 배포 필요.
 - 시뮬레이터는 APNs를 못 받는다. Firebase 없이도 홈 "Push" 버튼(로컬 알림 → 탭 → menu-4/42)과 `xcrun simctl push <UDID> <bundleId> payload.apns`로 표시·탭·딥링크는 확인할 수 있다. FCM 수신·NSE 이미지는 실기 + Firebase 프로젝트.
 

@@ -200,7 +200,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   experiments: {
     typedRoutes: true,
   },
-  // ── EAS 연결 시 (create-my-stack 또는 `eas init` 이 채움) ──
+  // ── EAS 는 기본 미연결 — 템플릿은 `eas.json` 을 두지 않는다(참조 앱 KR/JP 도 안 쓴다).
+  //    활성화는 파일 존재로 갈린다: `eas init` 을 돌리거나 아래 두 줄을 채우면 붙는다.
+  //    그 전까지 빌드 경로는 로컬 프리빌드 + run:ios/android (docs/decisions.md "EAS").
   // owner: 'your-expo-account',
   // extra: { eas: { projectId: 'xxxxxxxx-xxxx-...' } },
 });

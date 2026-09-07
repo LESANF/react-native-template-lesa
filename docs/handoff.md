@@ -200,7 +200,7 @@ assets/json/               dot-loading-white.json (jp에서 cp — Button 로딩
 4. **#22 부팅/프리로더 — 완료(2026-09-03)** `docs/boot.md`. 권한 라이브러리·ATT는 앱 몫(`onPermissions` 주입).
 5. **#18 실제 팔레트/타이포 교체 + getting-started 문서.**
 6. **#19 테스팅** — 템플릿 기본값에 테스트 인프라를 넣지 않기로 결정(`template-completion.md` A5). 검증은 lint·tsc·Expo Doctor·iOS export·시뮬 확인. 앱이 필요하면 그때 Jest/RNTL을 추가한다.
-7. **#20 EAS 빌드 + CI 워크플로.**
+7. **#20 CI 워크플로.** EAS 는 기본 미연결이고 `eas.json` 존재로 갈린다(`decisions.md` "EAS") — 기본 경로는 로컬 프리빌드 + `run:ios/android`, Gradle env 서명.
 8. **#26 버저닝 히스토리** — CHANGELOG + GitHub Releases(라이브러리식, 태그 기반).
 9. **#21 create-my-stack CLI** — 마지막. 템플릿 다운로드 + 식별자 치환(`__APP_NAME__` 등) + 의존성 설치 + 클린업. obytes `cli/` 참고.
 

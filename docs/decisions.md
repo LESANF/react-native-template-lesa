@@ -687,7 +687,7 @@ store는 client를 import하지 않으며, 중앙 client의 raw axios instance�
 | `aps-environment` · `UIBackgroundModes` · `googleServicesFile` · `POST_NOTIFICATIONS`                                                                                | ✅ (푸시 게이트)                                                                                                                   |
 | `NSAppTransportSecurity(ArbitraryLoads)` · `LSApplicationQueriesSchemes` · `NSUserNotificationUsageDescription`(무효 키) · `FirebaseAutomaticScreenReportingEnabled` | ❌ 앱 전용 / 무효                                                                                                                  |
 | `appStoreUrl` · `playStoreUrl`                                                                                                                                       | ❌ 강제 업데이트 정책(`forced-update.ts` TODO)에서                                                                                 |
-| `owner` · `extra.eas.projectId`                                                                                                                                      | C3                                                                                                                                 |
+| `owner` · `extra.eas.projectId`                                                                                                                                      | ⏸ 기본 미연결 — 주석 이음새로 남김. 아래 "EAS" 절                                                                                  |
 | `updates.fallbackToCacheTimeout` · `newArchEnabled` · `web`                                                                                                          | ❌ 죽은 설정 / 기본값 / 웹 미지원                                                                                                  |
 
 ### 표시명 — `name` 은 ASCII, 홈 화면 이름은 `displayName` (2026-09-07)
@@ -724,3 +724,42 @@ Xcode 프로젝트·스킴·`PRODUCT_NAME` 을 파생하는데, `sanitizedName()
 
 거부: KR 처럼 `plugins/with-display-name.ts` 를 따로 두는 것 — Android mod 한 개라
 `with-android-plugin.ts` 안에 있는 게 맞다(파일 수를 늘릴 이유가 없다).
+
+### EAS — 열어만 둔다 (2026-09-07, 사용자 지시)
+
+**활성화는 파일 존재로 갈린다.** 템플릿은 `eas.json` 을 넣지 않으므로 기본이 미연결이고,
+`eas init` 을 돌리거나 `app.config.ts` 의 주석 두 줄(`owner`·`extra.eas.projectId`)을 채우면
+붙는다. 푸시가 `firebase/` 파일 존재로, OTA 가 `Env.urls.ota` 빈 값으로 갈리는 것과 같은
+관용구다 — 템플릿은 이음새만 두고 정책은 앱이 고른다. 참조 앱 KR/JP 는 쓰지 않는다.
+
+기본(EAS 미연결) 경로:
+
+- **프리빌드** — `pnpm prebuild:<env>` (`rm -rf ios android && expo prebuild`, `STRICT_ENV_VALIDATION=1`)
+- **빌드** — `pnpm ios:release` · `pnpm android:release`
+  (`expo run:ios --configuration release` · `expo run:android --variant release`)
+- **Android release 서명** — `plugins/with-android-plugin.ts` 가 production 프리빌드에서만
+  `signingConfigs.release` 를 주입하고, 값은 Gradle 실행 시점 env `ANDROID_UPLOAD_*` 에서 읽는다.
+  EAS 를 붙이면 EAS credentials 가 자체 signingConfig 를 넣어 이 블록은 쓰이지 않는다.
+- **iOS 서명** — `.env` `APP_BUILD_ONLY_APPLE_TEAM_ID` → `ios.appleTeamId`, 비면 Xcode 자동 서명.
+  스토어 업로드는 Xcode 또는 앱이 직접 붙이는 fastlane.
+- **푸시 NSE** — 기본은 **수동 프로비저닝**(`<bundleId>.NotifyKitNSE` 프로필). EAS 를 붙이면
+  `extra.eas.build.experimental.ios.appExtensions` 에 자동 등록된다.
+- **Firebase 설정 파일** — 커밋하거나, CI 시크릿 / EAS file 타입 환경 변수로 복원한다.
+- **OTA** — hot-updater 자체 서버라 EAS 연결 여부와 무관하다(위 OTA 결정).
+
+**CNG 는 EAS 와 무관하게 그대로다.** EAS 를 안 붙였다고 네이티브를 커밋하는 게 아니다 —
+`ios/`·`android/` 는 여전히 산출물이고 `prebuild` 가 `rm -rf` 후 재생성한다. 네이티브가
+필요하면 경로는 둘뿐이다:
+
+1. 생성되는 네이티브 **설정**을 바꾸는 것 → **config plugin** (`plugins/`)
+2. 네이티브 **코드**가 필요한 것 → **로컬 Expo Module**
+   (`pnpm create expo-module --local` → `modules/<name>/{android,ios,src}`, autolink, npm 배포 불필요)
+
+로컬 모듈의 `modules/<name>/ios`·`android` 는 **커밋 대상이다** — `.gitignore` 가 루트 앵커
+`/ios`·`/android` 라서 걸리지 않는다(`git check-ignore` 로 확인함). 모듈 추가 후
+`npx pod-install` 재실행이 필요하고, 절대경로 import 를 쓰려면 `tsconfig.json` `paths` 에
+별칭을 추가한다(기본 `@/*` 는 `./src/*` 만 가리킨다).
+
+영향: `slug` 는 EAS 를 붙이기 전까지 사실상 라벨이다 — `@expo/config` 는 `slug` 가 비면
+`name` 을 slugify 해서 채운다(`Config.js`, 필수 필드가 아니다). C4 의 `eas.json` 프로필 항목은
+지웠고, CI 는 로컬 툴체인(frozen install → check-all → Doctor → export) 기준으로 남긴다.
