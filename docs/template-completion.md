@@ -202,12 +202,12 @@
 
 ### C3. 설정과 onboarding
 
-- [ ] `write-your-*` identity 교체 체크리스트 — `name` 은 ASCII 유지, 한글·일본어 표시명은 `displayName` 에 (사유 `decisions.md` "표시명")
-- [ ] production API URL 교체 체크리스트 (`env.ts`가 production `.invalid`를 부팅 시 throw하도록 이미 방어함 — 문서만)
-- [ ] EAS owner/projectId 설정 안내
+- [x] `write-your-*` identity 교체 체크리스트 — README "Make it yours" §1 표(6필드). `name` 은 ASCII 유지, 한글·일본어 표시명은 `displayName` 에 (사유 `decisions.md` "표시명")
+- [x] production API URL 교체 체크리스트 — README §2. `env.ts` 가 production `.invalid` 를 부팅 시 throw 하는 것이 방어이고, 문서는 그 동작이 **의도**임을 밝히는 역할
+- [x] EAS owner/projectId 설정 안내 — README §5(`eas init` 또는 `app.config.ts` 주석 2줄, `slug` 일치 조건)
 - [x] `.env`는 항상 존재 — `postinstall`이 `.env.example`에서 자동 생성 (2026-08-27, CI/frozen 유무 모두 실행 확인). `.env.example` 마지막 줄은 `=` 없는 주석 유지 — Node 23 `util.parseEnv`(Expo CLI 사용)가 파일 마지막 주석 줄에 `=`가 있으면 변수로 읽는 버그 우회
 - [x] `.env` 예시 시크릿 `APP_BUILD_ONLY_EXAMPLE_SECRET` + `app.config.ts`의 `requireInStrict()` 복원(초기 커밋에 있던 것, 5767693에서 유실). STRICT 마스킹 표시·누락 시 throw/warn·공개 config 누출 0 확인 (2026-08-27)
-- [ ] `.env.example`, app config, CNG 규칙 연결
+- [x] `.env.example`·app config·CNG 규칙 연결 — README §6. `.env`=빌드 시크릿 전용 · 런타임 공개값은 `env-candidates` · `STRICT_ENV_VALIDATION=1` 스크립트 · `ios`/`android` 는 산출물(직접 수정 금지, `plugins/` 로) · `.env.example` 마지막 줄 `=` 없는 주석 유지. README §3(에셋)·§4(빈 값=비활성 표)도 같이 추가
 
 ### C4. 자동화와 릴리즈
 
@@ -231,6 +231,12 @@
 2. 작업 트리 clean — A1~A6(A5 삭제)의 모든 `[~]`가 커밋됨
 3. B1·B3 사용자 확인 완료
 4. `grep -rn "TODO(앱)" src` 결과가 `data-layer.md`·`boot.md`·`push.md` "채우는 곳"과 1:1
+   — **2026-09-07 대조: 아직 1:1 아님.** 코드 마커는 22개 파일, 문서 표는 15개 경로.
+   표의 "어디" 열에 없는 마커: `lib/deep-link/matcher.ts`(2) · `dispatcher.ts` · `types.ts` ·
+   `hooks/use-deep-link.ts`(어트리뷰션 SDK) · `constants/push.ts`(2) · `app/_layout.tsx`(리셋 정책) ·
+   `app.config.ts`(예시 시크릿). 일부는 다른 행의 셀 본문에 언급돼 있어 완전 누락은 아니다.
+   역방향(표에 있으나 코드 마커 없음): `firebase/` · `lib/preloader/permissions/` ·
+   `lib/push/core.ts` · `utils/show-*-popup.ts`. 마커를 추가할지 표를 줄일지 결정이 남았다
 5. A4의 결정(SecureStore 미채택·required 미시연)이 `decisions.md`/`data-layer.md`에 기록됨이 `decisions.md`에 기록됨
 6. C1 잔재 0, C2 OTA 결정 기록, C2b 푸시 결정 기록, C3 온보딩 체크리스트 존재
 7. 새 사용자가 README + `data-layer.md`만으로 identity·API URL을 교체하고 실행할 수 있다
