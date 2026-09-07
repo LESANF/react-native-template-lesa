@@ -25,6 +25,9 @@ export type {
 export { ErrorFallback } from './error-fallback';
 export { Image } from './image';
 export { Input } from './input';
+export { NetLogFab } from './net-log-fab';
+export { GlobalPopup, popup } from './popup';
+export type { PopupChoice, PopupOptions } from './popup';
 export { Pressable } from './pressable';
 export { ScreenSystemBars } from './screen-system-bars';
 export type { ScreenSystemBarsProps } from './screen-system-bars';
