@@ -28,7 +28,7 @@
 
 ```
 constants/preloader · constants/deep-link      상수(스테이지, 타임아웃, 호스트, 안전 경로)
-lib/preloader/                                 KR `lib/preloader` 파일 단위 이식(2026-09-03, core/types/permissions 는 바이트 동일)
+lib/preloader/                                 KR `lib/preloader` verbatim 이식(2026-09-03, 대조 검증 아래 "이식 검증")
   types.ts          PreloaderCallbacks(주입=활성화) · StageFailure
   core.ts           runPreloader: hydrate → forced-update-check → ota-check → permissions-check 순차, 스테이지별 try/catch 격리, progress n/4
   hydrate.ts        auth 복원 상태 로그(복원 자체는 _layout 모듈 스코프 hydrateAuth)
@@ -110,6 +110,23 @@ hot-updater.config.ts · scripts/ota-deploy.mjs CLI 전용(번들 밖). 배포 �
 
 **템플릿이 KR 보다 나은 지점**: KR 은 링크 호스트 목록을 `+native-intent.tsx` 와 `app.config.ts`
 두 곳에 중복으로 갖고 있다. 템플릿은 `DEEP_LINK_HTTPS_HOSTS` 하나에서 셋 다 파생한다.
+
+## 프리로더 이식 검증 (2026-09-07, KR diff)
+
+문서가 "core/types/permissions 는 바이트 동일"이라 주장해 실제로 diff 했다. **바이트는 다르지만
+로직은 동일하다** — KR 파일이 자기 prettier 설정(양쪽 동일: printWidth 100, trailingComma es5)으로
+포맷되지 않은 상태였다. KR `core.ts` 를 템플릿 prettier 로 포맷하면 **완전 일치**한다(증명).
+
+| 파일                                                       | 포맷 정규화 후 차이                                          |
+| ---------------------------------------------------------- | ------------------------------------------------------------ |
+| `core.ts` · `types.ts` · `index.ts` · `permissions/*`(5개) | **0줄**                                                      |
+| `hydrate.ts`                                               | auth `isAuthenticated` → `status`(템플릿 스토어 모양) + 주석 |
+| `ota.ts`                                                   | `Env.EXPO_PUBLIC_HOT_UPDATER_BASE_URL` → `Env.urls.ota`      |
+| `forced-update.ts`                                         | Env 경로 · `api/app/controller` → `api/app/requests`         |
+| `splash-initializer.tsx`                                   | 주석 1줄(KR 은 인트로 영상 언급)                             |
+
+모든 차이가 선언된 허용 변경(Env 경로 · auth status · api/app 스텁 · 주석) 안이고 **로직 드리프트는
+0**이다. 스테이지 순서·실패 격리·`hideAsync` 소유권은 KR 과 같다.
 
 ## 거부된 대안 (다시 제안하지 말 것)
 
