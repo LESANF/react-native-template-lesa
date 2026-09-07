@@ -213,7 +213,12 @@
 
 - [x] **결정 — CI 워크플로는 넣지 않는다(2026-09-07, 사용자 지시).** 게이트는 로컬 `pnpm run check-all`. 받는 팀이 자기 파이프라인을 붙인다.
 - [ ] CHANGELOG와 tag 기반 릴리즈 절차
-- [ ] clean clone 전체 검증
+- [x] **clean clone 전체 검증(2026-09-07)** — 새 폴더에 clone → frozen install → check-all → doctor → iOS export.
+      `ios`/`android`/`.env`/`node_modules`/`.expo`/`fingerprint.json` 이 clone 에 없는 것 확인,
+      postinstall 이 `.env` 생성. **실패 1건 발견·수정**: `tsc` 가 `'../global.css'` 선언을 못 찾았다 —
+      `*.css` 선언은 `expo/types/global.d.ts` 에만 있고 그 진입점 `expo-env.d.ts` 는 gitignore 대상이라
+      clean clone 에 없다. `src/types/css.d.ts` 에 `declare module '*.css'` 를 넣어 해결(expo-env.d.ts 가
+      있는 환경에서도 중복 충돌 없음을 양쪽에서 확인). doctor 는 SDK 패치 3개 밀림(별건).
 
 ### C5. create-my-stack CLI
 
