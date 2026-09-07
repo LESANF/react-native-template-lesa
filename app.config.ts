@@ -128,6 +128,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       // 표준 암호화(HTTPS)만 사용한다는 선언 — 스토어 제출 시 설문 스킵.
       // 커스텀 암호화를 쓰게 되면 true 로 바꾸고 수출 규정 문서를 준비하세요.
       ITSAppUsesNonExemptEncryption: false,
+      // 홈 화면 이름만 갈아끼운다 — `name`(ASCII)은 Xcode 프로젝트·스킴·PRODUCT_NAME 이 쓴다.
+      ...(Env.identity.displayName ? { CFBundleDisplayName: Env.identity.displayName } : {}),
       // data-only/silent 푸시를 백그라운드에서 받아 notify-kit 이 그리려면 필요하다.
       ...(pushEnabled ? { UIBackgroundModes: ['remote-notification'] } : {}),
     },
@@ -190,7 +192,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     ],
     ['react-native-permissions', { iosPermissions: ['Notifications'] }],
     // 프로젝트 자체 플러그인(plugins/with-plugin → android · ios). 푸시 off 면 iOS 쪽이 Podfile 에 DisableSPM 을 넣는다.
-    ['./plugins/with-plugin', { pushEnabled }],
+    ['./plugins/with-plugin', { pushEnabled, displayName: Env.identity.displayName }],
     ['app-icon-badge', appIconBadgeConfig],
     ...PUSH_PLUGINS,
   ],

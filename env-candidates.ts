@@ -21,7 +21,19 @@
  */
 export const values = {
   identity: {
+    /**
+     * ASCII 로 둔다. Expo prebuild 가 이 값에서 iOS Xcode 프로젝트·스킴·PRODUCT_NAME 을
+     * 파생하면서 non-word 문자를 전부 지우는데(`sanitizedName`, 정규식에 u 플래그 없음)
+     * 한글·가나만인 이름은 전부 날아가 프로젝트가 `app` 이 된다. 홈 화면 이름은 displayName.
+     */
     name: 'write-your-app-name',
+    /**
+     * 홈 화면에 보이는 이름 — 비우면 `name` 을 그대로 쓴다(기본).
+     * 채우면 iOS 는 `CFBundleDisplayName`, Android 는 strings.xml 의 `app_name` 만 바뀌고
+     * 프로젝트·스킴 이름은 ASCII `name` 을 유지한다.
+     * TODO(앱): 앱 이름이 한글·일본어면 여기 채운다 (예: '워크아웃').
+     */
+    displayName: '',
     slug: 'write-your-app-slug',
     scheme: {
       development: 'write-your-scheme-dev',

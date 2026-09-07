@@ -1,4 +1,9 @@
-import { withAndroidManifest, withAppBuildGradle } from 'expo/config-plugins';
+import {
+  AndroidConfig,
+  withAndroidManifest,
+  withAppBuildGradle,
+  withStringsXml,
+} from 'expo/config-plugins';
 
 import type { ConfigPlugin } from 'expo/config-plugins';
 import type { PluginOptions } from './with-plugin';
@@ -12,6 +17,9 @@ import type { PluginOptions } from './with-plugin';
  *       ANDROID_UPLOAD_KEYSTORE_PATH (기본 `<repo>/upload.jks`) · ANDROID_UPLOAD_KEYSTORE_PASSWORD ·
  *       ANDROID_UPLOAD_KEY_ALIAS · ANDROID_UPLOAD_KEY_PASSWORD
  *     EAS 가 credentials 를 관리하면 이 블록은 쓰이지 않는다(EAS 는 자체 signingConfig 를 주입).
+ *
+ *  3) 표시명 분리: `displayName` 이 있으면 strings.xml 의 `app_name` 만 그 값으로 바꾼다.
+ *     `name` 은 ASCII 를 유지해야 iOS 프로젝트·스킴이 멀쩡하다(env-candidates 주석 참고).
  *
  *  참조 앱의 결제 앱 query(`auwallet`)·Firebase Analytics 메타데이터는 앱 전용이라 넣지 않았다.
  */
@@ -61,7 +69,19 @@ export function patchAppBuildGradle(contents: string): string {
   return next;
 }
 
-const withAndroidPlugin: ConfigPlugin<PluginOptions> = config => {
+const withAndroidPlugin: ConfigPlugin<PluginOptions> = (config, { displayName }) => {
+  // Expo 코어의 withName 이 `name` 으로 app_name 을 쓴 뒤에 이 mod 가 돌아 덮어쓴다
+  // (mod 는 나중에 등록된 것이 나중에 실행된다 — prebuild 로 확인).
+  if (displayName) {
+    config = withStringsXml(config, stringsConfig => {
+      stringsConfig.modResults = AndroidConfig.Strings.setStringItem(
+        [{ _: displayName, $: { name: 'app_name' } }],
+        stringsConfig.modResults
+      );
+      return stringsConfig;
+    });
+  }
+
   config = withAndroidManifest(config, manifestConfig => {
     const application = manifestConfig.modResults.manifest.application?.[0];
     const mainActivity = application?.activity?.find(a => a.$['android:name'] === '.MainActivity');
