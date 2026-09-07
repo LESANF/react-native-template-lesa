@@ -131,7 +131,7 @@ export type DynamicRouteSpec = {
     parsed: ParsedDeepLink,
     entrySource: EntrySource,
     ctx: NavigateContext,
-    params: Record<string, string>,
+    params: Record<string, string>
   ) => void | Promise<void>;
 };
 

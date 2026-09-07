@@ -1,10 +1,5 @@
 import { forwardRef, type ComponentType } from 'react';
-import {
-  Pressable,
-  StyleSheet,
-  type PressableProps,
-  type View,
-} from 'react-native';
+import { Pressable, StyleSheet, type PressableProps, type View } from 'react-native';
 import type { TabTriggerSlotProps } from 'expo-router/ui';
 
 import { type TabIconProps } from '@/components/icons/tabs';
@@ -23,15 +18,8 @@ export type TabButtonProps = TabTriggerSlotProps & {
 };
 
 export const TabButton = forwardRef<View, TabButtonProps>(function TabButton(
-  {
-    href: _href,
-    icon: Icon,
-    isFocused = false,
-    label,
-    style: _style,
-    ...props
-  },
-  ref,
+  { href: _href, icon: Icon, isFocused = false, label, style: _style, ...props },
+  ref
 ) {
   const color = isFocused ? TAB_BAR_COLORS.selected : TAB_BAR_COLORS.default;
   const pressableProps: PressableProps = props;
@@ -44,15 +32,8 @@ export const TabButton = forwardRef<View, TabButtonProps>(function TabButton(
       accessibilityState={{ selected: isFocused }}
       {...pressableProps}
       style={styles.root}>
-      <Icon
-        color={color}
-        pointerEvents="none"
-        size={TAB_ICON_SIZE}
-      />
-      <Text
-        numberOfLines={1}
-        style={[styles.label, { color }]}
-      >
+      <Icon color={color} pointerEvents="none" size={TAB_ICON_SIZE} />
+      <Text numberOfLines={1} style={[styles.label, { color }]}>
         {label}
       </Text>
     </Pressable>

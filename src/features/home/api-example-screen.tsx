@@ -2,25 +2,10 @@ import { Delay } from '@suspensive/react';
 import { Suspense, type ReactNode } from 'react';
 
 import { useCreateExamplePostMutation } from '@/api/example/mutations';
-import {
-  useExampleTodoQuery,
-  useExampleTodoSuspenseQuery,
-} from '@/api/example/queries';
-import {
-  ActivityIndicator,
-  Button,
-  ScrollView,
-  Text,
-  View,
-} from '@/components/ui';
+import { useExampleTodoQuery, useExampleTodoSuspenseQuery } from '@/api/example/queries';
+import { ActivityIndicator, Button, ScrollView, Text, View } from '@/components/ui';
 
-function Section({
-  title,
-  children,
-}: {
-  readonly title: string;
-  readonly children: ReactNode;
-}) {
+function Section({ title, children }: { readonly title: string; readonly children: ReactNode }) {
   return (
     <View className="gap-3 rounded-2xl border border-border bg-card p-4">
       <Text variant="heading-sm">{title}</Text>
@@ -29,13 +14,7 @@ function Section({
   );
 }
 
-function TodoCard({
-  completed,
-  title,
-}: {
-  readonly completed: boolean;
-  readonly title: string;
-}) {
+function TodoCard({ completed, title }: { readonly completed: boolean; readonly title: string }) {
   return (
     <View className="gap-1 rounded-xl bg-muted p-3">
       <Text>{title}</Text>

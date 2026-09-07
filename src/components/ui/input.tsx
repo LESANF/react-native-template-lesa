@@ -62,11 +62,11 @@ export function Input({
         placeholderTextColorClassName="accent-muted-foreground"
         style={{ includeFontPadding: false, textAlignVertical: 'center' }}
         className={styles.field({ className })}
-        onFocus={(e) => {
+        onFocus={e => {
           setFocused(true);
           onFocus?.(e);
         }}
-        onBlur={(e) => {
+        onBlur={e => {
           setFocused(false);
           onBlur?.(e);
         }}

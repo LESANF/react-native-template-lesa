@@ -12,7 +12,9 @@ export function SettingsScreen() {
 
   return (
     <ScrollView className="bg-background" contentContainerClassName="gap-3 p-4">
-      <Text variant="heading-sm" color="muted">테마</Text>
+      <Text variant="heading-sm" color="muted">
+        테마
+      </Text>
       <View className="overflow-hidden rounded-2xl border border-border bg-card">
         {COLOR_SCHEMES.map((scheme, i) => (
           <View key={scheme}>
@@ -20,8 +22,7 @@ export function SettingsScreen() {
             <Pressable
               accessibilityRole="button"
               onPress={() => setSelectedTheme(scheme)}
-              className="flex-row items-center justify-between p-4"
-            >
+              className="flex-row items-center justify-between p-4">
               <Text>{LABELS[scheme]}</Text>
               {selectedTheme === scheme ? <Text color="primary">●</Text> : null}
             </Pressable>

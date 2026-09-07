@@ -19,7 +19,7 @@ import type { FcmRemoteMessage } from 'react-native-notify-kit';
 if (isPushConfigured) {
   // Android data-only / iOS silent 로 도착한 메시지를 notify-kit 이 그린다(FCM Mode).
   // 채널이 아직 없을 수 있는 첫 푸시를 위해 표시 직전에 await 한다 — 메모이즈라 두 번째부터는 즉시 통과.
-  setBackgroundMessageHandler(getPushMessaging(), async (message) => {
+  setBackgroundMessageHandler(getPushMessaging(), async message => {
     await ensurePushChannel();
     // RNFB 의 data 는 Record<string, string | object>, notify-kit 은 Record<string, string> — 읽는 필드는 같다.
     await notifee.handleFcmMessage(message as unknown as FcmRemoteMessage);

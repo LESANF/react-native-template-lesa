@@ -22,10 +22,10 @@ export type PushTokenSyncAdapter = {
  * export 는 테스트가 스파이를 끼우기 위한 것 — 앱 코드는 이 객체의 메서드 본문을 교체한다.
  */
 export const pushTokenSyncAdapter: PushTokenSyncAdapter = {
-  register: async (token) => {
+  register: async token => {
     console.log('[push] TODO(앱) register token:', token.slice(0, 12) + '…');
   },
-  unregister: async (token) => {
+  unregister: async token => {
     console.log('[push] TODO(앱) unregister token:', token.slice(0, 12) + '…');
   },
 };
@@ -70,13 +70,13 @@ export function startPushTokenSync(): void {
 
     if (prev.status === 'signedIn' && state.status === 'signedOut') {
       lastRegistered = null;
-      void deleteToken(getPushMessaging()).catch((error) =>
-        console.log('[push] deleteToken 실패', error),
+      void deleteToken(getPushMessaging()).catch(error =>
+        console.log('[push] deleteToken 실패', error)
       );
     }
   });
 
-  onTokenRefresh(getPushMessaging(), (token) => {
+  onTokenRefresh(getPushMessaging(), token => {
     // 로그아웃 직후 deleteToken 이 유발하는 refresh 를 여기서 막는다(결함 D2). 별도 플래그가 필요 없다.
     if (useAuthStore.getState().status !== 'signedIn') return;
     void register(token);

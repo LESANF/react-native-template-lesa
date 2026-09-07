@@ -13,13 +13,16 @@ export function usePreventBack(): void {
       });
       navigation.getParent()?.setOptions({ gestureEnabled: false });
 
-      const hardwareBackPressHandler = BackHandler.addEventListener('hardwareBackPress', () => true);
+      const hardwareBackPressHandler = BackHandler.addEventListener(
+        'hardwareBackPress',
+        () => true
+      );
 
       return () => {
         navigation.getParent()?.setOptions({ gestureEnabled: true });
         navigation.setOptions({ gestureEnabled: true });
         hardwareBackPressHandler.remove();
       };
-    }, [navigation]),
+    }, [navigation])
   );
 }

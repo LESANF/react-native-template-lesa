@@ -58,17 +58,17 @@ export function subscribePush(): () => void {
 
     // foreground 수신: OS 는 배너를 그리지 않는다 → notify-kit 이 그린다(FCM Mode).
     unsubscribes.push(
-      onMessage(messaging, async (message) => {
+      onMessage(messaging, async message => {
         await ensurePushChannel();
         await notifee.handleFcmMessage(message as unknown as FcmRemoteMessage);
-      }),
+      })
     );
 
     // OS 알림 탭으로 백그라운드 → 포그라운드 복귀. iOS 에서는 notifee 이벤트와 겹치지만 dispatcher 가 걸러낸다.
     unsubscribes.push(
-      onNotificationOpenedApp(messaging, (message) =>
-        enqueuePushTap(extractFromRemoteMessage(message), 'background'),
-      ),
+      onNotificationOpenedApp(messaging, message =>
+        enqueuePushTap(extractFromRemoteMessage(message), 'background')
+      )
     );
   }
 
@@ -76,7 +76,7 @@ export function subscribePush(): () => void {
     notifee.onForegroundEvent(({ type, detail }) => {
       if (type === EventType.PRESS)
         enqueuePushTap(extractFromNotifeeDetail(detail), 'foreground-tap');
-    }),
+    })
   );
 
   // TODO(앱): 배지 리셋 정책(포그라운드 복귀 시 notifee.setBadgeCount(0) 등)

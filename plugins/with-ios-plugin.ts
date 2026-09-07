@@ -1,7 +1,7 @@
-import { CodeGenerator, withPodfile } from "expo/config-plugins";
+import { CodeGenerator, withPodfile } from 'expo/config-plugins';
 
-import type { ConfigPlugin } from "expo/config-plugins";
-import type { PluginOptions } from "./with-plugin";
+import type { ConfigPlugin } from 'expo/config-plugins';
+import type { PluginOptions } from './with-plugin';
 
 /**
  * iOS 네이티브 프로젝트 보정 — `./with-plugin` 이 조합한다.
@@ -15,20 +15,20 @@ import type { PluginOptions } from "./with-plugin";
  *   `internal import Expo` 라 앵커 정규식을 `/^(internal )?import Expo$/m` 로), Info.plist·entitlements 세부 조정.
  *   `withAppDelegate` 를 쓸 땐 앵커를 못 찾으면 throw 하도록 해서 조용히 빠지는 일을 막는다.
  */
-const DISABLE_SPM_TAG = "template-firebase-disable-spm";
+const DISABLE_SPM_TAG = 'template-firebase-disable-spm';
 
 const withIosPlugin: ConfigPlugin<PluginOptions> = (config, { pushEnabled }) => {
   if (pushEnabled) return config;
 
-  return withPodfile(config, (podfileConfig) => {
+  return withPodfile(config, podfileConfig => {
     podfileConfig.modResults.contents = CodeGenerator.mergeContents({
       tag: DISABLE_SPM_TAG,
       src: podfileConfig.modResults.contents,
-      newSrc: "$RNFirebaseDisableSPM = true",
+      newSrc: '$RNFirebaseDisableSPM = true',
       // RNFB 플러그인과 같은 앵커 — target 블록보다 먼저 정의돼야 firebase_spm.rb 가 본다.
       anchor: /prepare_react_native_project!/,
       offset: 1,
-      comment: "#",
+      comment: '#',
     }).contents;
     return podfileConfig;
   });

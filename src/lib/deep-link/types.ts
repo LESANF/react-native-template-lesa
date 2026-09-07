@@ -65,7 +65,7 @@ export type RouteHandler = {
   navigate: (
     parsed: ParsedDeepLink,
     entrySource: EntrySource,
-    ctx: NavigateContext,
+    ctx: NavigateContext
   ) => void | Promise<void>;
   name?: string;
   expoPath: string;

@@ -30,7 +30,7 @@ const lastHandled = new Map<string, number>();
 function makeKey(payload: DeepLinkPayload): string {
   const queryKey = Object.keys(payload.parsed.query)
     .sort()
-    .map((key) => `${key}=${payload.parsed.query[key]}`)
+    .map(key => `${key}=${payload.parsed.query[key]}`)
     .join('&');
   return `${payload.parsed.path}?${queryKey}`;
 }
@@ -61,7 +61,7 @@ async function processNextEntry() {
   if (isProcessing || queue.length === 0 || !navigateContext) return;
 
   const readyIndex = queue.findIndex(
-    (queuedPayload) => queuedPayload.entrySource !== 'cold' || isSplashClosed,
+    queuedPayload => queuedPayload.entrySource !== 'cold' || isSplashClosed
   );
   if (readyIndex === -1) return;
 
@@ -130,7 +130,7 @@ export const deepLinkDispatcher = {
     if (isDuplicate(payload)) return;
 
     const payloadKey = makeKey(payload);
-    if (queue.some((queuedPayload) => makeKey(queuedPayload) === payloadKey)) return;
+    if (queue.some(queuedPayload => makeKey(queuedPayload) === payloadKey)) return;
 
     console.log('[deep-link] enqueue:', { path: parsed.path, entrySource });
     queue.push(payload);
@@ -167,7 +167,7 @@ export const deepLinkDispatcher = {
    *   등록 + fallback 미지정       → null (dispatcher 의 이동 흐름 그대로)
    */
   peekSafeFallback(): string | null {
-    const next = queue.find((queuedPayload) => queuedPayload.entrySource === 'cold');
+    const next = queue.find(queuedPayload => queuedPayload.entrySource === 'cold');
     if (!next) return null;
     const handler = matchRoute(next.parsed);
     if (!handler) return SAFE_FALLBACK_PATH;

@@ -60,16 +60,20 @@
 ## 4. 아키텍처 & 컨벤션 (결정됨 — 1차 출처 decisions.md)
 
 ### 4.1 앱 셸 — 루트 `_layout.tsx`는 "조립만"
+
 4분리:
+
 - **동기 모듈로드 셋업** (React 이전 1회): `import '../global.css'`, `import '@/lib/i18n'`, `loadSelectedTheme()` — `_layout` 상단에 인라인.
 - **감싸는 것** → `providers/app-providers.tsx` (GestureHandlerRootView → SafeAreaProvider → ThemeProvider → Suspensive ErrorBoundary). 명시적 중첩(composeProviders 거부).
 - **네비게이션** → 루트 `<Stack screenOptions={{ headerShown: false }} />` (빈 몸통).
 - **띄우는 것** → `providers/global-overlays.tsx` (현재 toast 전역 호스트 — 나중에 필요한 전역 host 추가 자리).
 
 ### 4.2 스타트업 2층
+
 ① 동기 모듈로드(위) vs ② 비동기 프리로더(`lib/preloader`, **#22 구현됨** — `docs/boot.md`: hydrate→forced-update→OTA(hot-updater)→permissions, splash 라우트, 딥링크 큐). 둘을 섞지 말 것.
 
 ### 4.3 라우팅 (expo-router, 검증됨)
+
 - 라우트는 **파일시스템에서 자동 등록.** `<Stack.Screen>`은 **옵션 바꿀 때만** 적는다(옵션 없으면 생략 — 루트는 빈 `<Stack/>`).
 - **섹션 = 괄호 없는 일반 폴더** (`shop/`, `shop/[id]`). URL에 나옴.
 - **`(group)`은 URL 세그먼트를 숨길 때만** (예: `(tabs)`). 남발 금지.
@@ -78,17 +82,20 @@
 - ⚠️ **NativeTabs 폴더-탭은 `_layout.tsx`가 없으면 조용히 드랍됨**(메모리 `native-tabs-folder-needs-layout`). 탭 변경은 fast-refresh 안 먹고 풀 재시작 필요. `sf=` 심볼 틀리면 탭 통째로 사라짐.
 
 ### 4.4 네비게이션 (router vs Link) — 확정
+
 - **이동 명령은 `router` 싱글톤으로 통일** (`import { router } from 'expo-router'`). `useRouter()` 훅 안 씀(웹 SSR 할 때만 예외). 둘 다 같은 API·같은 경로, 차이는 호출 위치뿐.
 - **경로/파라미터 읽기는 훅** (`usePathname`, `useLocalSearchParams`) — 선택지 없음.
 - **Link는 네이티브에서 거의 안 씀.** 평범한 탭 이동은 `onPress={() => router.push(...)}`. Link는 **prefetch / iOS 롱프레스 프리뷰·컨텍스트메뉴·줌**이 필요한 특정 지점만(`<Link asChild>`).
 - **리스트→상세 prefetch는 react-query 데이터 prefetch**(`placeholderData` 시드 + `onPressIn`에서 그 항목만 `prefetchQuery`). `<Link prefetch>`는 화면을 통째로 마운트하므로 **무한스크롤 리스트엔 쓰지 말 것.**
 
 ### 4.5 모달 / 오버레이
+
 - **라우트 모달**(`presentation`)은 **네비게이션 플로우**(로그인 등 — jp는 `auth`를 fullScreenModal 라우트로)에만.
 - **일반 팝업/다이얼로그/토스트 = 명령형 전역 핸들링** (global-overlays 슬롯). 현재는 toast만 `stores/overlay`가 상태/명령을 갖고 `GlobalOverlays`가 호스트만 마운트한다. **overlay-kit은 이 프로젝트에서 금지** — 설치/도입/검토하지 않는다. `Dimmed`는 store에 묶지 않고 필요한 popup/loading/sheet가 직접 렌더하는 공통 primitive로 둔다.
 - 데모용 `app/modal.tsx` 라우트 모달은 제거됨.
 
 ### 4.6 디자인 토큰 / 다크모드 (Obytes 5레이어 이식, 완료)
+
 - 색 등록·라이트 기본값: `src/styles/tokens/colors.css` (`@theme`, **공식 11 토큰**: background/foreground/card/muted/muted-foreground/primary/primary-foreground/success/warning/destructive/border).
 - 다크 오버라이드: `src/styles/tokens/semantic.css` (`@variant light/dark`).
 - **화면 코드엔 `dark:` 안 씀.** 시멘틱 토큰(역할 이름)만 쓰고 색은 토큰이 자동 전환.
@@ -96,20 +103,24 @@
 - 테마 선택/지속: `src/lib/theme/selected-theme.ts` (`COLOR_SCHEMES = light|dark|system`, MMKV 지속, `loadSelectedTheme()`/`useSelectedTheme()`).
 
 ### 4.7 배럴 & 트리쉐이킹 (중요)
-- **Metro/Expo SDK 55는 import/export 트리쉐이킹 안 함** → 무거운 *옵션* 라이브러리를 배럴로 re-export하면 번들에 박힘.
+
+- **Metro/Expo SDK 55는 import/export 트리쉐이킹 안 함** → 무거운 _옵션_ 라이브러리를 배럴로 re-export하면 번들에 박힘.
 - **허용된 배럴은 `src/components/ui/index.ts` 하나.** features/lib/hooks/utils에 index.ts 배럴 금지 → 전체 경로 직접 import.
 - **RN 코어 프리미티브 re-export는 허용**: 코어는 어차피 번들에 있어 무게 0 + Expo 기본 `inlineRequires`로 평가도 지연됨. (그래서 `@/components/ui`에서 View/ScrollView도 내보낼 수 있음 — 5.8 참고)
 - components/ui 내부 형제 파일끼리는 **`./text`처럼 직접 import**(배럴 경유 X — 순환참조 방지).
 
 ### 4.8 components/ui = 모든 UI의 단일 출처 (규칙)
+
 - feature/화면에서 **`react-native`의 시각 UI 프리미티브를 직접 import 하지 않는다** → 전부 `@/components/ui`에서. (ESLint `no-restricted-imports`로 강제 예정)
 - ✅ **구현됨**: `@/components/ui` 배럴에 **RN 시각 프리미티브 re-export + `SafeAreaView = withUniwind(...)` + `StyledSvg = withUniwind(Svg)`** 추가. 노출 목록: `View·ScrollView·FlatList·SectionList·ActivityIndicator·useWindowDimensions·StyledSvg`. 타입은 배럴에 넣지 않고 필요한 파일에서 원 패키지(`react-native`, `react-native-safe-area-context`, `react-native-svg`)로 `import type` 한다. **제외**: 우리 버전 있는 것(Text/TextInput/Image/Pressable/Button), `Platform`(Expo platform shaking 때문에 사용 파일에서 `react-native` 직접 import), Dimensions/Keyboard/Linking/Share/AppState(시스템 API라 UI 단일 출처 범위 밖), TouchableOpacity(→ 우리 Pressable), Animated/Easing(→ Reanimated 우선).
 - SVG 설정: `react-native-svg`는 SDK 55 번들 버전으로 설치, `.svg` 파일 import는 `react-native-svg-transformer` + `metro.config.js`의 `assetExts/sourceExts` 설정 + `src/types/svg.d.ts`로 처리. **app.config.ts 플러그인 아님.**
 
 ### 4.9 utils
+
 - `src/utils/` = **flat 파일 + 직접 import, 배럴 없음.** `cn`은 안 만듦(`tailwind-variants`의 `cn` 사용).
 
 ### 4.10 env / app.config (초기 결정 — 유효)
+
 - `env.ts`(루트, public-safe만: APP_ENV 해석, 식별자 파생, `EXPO_PUBLIC_*`, zod 검증) ↔ `app.config.ts`(env.ts를 tsx로 import, 빌드 전용/비밀값은 여기서 `process.env` 직접).
 - **비밀값을 `EXPO_PUBLIC_*`·`expo.extra`·client-import되는 env.ts에 넣지 말 것.** `NODE_ENV`로 앱 환경 스위칭 금지.
 - 환경명: `development` / `preview` / `production` (staging 아님). 스크립트는 `cross-env EXPO_PUBLIC_APP_ENV=...`.
@@ -150,6 +161,7 @@ assets/json/               dot-loading-white.json (jp에서 cp — Button 로딩
 ## 6. #14 UI킷 상태
 
 ### #14 공통 UI킷 — 컷라인 구현 **빌드됨(게이트 green) · 시뮬 검증 대기**
+
 - **Text**: `tv` variant(display/heading-lg/heading-sm/body-lg/body/label) + color(default/muted/primary/primaryForeground/destructive) + i18n `t()`.
 - **Button**: `tv` 슬롯(root/text) · variant(primary 기본/secondary/ghost/link) · size(lg/sm) · disabled/loading · **lottie 로딩**(primary 기준) · **throttle**(더블탭 가드) · a11y. (ControlledInput 같은 RHF 연동은 폼 작업 때)
 - **ButtonDock**: 하단 CTA 프레임 — safe-area bottom padding 보정 · border/background 토큰 · optional `shadow` · 자식 버튼은 호출부가 직접 구성.
@@ -162,6 +174,7 @@ assets/json/               dot-loading-white.json (jp에서 cp — Button 로딩
 - UI defer(합의): checkbox · switch · select · radio · popup/dialog/sheet · 웹뷰 · 캐러셀.
 
 ### 그 외 포함 범위
+
 컬러 토큰 11개로 경량화, 모션옵션(minimizeBehavior/contentInset) 제거, app/modal.tsx 데모 삭제, 루트 Stack 빈 몸통화, 탭 스택 헤더 off, +not-found/Placeholder 토큰화, throttle util 추가, lottie 에셋 추가, lottie-react-native 설치.
 
 ---
@@ -180,6 +193,7 @@ assets/json/               dot-loading-white.json (jp에서 cp — Button 로딩
 완료: #13 앱셸/프로바이더 · #17 다크모드 · #23 bootstrap 인라인화 · #24 죽은코드 제거 · #25 decisions.md 동기화(부분).
 
 진행/예정 (권장 순서):
+
 1. **#14 UI킷** (in-progress) — 컷라인 빌드됨, 사용자 런타임 검증 후 닫기.
 2. **#15 데이터 레이어** — axios + react-query + Suspensive. jp `lib/api`(클라이언트) 참고. 에러 정규화는 `lib/api/api-error.ts`(ApiError)로 구현됨. Suspense fallback 지연은 JP `DeferredWrapper`를 가져오지 말고 Suspensive `Delay`를 사용한다. Suspense 밖의 `query.isFetching` 같은 명령형 loading boolean은 이미 추가한 `src/hooks/use-deferred-loading.ts`의 `useDeferredLoading(isLoading, hasData, delayMs)`를 직접 import해서 쓴다.
 3. **#16 인증 플로우** — AT/RT 인터셉터·single-flight refresh·세션 출구는 구현됨(`docs/data-layer.md`). 인터셉터는 라우팅하지 않고 `signOut()` 상태 방출만 하며, 화면 전환은 `_layout` 세션 출구 effect(전역 리셋) + 구역 `_layout`의 `<Redirect>` 가드(jp `(tabs)/account/_layout` 방식)로 한다. 로그인 화면·보호 구역·refresh endpoint는 앱 몫(`TODO(앱)`). Input의 ControlledInput(RHF) + zod는 별건.

@@ -62,7 +62,7 @@ export default function RootLayout() {
         // TODO(앱): 홈+로그인 스택 등 프로젝트 리셋 정책으로 교체한다.
         resetNavigation('/(tabs)');
       }),
-    [resetNavigation],
+    [resetNavigation]
   );
 
   return (

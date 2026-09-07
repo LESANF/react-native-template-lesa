@@ -1,7 +1,7 @@
-import withAndroidPlugin from "./with-android-plugin";
-import withIosPlugin from "./with-ios-plugin";
+import withAndroidPlugin from './with-android-plugin';
+import withIosPlugin from './with-ios-plugin';
 
-import type { ConfigPlugin } from "expo/config-plugins";
+import type { ConfigPlugin } from 'expo/config-plugins';
 
 /**
  * 프로젝트 자체 config plugin 의 진입점 — app.config.ts 에는 이것 하나만 등록한다.

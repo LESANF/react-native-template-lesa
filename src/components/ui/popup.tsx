@@ -14,7 +14,7 @@ export type { PopupChoice, PopupOptions } from '@/stores/overlay';
 // 전역 확인 팝업 호스트 — GlobalOverlays가 마운트한다. 열기/닫기는 popup.confirm/close.
 // 렌더는 store 구독, 선택 결과는 store에 든 resolve로 호출부 Promise에 전달된다.
 export function GlobalPopup() {
-  const current = useOverlayStore((state) => state.popup);
+  const current = useOverlayStore(state => state.popup);
 
   useEffect(() => {
     if (!current) return;

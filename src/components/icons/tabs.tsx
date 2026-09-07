@@ -6,11 +6,7 @@ export type TabIconProps = Omit<SvgProps, 'color' | 'width' | 'height'> & {
   readonly size?: number;
 };
 
-export function HomeTabIcon({
-  color = 'currentColor',
-  size = 32,
-  ...props
-}: TabIconProps) {
+export function HomeTabIcon({ color = 'currentColor', size = 32, ...props }: TabIconProps) {
   return (
     <Svg width={size} height={size} viewBox="0 0 32 32" fill="none" {...props}>
       <Path
@@ -21,11 +17,7 @@ export function HomeTabIcon({
   );
 }
 
-export function ShopTabIcon({
-  color = 'currentColor',
-  size = 32,
-  ...props
-}: TabIconProps) {
+export function ShopTabIcon({ color = 'currentColor', size = 32, ...props }: TabIconProps) {
   return (
     <Svg width={size} height={size} viewBox="0 0 32 32" fill="none" {...props}>
       <Path
@@ -44,11 +36,7 @@ export function ShopTabIcon({
   );
 }
 
-export function BrandTabIcon({
-  color = 'currentColor',
-  size = 32,
-  ...props
-}: TabIconProps) {
+export function BrandTabIcon({ color = 'currentColor', size = 32, ...props }: TabIconProps) {
   return (
     <Svg width={size} height={size} viewBox="0 0 32 32" fill="none" {...props}>
       <Path
@@ -59,11 +47,7 @@ export function BrandTabIcon({
   );
 }
 
-export function FilterTabIcon({
-  color = 'currentColor',
-  size = 32,
-  ...props
-}: TabIconProps) {
+export function FilterTabIcon({ color = 'currentColor', size = 32, ...props }: TabIconProps) {
   return (
     <Svg width={size} height={size} viewBox="0 0 32 32" fill="none" {...props}>
       <Path
@@ -74,11 +58,7 @@ export function FilterTabIcon({
   );
 }
 
-export function LoginTabIcon({
-  color = 'currentColor',
-  size = 32,
-  ...props
-}: TabIconProps) {
+export function LoginTabIcon({ color = 'currentColor', size = 32, ...props }: TabIconProps) {
   return (
     <Svg width={size} height={size} viewBox="0 0 32 32" fill="none" {...props}>
       <Path

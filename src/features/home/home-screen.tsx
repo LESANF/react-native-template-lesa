@@ -1,10 +1,10 @@
-import { router } from "expo-router";
-import { useState, type ReactNode } from "react";
-import notifee from "react-native-notify-kit";
-import { useUniwind } from "uniwind";
+import { router } from 'expo-router';
+import { useState, type ReactNode } from 'react';
+import notifee from 'react-native-notify-kit';
+import { useUniwind } from 'uniwind';
 
-import { Env } from "@env";
-import CheckCircleIcon from "@/assets/svg/check-circle.svg";
+import { Env } from '@env';
+import CheckCircleIcon from '@/assets/svg/check-circle.svg';
 import {
   Button,
   Dimmed,
@@ -17,11 +17,11 @@ import {
   toast,
   View,
   type DimmedVisualProps,
-} from "@/components/ui";
-import { PUSH_CHANNEL_ID } from "@/constants/push";
-import { useNavigationReset } from "@/hooks/use-navigation-reset";
-import { ensurePushChannel } from "@/lib/push/core";
-import { COLOR_SCHEMES, useSelectedTheme } from "@/lib/theme/selected-theme";
+} from '@/components/ui';
+import { PUSH_CHANNEL_ID } from '@/constants/push';
+import { useNavigationReset } from '@/hooks/use-navigation-reset';
+import { ensurePushChannel } from '@/lib/push/core';
+import { COLOR_SCHEMES, useSelectedTheme } from '@/lib/theme/selected-theme';
 
 type DimmedExampleState = DimmedVisualProps;
 
@@ -38,27 +38,21 @@ export function HomeScreen() {
   const { theme } = useUniwind();
   const { selectedTheme, setSelectedTheme } = useSelectedTheme();
   const resetNavigation = useNavigationReset();
-  const [dimmedExample, setDimmedExample] = useState<DimmedExampleState | null>(
-    null,
-  );
+  const [dimmedExample, setDimmedExample] = useState<DimmedExampleState | null>(null);
 
   return (
     <View className="flex-1 bg-background">
-      <ScrollView
-        className="bg-background"
-        contentContainerClassName="gap-4 p-4"
-      >
+      <ScrollView className="bg-background" contentContainerClassName="gap-4 p-4">
         <Text variant="display">Components</Text>
 
         <Section title="Theme">
           <View className="flex-row flex-wrap items-center gap-2">
-            {COLOR_SCHEMES.map((scheme) => (
+            {COLOR_SCHEMES.map(scheme => (
               <Button
                 key={scheme}
-                variant={selectedTheme === scheme ? "primary" : "secondary"}
+                variant={selectedTheme === scheme ? 'primary' : 'secondary'}
                 size="sm"
-                onPress={() => setSelectedTheme(scheme)}
-              >
+                onPress={() => setSelectedTheme(scheme)}>
                 {scheme}
               </Button>
             ))}
@@ -100,9 +94,7 @@ export function HomeScreen() {
         </Section>
 
         <Section title="ButtonDock">
-          <Button onPress={() => router.push("/button-dock")}>
-            ButtonDock 확인하기
-          </Button>
+          <Button onPress={() => router.push('/button-dock')}>ButtonDock 확인하기</Button>
         </Section>
 
         <Section title="Navigation reset">
@@ -111,58 +103,55 @@ export function HomeScreen() {
               variant="secondary"
               onPress={() =>
                 resetNavigation({
-                  pathname: "/navigation-reset-example/[id]",
+                  pathname: '/navigation-reset-example/[id]',
                   params: {
-                    id: "href-101",
-                    mode: "href",
-                    source: "home",
-                    count: "1",
+                    id: 'href-101',
+                    mode: 'href',
+                    source: 'home',
+                    count: '1',
                   },
                 })
-              }
-            >
+              }>
               Href params reset
             </Button>
             <Button
               variant="secondary"
               onPress={() =>
                 resetNavigation({
-                  tab: "index",
-                  stack: ["index"],
+                  tab: 'index',
+                  stack: ['index'],
                   topRoute: {
-                    name: "navigation-reset-example/[id]",
+                    name: 'navigation-reset-example/[id]',
                     params: {
-                      id: "top-202",
-                      mode: "topRoute",
-                      source: "home",
-                      count: "2",
+                      id: 'top-202',
+                      mode: 'topRoute',
+                      source: 'home',
+                      count: '2',
                     },
                   },
                 })
-              }
-            >
+              }>
               topRoute params reset
             </Button>
             <Button
               variant="secondary"
               onPress={() =>
                 resetNavigation({
-                  tab: "menu-4",
+                  tab: 'menu-4',
                   stack: [
-                    "index",
+                    'index',
                     {
-                      name: "[id]",
+                      name: '[id]',
                       params: {
-                        id: "stack-303",
-                        mode: "tab-stack",
-                        source: "home",
-                        count: "3",
+                        id: 'stack-303',
+                        mode: 'tab-stack',
+                        source: 'home',
+                        count: '3',
                       },
                     },
                   ],
                 })
-              }
-            >
+              }>
               tab stack params reset
             </Button>
           </View>
@@ -186,26 +175,21 @@ export function HomeScreen() {
             autoCapitalize="none"
           />
           <Input label="비밀번호" placeholder="••••••••" secureTextEntry />
-          <Input
-            label="에러 예시"
-            placeholder="입력"
-            error="필수 항목입니다."
-          />
+          <Input label="에러 예시" placeholder="입력" error="필수 항목입니다." />
           <Input label="비활성" placeholder="비활성" disabled />
         </Section>
 
         <Section title="Pressable">
           <Pressable
             className="rounded-xl border border-border bg-muted p-4"
-            onPress={() => toast.show({ text1: "Pressable" })}
-          >
+            onPress={() => toast.show({ text1: 'Pressable' })}>
             <Text>탭 타겟 (hitSlop 8 내장)</Text>
           </Pressable>
         </Section>
 
         <Section title="Image">
           <Image
-            source={require("@/assets/images/react-logo.png")}
+            source={require('@/assets/images/react-logo.png')}
             className="h-40 w-full rounded-xl"
           />
           <Text color="muted">
@@ -225,10 +209,7 @@ export function HomeScreen() {
             <Button
               throttleDisabled
               variant="secondary"
-              onPress={() =>
-                toast.show({ type: "success", text1: "Toast success" })
-              }
-            >
+              onPress={() => toast.show({ type: 'success', text1: 'Toast success' })}>
               Toast
             </Button>
             <Button
@@ -236,41 +217,33 @@ export function HomeScreen() {
               variant="secondary"
               onPress={() => {
                 const stamp = Date.now().toString().slice(-4);
-                toast.show({ type: "default", text1: `Toast first ${stamp}` });
+                toast.show({ type: 'default', text1: `Toast first ${stamp}` });
                 setTimeout(() => {
                   toast.show({
-                    type: "warning",
+                    type: 'warning',
                     text1: `Toast replaced ${stamp}`,
                   });
                 }, 350);
-              }}
-            >
+              }}>
               Toast replace
             </Button>
-            <Button
-              variant="secondary"
-              onPress={() => setDimmedExample({ blur: true })}
-            >
+            <Button variant="secondary" onPress={() => setDimmedExample({ blur: true })}>
               Dimmed
             </Button>
             <Button
               variant="secondary"
-              onPress={() =>
-                setDimmedExample({ color: "#10b981", opacity: 0.35 })
-              }
-            >
+              onPress={() => setDimmedExample({ color: '#10b981', opacity: 0.35 })}>
               Dimmed color
             </Button>
             <Button
               variant="secondary"
               onPress={async () => {
                 const choice = await popup.confirm({
-                  title: "확인 팝업",
-                  message: "popup.confirm은 Promise로 선택을 돌려줍니다.",
+                  title: '확인 팝업',
+                  message: 'popup.confirm은 Promise로 선택을 돌려줍니다.',
                 });
                 toast.show({ text1: `popup → ${choice}` });
-              }}
-            >
+              }}>
               Popup confirm
             </Button>
           </View>
@@ -285,27 +258,22 @@ export function HomeScreen() {
             onPress={async () => {
               await ensurePushChannel();
               await notifee.displayNotification({
-                title: "Push 예제",
-                body: "탭하면 menu-4/42로 이동합니다",
+                title: 'Push 예제',
+                body: '탭하면 menu-4/42로 이동합니다',
                 data: { deep_link: `${Env.identity.scheme}://menu-4/42` },
                 android: {
                   channelId: PUSH_CHANNEL_ID,
-                  pressAction: { id: "default" },
+                  pressAction: { id: 'default' },
                 },
               });
-              toast.show({ text1: "알림 표시 — 배너를 탭하세요" });
-            }}
-          >
+              toast.show({ text1: '알림 표시 — 배너를 탭하세요' });
+            }}>
             로컬 알림 표시
           </Button>
-          <Text color="muted">
-            Firebase 없이도 notify-kit·채널·탭→딥링크를 확인합니다
-          </Text>
+          <Text color="muted">Firebase 없이도 notify-kit·채널·탭→딥링크를 확인합니다</Text>
         </Section>
       </ScrollView>
-      {dimmedExample && (
-        <Dimmed {...dimmedExample} onPress={() => setDimmedExample(null)} />
-      )}
+      {dimmedExample && <Dimmed {...dimmedExample} onPress={() => setDimmedExample(null)} />}
     </View>
   );
 }

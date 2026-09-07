@@ -1,7 +1,7 @@
-import { withAndroidManifest, withAppBuildGradle } from "expo/config-plugins";
+import { withAndroidManifest, withAppBuildGradle } from 'expo/config-plugins';
 
-import type { ConfigPlugin } from "expo/config-plugins";
-import type { PluginOptions } from "./with-plugin";
+import type { ConfigPlugin } from 'expo/config-plugins';
+import type { PluginOptions } from './with-plugin';
 
 /**
  * Android 네이티브 프로젝트 보정 — `./with-plugin` 이 조합한다. 참조 앱(KR/JP)에서 제네릭한 두 가지만 이식.
@@ -38,40 +38,43 @@ const RELEASE_SIGNING_CONFIG = `
 /** app/build.gradle 에 release signingConfig 를 멱등 주입한다. 내보내는 이유는 스크래치 테스트용. */
 export function patchAppBuildGradle(contents: string): string {
   // 이미 주입돼 있으면 그대로 — prebuild 가 mod 를 다시 돌려도 결과가 같아야 한다.
-  if (contents.includes("ANDROID_UPLOAD_KEYSTORE_PATH")) return contents;
+  if (contents.includes('ANDROID_UPLOAD_KEYSTORE_PATH')) return contents;
 
   let next = contents.replace(
     SIGNING_CONFIGS_BLOCK_REGEX,
     (_match, open: string, body: string, close: string) => {
       const nextBody = RELEASE_BLOCK_HEADER_REGEX.test(body)
         ? body.replace(RELEASE_BLOCK_FULL_REGEX, RELEASE_SIGNING_CONFIG.trim())
-        : `${body}${body.endsWith("\n") ? "" : "\n"}${RELEASE_SIGNING_CONFIG}\n`;
+        : `${body}${body.endsWith('\n') ? '' : '\n'}${RELEASE_SIGNING_CONFIG}\n`;
       return `${open}${nextBody}${close}`;
-    },
+    }
   );
 
   // buildTypes.release 가 debug 키로 서명하게 돼 있으면 release 로 교체, 아예 없으면 한 줄 삽입.
-  next = next.replace(BUILD_TYPES_RELEASE_DEBUG_REGEX, "$1signingConfig signingConfigs.release");
+  next = next.replace(BUILD_TYPES_RELEASE_DEBUG_REGEX, '$1signingConfig signingConfigs.release');
   if (!BUILD_TYPES_RELEASE_HAS_SIGNING_REGEX.test(next)) {
-    next = next.replace(BUILD_TYPES_RELEASE_OPEN_REGEX, "$1            signingConfig signingConfigs.release\n");
+    next = next.replace(
+      BUILD_TYPES_RELEASE_OPEN_REGEX,
+      '$1            signingConfig signingConfigs.release\n'
+    );
   }
   return next;
 }
 
-const withAndroidPlugin: ConfigPlugin<PluginOptions> = (config) => {
-  config = withAndroidManifest(config, (manifestConfig) => {
+const withAndroidPlugin: ConfigPlugin<PluginOptions> = config => {
+  config = withAndroidManifest(config, manifestConfig => {
     const application = manifestConfig.modResults.manifest.application?.[0];
-    const mainActivity = application?.activity?.find((a) => a.$["android:name"] === ".MainActivity");
+    const mainActivity = application?.activity?.find(a => a.$['android:name'] === '.MainActivity');
     if (mainActivity) {
-      mainActivity.$["android:configChanges"] =
-        "keyboard|keyboardHidden|orientation|screenSize|screenLayout|uiMode|locale|layoutDirection|smallestScreenSize";
-      mainActivity.$["android:resizeableActivity"] = "true";
+      mainActivity.$['android:configChanges'] =
+        'keyboard|keyboardHidden|orientation|screenSize|screenLayout|uiMode|locale|layoutDirection|smallestScreenSize';
+      mainActivity.$['android:resizeableActivity'] = 'true';
     }
     return manifestConfig;
   });
 
-  config = withAppBuildGradle(config, (gradleConfig) => {
-    if (process.env.EXPO_PUBLIC_APP_ENV !== "production") return gradleConfig;
+  config = withAppBuildGradle(config, gradleConfig => {
+    if (process.env.EXPO_PUBLIC_APP_ENV !== 'production') return gradleConfig;
     gradleConfig.modResults.contents = patchAppBuildGradle(gradleConfig.modResults.contents);
     return gradleConfig;
   });

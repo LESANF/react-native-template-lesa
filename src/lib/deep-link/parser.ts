@@ -7,7 +7,7 @@ import type { LinkTransport, ParsedDeepLink } from './types';
 const APP_SCHEMES: readonly string[] = [Env.identity.scheme];
 
 // 등록 호스트마다 apex + www 두 변형을 모두 매칭한다 (KR 이 자기 호스트 하나에 하던 것을 목록으로).
-const WEB_HOSTS = DEEP_LINK_HTTPS_HOSTS.flatMap((host) => {
+const WEB_HOSTS = DEEP_LINK_HTTPS_HOSTS.flatMap(host => {
   const apex = host.replace(/^www\./, '');
   return [apex, `www.${apex}`];
 });
@@ -81,7 +81,7 @@ function buildParsed(
   transport: LinkTransport,
   path: string,
   query: Record<string, string>,
-  raw: string,
+  raw: string
 ): ParsedDeepLink {
   return {
     transport,
@@ -95,7 +95,7 @@ function buildParsed(
 /** web path 를 app canonical 로. query→path 규칙이 alias 보다 우선한다. */
 function applyWebNormalization(
   rawPath: string,
-  rawQuery: Record<string, string>,
+  rawQuery: Record<string, string>
 ): { path: string; query: Record<string, string> } {
   for (const rule of WEB_QUERY_TO_PATH_RULES) {
     if (rule.matchPath(rawPath) && rawQuery[rule.queryKey]) {

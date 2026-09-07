@@ -31,7 +31,7 @@ export async function runGates(
   gates: readonly GateName[],
   gateMap: Record<GateName, Gate>,
   navigationContext: NavigateContext,
-  onAllPassed: () => void,
+  onAllPassed: () => void
 ): Promise<boolean> {
   const gateContext: GateContext = navigationContext;
 

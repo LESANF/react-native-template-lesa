@@ -26,7 +26,7 @@ export type SplashIntro = {
 /** 기본 게이트: 최소 노출 시간만 보장한다(새로고침·빠른 부팅에서 splash 가 깜빡이고 사라지지 않게). */
 export function createMinTimeIntro(ms: number = SPLASH_INTRO_MIN_MS): SplashIntro {
   return {
-    start: (onDone) => {
+    start: onDone => {
       const timer = setTimeout(onDone, ms);
       return () => clearTimeout(timer);
     },

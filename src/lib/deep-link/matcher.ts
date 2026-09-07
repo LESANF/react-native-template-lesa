@@ -15,10 +15,7 @@ import {
 import { useAuthStore } from '@/stores/auth-store';
 
 import type { DynamicRouteSpec, StaticRoute } from '@/constants/deep-link';
-import type {
-  NavigationResetToTabOptions,
-  NavigationTabName,
-} from '@/hooks/use-navigation-reset';
+import type { NavigationResetToTabOptions, NavigationTabName } from '@/hooks/use-navigation-reset';
 import type { EntrySource, ParsedDeepLink, RouteHandler } from './types';
 
 // ─── Lookup tables ──────────────────────────────────────────
@@ -65,7 +62,7 @@ function buildDynamicIndex(): Map<string, DynamicEntry[]> {
   for (const bucket of map.values()) {
     bucket.sort(
       (left, right) =>
-        Number(Boolean(right.spec.queryDriven)) - Number(Boolean(left.spec.queryDriven)),
+        Number(Boolean(right.spec.queryDriven)) - Number(Boolean(left.spec.queryDriven))
     );
   }
   return map;
@@ -141,7 +138,7 @@ function buildStaticHandler(name: string, route: StaticRoute): RouteHandler {
 /** spec 의 whenAuthenticated 기반 redirect handler. */
 function buildAuthenticatedRedirectHandler(
   originalName: string,
-  redirect: NonNullable<StaticRoute['whenAuthenticated']>,
+  redirect: NonNullable<StaticRoute['whenAuthenticated']>
 ): RouteHandler {
   return {
     name: `static:${originalName}-redirected`,
@@ -206,7 +203,7 @@ function parseQueryString(query: string): Record<string, string> {
 // TODO(앱): `EXTERNAL_WEB_PAGE_PATTERNS` 를 채우기 전에 `/external-web` 라우트를 만들어야 한다.
 
 function matchExternalWebPage(parsed: ParsedDeepLink): boolean {
-  return EXTERNAL_WEB_PAGE_PATTERNS.some((pattern) => pattern.test(parsed.path));
+  return EXTERNAL_WEB_PAGE_PATTERNS.some(pattern => pattern.test(parsed.path));
 }
 
 function buildExternalWebPageHandler(path: string): RouteHandler {
@@ -234,7 +231,7 @@ function buildExternalWebPageHandler(path: string): RouteHandler {
 
 function matchDynamic(
   parsed: ParsedDeepLink,
-  options: { queryDrivenOnly: boolean },
+  options: { queryDrivenOnly: boolean }
 ): RouteHandler | null {
   const firstSegment = parsed.segments[0];
   if (!firstSegment) return null;
@@ -257,7 +254,7 @@ function matchPattern(parsed: ParsedDeepLink, entry: DynamicEntry): Record<strin
 
   if (spec.queryDriven) {
     const keys = Array.isArray(spec.queryDriven) ? spec.queryDriven : [spec.queryDriven];
-    if (!keys.some((key) => key in parsed.query)) return null;
+    if (!keys.some(key => key in parsed.query)) return null;
   }
   if (parsed.segments.length !== patternSegments.length) return null;
 
@@ -287,7 +284,7 @@ function matchPattern(parsed: ParsedDeepLink, entry: DynamicEntry): Record<strin
 function buildDynamicHandler(
   entry: DynamicEntry,
   matchedParams: Record<string, string>,
-  query: Record<string, string>,
+  query: Record<string, string>
 ): RouteHandler {
   const { name, spec } = entry;
   const expoPath = spec.toExpoPath(matchedParams, query);

@@ -131,7 +131,6 @@
 
 레이어 검증(2026-08-27, 스크래치 하네스 — 실제 `client.ts`, 로컬 에코 서버만·외부 호출 0, 8/8): `auth` 기본 none 무헤더(로그인 상태여도), required Bearer 첨부 / 토큰 없으면 네트워크 전 AUTH_REQUIRED, parse 실패·네트워크·서버 본문 message/code 정규화, required 401 + refresh 미구성 → 세션 보존, FormData Content-Type. env 체계 13/13(3환경 해석·정적값 통과·malformed record throw·production `.invalid` 부팅 throw·잘못된 APP_ENV throw·STRICT 요약 로그·client baseURL=Env.urls.api·env-candidates import 0·src의 process.env 0). import 방향 정적 확인(store/storage → lib/api·lib/auth 0). 예제 API(jsonplaceholder) 자체는 검증 대상이 아님 — 아래는 **화면 표시** 확인만.
 
-
 - [ ] regular query와 suspense query 성공 확인
 - [ ] mutation과 refetch 확인
 - [ ] 잘못된 응답(`parse` 실패)·네트워크 실패의 `ApiError.message` 표시 확인

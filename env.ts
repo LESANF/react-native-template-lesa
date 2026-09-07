@@ -19,13 +19,11 @@ export type AppEnv = (typeof APP_ENVS)[number];
 function resolveAppEnv(raw: string | undefined): AppEnv {
   if (raw === undefined) return 'development';
   if (isAppEnv(raw)) return raw;
-  throw new Error(
-    `Invalid EXPO_PUBLIC_APP_ENV="${raw}". Expected one of: ${APP_ENVS.join(', ')}`,
-  );
+  throw new Error(`Invalid EXPO_PUBLIC_APP_ENV="${raw}". Expected one of: ${APP_ENVS.join(', ')}`);
 }
 
 function isAppEnv(value: string): value is AppEnv {
-  return APP_ENVS.some((appEnv) => appEnv === value);
+  return APP_ENVS.some(appEnv => appEnv === value);
 }
 
 export const APP_ENV: AppEnv = resolveAppEnv(process.env.EXPO_PUBLIC_APP_ENV);
@@ -39,13 +37,14 @@ type IsEnvRecord<T> = T extends object
     : false
   : false;
 
-type ResolveTree<T> = IsEnvRecord<T> extends true
-  ? T[Extract<keyof T, AppEnv>]
-  : T extends readonly unknown[]
-    ? T
-    : T extends object
-      ? { readonly [K in keyof T]: ResolveTree<T[K]> }
-      : T;
+type ResolveTree<T> =
+  IsEnvRecord<T> extends true
+    ? T[Extract<keyof T, AppEnv>]
+    : T extends readonly unknown[]
+      ? T
+      : T extends object
+        ? { readonly [K in keyof T]: ResolveTree<T[K]> }
+        : T;
 
 // ---- runtime resolver ----
 function isPlainObject(v: unknown): v is Record<string, unknown> {
@@ -56,14 +55,14 @@ function resolveNode(node: unknown, appEnv: AppEnv, path: string): unknown {
   if (!isPlainObject(node)) return node;
 
   const keys = Object.keys(node);
-  const envKeyCount = APP_ENVS.filter((e) => keys.includes(e)).length;
+  const envKeyCount = APP_ENVS.filter(e => keys.includes(e)).length;
 
   if (envKeyCount > 0) {
     // 환경 키를 하나라도 가진 객체는 정확히 세 키만 가져야 한다.
     if (envKeyCount !== APP_ENVS.length || keys.length !== APP_ENVS.length) {
       throw new Error(
         `[env] Malformed env record at "${path}": keys=[${keys.join(', ')}]. ` +
-          `An env record must have exactly: ${APP_ENVS.join(', ')}`,
+          `An env record must have exactly: ${APP_ENVS.join(', ')}`
       );
     }
     return node[appEnv];
@@ -89,9 +88,7 @@ export function defineEnv<T>(tree: T): ResolveTree<T> {
 export const Env = defineEnv(values);
 
 if (APP_ENV === 'production' && Env.urls.api.endsWith('.invalid')) {
-  throw new Error(
-    '[env] Env.urls.api must be configured for production in env-candidates.ts',
-  );
+  throw new Error('[env] Env.urls.api must be configured for production in env-candidates.ts');
 }
 
 function logEnvSummary(): void {

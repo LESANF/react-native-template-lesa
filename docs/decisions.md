@@ -73,11 +73,11 @@ green: exit 0, 0 resolution errors, 0 warnings, bundle produced. Semantic
 applies to a client app: anything the client uses is extractable from the
 bundle, so client-side "env" is about environment SWITCHING, not secrecy.
 
-| Kind of value | Source | Relation to `.env` |
-|---|---|---|
-| Environment switch | package.json scripts (`cross-env EXPO_PUBLIC_APP_ENV=...`) | none |
-| Per-env public config (API URLs, ids, versions) | code records in `env-candidates.ts` | none |
-| Build-time secrets (AWS keys, etc.) | `.env` file | its ONLY use |
+| Kind of value                                   | Source                                                     | Relation to `.env` |
+| ----------------------------------------------- | ---------------------------------------------------------- | ------------------ |
+| Environment switch                              | package.json scripts (`cross-env EXPO_PUBLIC_APP_ENV=...`) | none               |
+| Per-env public config (API URLs, ids, versions) | code records in `env-candidates.ts`                        | none               |
+| Build-time secrets (AWS keys, etc.)             | `.env` file                                                | its ONLY use       |
 
 `EXPO_PUBLIC_APP_ENV` keeps the prefix for one technical reason only:
 Metro inlines `process.env.*` reads into the client bundle by VARIABLE
@@ -114,8 +114,9 @@ environment's value. Static values, arrays, and null pass through.
 // env-candidates.ts (pure data)
 export const values = {
   identity: {
-    name: 'MyApp',                       // static -> passes through
-    bundleId: {                          // candidates -> one is elected
+    name: 'MyApp', // static -> passes through
+    bundleId: {
+      // candidates -> one is elected
       development: 'com.example.app.development',
       preview: 'com.example.app.preview',
       production: 'com.example.app',
@@ -125,7 +126,7 @@ export const values = {
 
 // env.ts (machinery)
 import { values } from './env-candidates';
-export const Env = defineEnv(values);    // Env.identity.bundleId: string
+export const Env = defineEnv(values); // Env.identity.bundleId: string
 export default Env;
 ```
 
@@ -255,14 +256,14 @@ weaker domain cohesion for commerce apps), runners (replaced by Expensify's
 
 ### Zone recipes
 
-| Task | Touch | Don't touch |
-|---|---|---|
-| New screen | features/<domain>/ + 1-line route file in app/ | _layout, providers |
-| New domain | create features/<domain>/ | other features |
-| Delete domain | delete features/<x>/ + its app/ route files | nothing else breaks |
-| New global provider | providers/app-providers.tsx | _layout |
-| New global modal/sheet | providers/global-overlays.tsx | _layout |
-| New boot logic (push, deep link) | providers/handlers.tsx | _layout |
+| Task                             | Touch                                          | Don't touch         |
+| -------------------------------- | ---------------------------------------------- | ------------------- |
+| New screen                       | features/<domain>/ + 1-line route file in app/ | _layout, providers  |
+| New domain                       | create features/<domain>/                      | other features      |
+| Delete domain                    | delete features/<x>/ + its app/ route files    | nothing else breaks |
+| New global provider              | providers/app-providers.tsx                    | _layout             |
+| New global modal/sheet           | providers/global-overlays.tsx                  | _layout             |
+| New boot logic (push, deep link) | providers/handlers.tsx                         | _layout             |
 
 ### Unidirectional imports (ESLint-enforced, bulletproof-react pattern)
 
@@ -338,6 +339,7 @@ app/ — features and lib cannot import from providers.
 ### Barrel policy (fact-checked 2026-06-11)
 
 Facts:
+
 - Expo import/export tree shaking is experimental (SDK 52+) and opt-in via
   `EXPO_UNSTABLE_METRO_OPTIMIZE_GRAPH=1` +
   `EXPO_UNSTABLE_TREE_SHAKING=1`, production-only. This template does not
@@ -354,6 +356,7 @@ Facts:
   Metro does not. This is a design trade (Metro optimizes dev speed).
 
 Policy (differential, cost-proportional):
+
 - ✅ ONE allowed barrel: `components/ui/index.ts` (design system entry).
   Safe because: dependency leaf (no cycles possible), small and
   mostly-all-used (nothing to shake), auto-optimized if experimental
@@ -656,34 +659,33 @@ store는 client를 import하지 않으며, 중앙 client의 raw axios instance�
 
 두 앱의 `plugins`·`ios`·`android` 블록을 항목 단위로 대조했다. 원칙: **두 앱이 같고 앱 정체성과 무관하면 이식**, 마케팅 SDK·브랜드 자산·결제·Analytics 는 제외. 앱 전용 플러그인(`plugins/with-android-plugin.ts`)은 제네릭한 부분만 `plugins/with-plugin.ts`(→ `with-android-plugin.ts` · `with-ios-plugin.ts`) 로 옮겼다.
 
-| KR/JP 항목 | 템플릿 |
-|---|---|
-| `expo-build-properties.ios.useFrameworks: 'static'` | ✅ 무조건(RNFB 26 SPM 비활성과 짝, docs/push.md) |
-| `forceStaticLinking` RNFB 5종 | ⏸ 중복 심볼이 날 때만(문서에 폴백으로) |
-| `ios.deploymentTarget: '16.0'` | ❌ SDK 57 기본 16.4 — 낮게 두면 pod 경고/실패 |
-| `android.enableProguardInReleaseBuilds` | ✅ |
-| `android.usesCleartextTraffic` · `extraMavenRepos`(notifee/naver) | ❌ http API 는 앱 전용 · notify-kit 은 Maven 불필요 |
-| `@hot-updater/react-native` `{ channel }` | ✅ |
-| `expo-splash-screen`(흰 배경 + 1px, 인트로 영상용) | ↔ 템플릿은 배경색 + 로고(image 는 루트에 — boot.md) |
-| `react-native-permissions` Notifications | ✅ |
-| RNFB app/messaging | ✅ `firebase/` 파일 존재 게이트 |
-| RNFB auth/crashlytics/analytics | ❌ 범위 밖 — 붙일 땐 같은 게이트 안에 |
-| `@bacons/apple-targets` NSE | ↔ notify-kit 플러그인이 NSE 생성 |
-| `with-android-plugin`: 폴더블(configChanges·resizeableActivity) | ✅ `plugins/with-plugin.ts`(→ `with-android-plugin.ts` · `with-ios-plugin.ts`) |
-| `with-android-plugin`: release 서명(Gradle env, production 만) | ✅ 같은 파일. 키스토어 기본 경로 `<repo>/upload.jks`, 값은 `ANDROID_UPLOAD_*` 환경 변수 |
-| `with-android-plugin`: 결제 앱 query(`auwallet`) · Analytics 메타데이터 | ❌ 앱 전용 |
-| `with-ios-plugin`(KR Airbridge AppDelegate / JP no-op) | ❌ |
-| `with-display-name`(KR, Android `app_name` 한글) | ❌ `name` 이 non-ASCII 일 때만 필요 — C3 온보딩에 메모 |
-| `expo-dev-client { launchMode: 'most-recent' }` | ❌ SDK 57 플러그인에 그 옵션 없음(자동 적용) |
-| `app-icon-badge`(env·버전 배지) | ✅ dev/preview 에서만 |
-| `expo-font` Noto KR/JP · `expo-asset { assets }` | ❌ 브랜드 자산 — TODO(앱) |
-| `expo-localization` | ❌ 템플릿 i18n 이 쓰지 않음 |
-| `expo-tracking-transparency` · `react-native-fbsdk-next` · `airbridge-expo-sdk` · `react-native-channel-plugin` | ❌ 마케팅/앱 전용 |
-| `ios.appleTeamId` | ✅ `.env` `APP_BUILD_ONLY_APPLE_TEAM_ID`(선택 — 없으면 Xcode 자동 서명) |
-| `ios.associatedDomains` + `android.intentFilters` | ✅ `src/constants/deep-link.ts` 의 `DEEP_LINK_HTTPS_HOSTS` 한 곳에서 파생(비어 있으면 미설정, non-production 은 `?mode=developer`) |
-| `aps-environment` · `UIBackgroundModes` · `googleServicesFile` · `POST_NOTIFICATIONS` | ✅ (푸시 게이트) |
-| `NSAppTransportSecurity(ArbitraryLoads)` · `LSApplicationQueriesSchemes` · `CFBundleDisplayName` · `NSUserNotificationUsageDescription`(무효 키) · `FirebaseAutomaticScreenReportingEnabled` | ❌ 앱 전용 / 무효 |
-| `appStoreUrl` · `playStoreUrl` | ❌ 강제 업데이트 정책(`forced-update.ts` TODO)에서 |
-| `owner` · `extra.eas.projectId` | C3 |
-| `updates.fallbackToCacheTimeout` · `newArchEnabled` · `web` | ❌ 죽은 설정 / 기본값 / 웹 미지원 |
-
+| KR/JP 항목                                                                                                                                                                                   | 템플릿                                                                                                                             |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `expo-build-properties.ios.useFrameworks: 'static'`                                                                                                                                          | ✅ 무조건(RNFB 26 SPM 비활성과 짝, docs/push.md)                                                                                   |
+| `forceStaticLinking` RNFB 5종                                                                                                                                                                | ⏸ 중복 심볼이 날 때만(문서에 폴백으로)                                                                                             |
+| `ios.deploymentTarget: '16.0'`                                                                                                                                                               | ❌ SDK 57 기본 16.4 — 낮게 두면 pod 경고/실패                                                                                      |
+| `android.enableProguardInReleaseBuilds`                                                                                                                                                      | ✅                                                                                                                                 |
+| `android.usesCleartextTraffic` · `extraMavenRepos`(notifee/naver)                                                                                                                            | ❌ http API 는 앱 전용 · notify-kit 은 Maven 불필요                                                                                |
+| `@hot-updater/react-native` `{ channel }`                                                                                                                                                    | ✅                                                                                                                                 |
+| `expo-splash-screen`(흰 배경 + 1px, 인트로 영상용)                                                                                                                                           | ↔ 템플릿은 배경색 + 로고(image 는 루트에 — boot.md)                                                                                |
+| `react-native-permissions` Notifications                                                                                                                                                     | ✅                                                                                                                                 |
+| RNFB app/messaging                                                                                                                                                                           | ✅ `firebase/` 파일 존재 게이트                                                                                                    |
+| RNFB auth/crashlytics/analytics                                                                                                                                                              | ❌ 범위 밖 — 붙일 땐 같은 게이트 안에                                                                                              |
+| `@bacons/apple-targets` NSE                                                                                                                                                                  | ↔ notify-kit 플러그인이 NSE 생성                                                                                                   |
+| `with-android-plugin`: 폴더블(configChanges·resizeableActivity)                                                                                                                              | ✅ `plugins/with-plugin.ts`(→ `with-android-plugin.ts` · `with-ios-plugin.ts`)                                                     |
+| `with-android-plugin`: release 서명(Gradle env, production 만)                                                                                                                               | ✅ 같은 파일. 키스토어 기본 경로 `<repo>/upload.jks`, 값은 `ANDROID_UPLOAD_*` 환경 변수                                            |
+| `with-android-plugin`: 결제 앱 query(`auwallet`) · Analytics 메타데이터                                                                                                                      | ❌ 앱 전용                                                                                                                         |
+| `with-ios-plugin`(KR Airbridge AppDelegate / JP no-op)                                                                                                                                       | ❌                                                                                                                                 |
+| `with-display-name`(KR, Android `app_name` 한글)                                                                                                                                             | ❌ `name` 이 non-ASCII 일 때만 필요 — C3 온보딩에 메모                                                                             |
+| `expo-dev-client { launchMode: 'most-recent' }`                                                                                                                                              | ❌ SDK 57 플러그인에 그 옵션 없음(자동 적용)                                                                                       |
+| `app-icon-badge`(env·버전 배지)                                                                                                                                                              | ✅ dev/preview 에서만                                                                                                              |
+| `expo-font` Noto KR/JP · `expo-asset { assets }`                                                                                                                                             | ❌ 브랜드 자산 — TODO(앱)                                                                                                          |
+| `expo-localization`                                                                                                                                                                          | ❌ 템플릿 i18n 이 쓰지 않음                                                                                                        |
+| `expo-tracking-transparency` · `react-native-fbsdk-next` · `airbridge-expo-sdk` · `react-native-channel-plugin`                                                                              | ❌ 마케팅/앱 전용                                                                                                                  |
+| `ios.appleTeamId`                                                                                                                                                                            | ✅ `.env` `APP_BUILD_ONLY_APPLE_TEAM_ID`(선택 — 없으면 Xcode 자동 서명)                                                            |
+| `ios.associatedDomains` + `android.intentFilters`                                                                                                                                            | ✅ `src/constants/deep-link.ts` 의 `DEEP_LINK_HTTPS_HOSTS` 한 곳에서 파생(비어 있으면 미설정, non-production 은 `?mode=developer`) |
+| `aps-environment` · `UIBackgroundModes` · `googleServicesFile` · `POST_NOTIFICATIONS`                                                                                                        | ✅ (푸시 게이트)                                                                                                                   |
+| `NSAppTransportSecurity(ArbitraryLoads)` · `LSApplicationQueriesSchemes` · `CFBundleDisplayName` · `NSUserNotificationUsageDescription`(무효 키) · `FirebaseAutomaticScreenReportingEnabled` | ❌ 앱 전용 / 무효                                                                                                                  |
+| `appStoreUrl` · `playStoreUrl`                                                                                                                                                               | ❌ 강제 업데이트 정책(`forced-update.ts` TODO)에서                                                                                 |
+| `owner` · `extra.eas.projectId`                                                                                                                                                              | C3                                                                                                                                 |
+| `updates.fallbackToCacheTimeout` · `newArchEnabled` · `web`                                                                                                                                  | ❌ 죽은 설정 / 기본값 / 웹 미지원                                                                                                  |

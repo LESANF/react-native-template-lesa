@@ -15,7 +15,7 @@ import { useAuthStore } from '@/stores/auth-store';
  * RootLayout 에 1회 mount 한다(DeepLinkRunner 바로 뒤).
  */
 export function AuthDeferredRunner() {
-  const isSignedIn = useAuthStore((state) => state.status === 'signedIn');
+  const isSignedIn = useAuthStore(state => state.status === 'signedIn');
   const segments = useSegments();
   // AUTH_ROUTE_GROUP 라우트가 아직 없어 expo-router 의 세그먼트 union 에 없다 — 문자열로 비교한다.
   const isOnAuth = (segments[0] as string | undefined) === AUTH_ROUTE_GROUP;

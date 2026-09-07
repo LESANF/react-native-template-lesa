@@ -25,6 +25,7 @@ app/_layout       컴포지션 루트. 부팅 배선(hydrate 등) + 세션 출�
 ## 현재 설계 결정
 
 ### client / 요청
+
 - **단일 client 하나.** public/private client instance를 나누지 않는다. 대신 요청마다 `auth: 'none' | 'required'`를 명시하며 기본값은 `none`이다. 공개·로그인 요청에는 토큰이 붙지 않는다.
 - `required`인데 access token이 없으면 네트워크를 호출하기 전에 `AUTH_REQUIRED`로 실패한다.
 - facade가 `response.data`를 언래핑해 `Promise<T>`를 반환한다. `patch`, 성공 응답의 status/header가 필요한 `requestRaw`, 선택적 `parse(data: unknown)`를 제공한다.
@@ -33,23 +34,28 @@ app/_layout       컴포지션 루트. 부팅 배선(hydrate 등) + 세션 출�
 - **인증·재시도 가드는 `_authAttached`·`_authRetried` 문자열 프로퍼티, WeakSet 아님.** 토큰이 실제로 붙은 요청만 refresh할 수 있고 한 번만 재시도한다. axios가 재시도 시 `mergeConfig`로 config를 새 객체로 복사해 WeakSet 멤버십은 유실될 수 있지만 문자열 키 프로퍼티는 보존된다. (설치된 axios로 실증)
 
 ### 에러
+
 - **모든 실패는 api-error가 ApiError로 정규화.** 호출부·훅은 `error.message`만 읽으면 된다. Axios request/config/response 원본은 Authorization과 body를 품을 수 있어 보관하거나 노출하지 않는다.
 - **api-error엔 정책을 두지 않는다.** "무슨 일이 일어났나"(분류)만. "그래서 재시도할까"(정책)는 query-client가 판단(사실 `status`·`isNetworkError`만 읽음).
 
 ### 재시도
+
 - **정책 = query-client의 `shouldRetryQuery`.** 기본값 보수: 네트워크·타임아웃·5xx만. 4xx·취소는 안 함. 429/408은 주석 옵트인. (쿼리=읽기에만 걸려 중복 제출 우려 없음)
 
 ### auth store
+
 - **토큰은 state가 진실, MMKV는 재시작 복원 시드.** (JP auth-store와 같은 모양) signIn/signOut이 둘 다 쓰고, 읽기는 항상 state. hydrate는 저장값을 `isAuthTokenPair`로 검증하고 깨진 값은 지운다. fresh sign-in은 전달받은 토큰 쌍으로 세션을 완전히 교체한다.
 - **user 프로필은 스토어에 안 둔다.** 서버 상태라 react-query(useQuery) 소관. (JP는 account를 스토어에 넣어 복잡해짐 — 따라하지 말 것)
 - **status는 signedIn/signedOut 2개, idle 없음.** MMKV가 동기라 hydrate가 렌더 전에 끝나 idle을 관측할 구간이 없다. (토큰을 비동기 저장소로 옮기면 그때 hydrating 상태가 필요해진다.)
 
 ### 스토어 읽기 규칙 (전 스토어 공통, auth-store 헤더 주석에도 있음)
+
 - **렌더에 쓰는 값 = 훅** `useStore((s) => s.x)` (구독 → 값 바뀌면 리렌더).
 - **핸들러 / 인터셉터 / React 밖 = `getState()`** (호출 순간의 스냅샷).
 - `getState()`를 렌더 본문에서 쓰면 값이 바뀌어도 화면이 안 바뀐다. 결과를 변수에 담아 `await` 너머에서 쓰지 말 것(쓰는 줄에서 다시 호출).
 
 ### refresh
+
 - **lib/auth 별도 파일 = 순환 회피.** client가 store를 직접 부르면 store→client→store 순환. 토큰 접근을 store가 소유하고 client가 단방향 읽기로 해결.
 - **refresh 요청은 반드시 raw axios/fetch.** 중앙 client로 보내면 만료 토큰이 자동 첨부되고 그 401이 다시 refresh를 기다리는 데드락.
 - **미구현 refresh는 비활성.** `refresh-request.ts`에서 raw endpoint를 구현하고 capability를 함께 켜야만 자동 refresh가 시작된다.
@@ -60,6 +66,7 @@ app/_layout       컴포지션 루트. 부팅 배선(hydrate 등) + 세션 출�
 - **세션 종료 후처리는 `_layout`의 세션 출구 effect 한 곳.** 인터셉터·refresh는 `signOut()`(상태 방출)까지만 하고 네비게이션을 모른다. `_layout`이 signedIn→signedOut 전이를 구독해 `queryClient.clear()` + 히스토리 리셋. 로그아웃 버튼도 `signOut()` 호출이 전부 — 수동/자동이 같은 출구로 나간다. 별도 파일이 아니라 컴포지션 루트 인라인인 이유: 부팅 배선이 모이는 자리고, 재사용될 훅이 아니다. (Firebase `onAuthStateChanged`, Amplify Hub와 같은 모양. 인터셉터에서 직접 라우팅하는 건 안티패턴이라 거부.)
 
 ### 거부된 대안 (다시 제안하지 말 것)
+
 - `query-keys.ts` 분리 → react-query-kit의 `useXxx.getKey()`로 충분. 안 만듦.
 - react-query-kit `router()` → 복잡도만 늘고 이득 없음. createQuery/createMutation 유지.
 - `auth-token-store` 주입 소켓 → 순환이 사라져 불필요해짐. 삭제.

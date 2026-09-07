@@ -47,17 +47,16 @@ function isAuthTokenPair(value: unknown): value is AuthTokenPair {
   return (
     typeof accessToken === 'string' &&
     accessToken.length > 0 &&
-    (refreshToken === undefined ||
-      (typeof refreshToken === 'string' && refreshToken.length > 0))
+    (refreshToken === undefined || (typeof refreshToken === 'string' && refreshToken.length > 0))
   );
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
+export const useAuthStore = create<AuthState>(set => ({
   ...INITIAL_STATE,
 
   // fresh sign-in은 전달받은 토큰 쌍으로 세션을 완전히 교체한다.
   // (refresh 응답에 refreshToken이 빠졌을 때의 보존은 lib/auth의 refresh 경로가 담당)
-  signIn: (tokens) => {
+  signIn: tokens => {
     setItem(AUTH_TOKEN_KEY, tokens);
     set({ status: 'signedIn', token: tokens });
   },
@@ -75,7 +74,7 @@ export function hydrateAuth(): void {
     if (!token) removeItem(AUTH_TOKEN_KEY);
 
     useAuthStore.setState(
-      token ? { status: 'signedIn', token } : { status: 'signedOut', token: null },
+      token ? { status: 'signedIn', token } : { status: 'signedOut', token: null }
     );
   } catch {
     useAuthStore.setState({ status: 'signedOut', token: null });

@@ -86,7 +86,10 @@ export function Dimmed(props: DimmedProps) {
       )}
       <View
         pointerEvents="none"
-        style={[StyleSheet.absoluteFill, { backgroundColor: color, opacity: clampOpacity(opacity) }]}
+        style={[
+          StyleSheet.absoluteFill,
+          { backgroundColor: color, opacity: clampOpacity(opacity) },
+        ]}
       />
       <Pressable
         accessibilityLabel={isDismissible ? accessibilityLabel : undefined}

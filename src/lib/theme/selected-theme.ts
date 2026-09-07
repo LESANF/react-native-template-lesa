@@ -28,12 +28,18 @@ export function loadSelectedTheme() {
 export function useSelectedTheme() {
   const { theme, hasAdaptiveThemes } = useUniwind();
   const [storedTheme, setStoredTheme] = useMMKVString(SELECTED_THEME_KEY, storage);
-  const selectedTheme = storedTheme === undefined && hasAdaptiveThemes ? 'system' : parseColorScheme(storedTheme ?? theme);
+  const selectedTheme =
+    storedTheme === undefined && hasAdaptiveThemes
+      ? 'system'
+      : parseColorScheme(storedTheme ?? theme);
 
-  const setSelectedTheme = useCallback((nextTheme: ColorScheme) => {
-    Uniwind.setTheme(nextTheme);
-    setStoredTheme(nextTheme);
-  }, [setStoredTheme]);
+  const setSelectedTheme = useCallback(
+    (nextTheme: ColorScheme) => {
+      Uniwind.setTheme(nextTheme);
+      setStoredTheme(nextTheme);
+    },
+    [setStoredTheme]
+  );
 
   return { selectedTheme, setSelectedTheme } as const;
 }

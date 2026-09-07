@@ -32,12 +32,12 @@ app.config.ts            파일 존재 → RNFB·notify-kit 플러그인·google
 
 ## 누가 표시하고 누가 탭을 전달하나 (FCM Mode)
 
-| 플랫폼 | 앱 상태 | 표시 | 탭 이벤트 → `enqueuePushTap` |
-|---|---|---|---|
-| Android | fg / bg / 종료 | 서버가 data-only로 보내므로 FCM SDK는 안 그린다 → `handleFcmMessage`(notifee) | notifee: fg `onForegroundEvent`, bg `onBackgroundEvent`, 종료 `getInitialNotification` |
-| iOS | fg | `onMessage` → `handleFcmMessage`(notifee 배너) | notifee `onForegroundEvent` |
-| iOS | bg / 종료 | OS가 `aps.alert`를 그린다(NSE가 `notifee_options`로 재구성). `handleFcmMessage`는 no-op | RNFB `onNotificationOpenedApp` / `getInitialNotification` **그리고** notifee PRESS도 발화 → 같은 URL이라 dispatcher dedup(키 = path?query, 2s)이 하나로 합친다 |
-| 둘 다 | splash 열림 | — | dispatcher가 bg/fg-tap을 `'cold'`로 강제해 splash 종료까지 홀드 |
+| 플랫폼  | 앱 상태        | 표시                                                                                    | 탭 이벤트 → `enqueuePushTap`                                                                                                                                   |
+| ------- | -------------- | --------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Android | fg / bg / 종료 | 서버가 data-only로 보내므로 FCM SDK는 안 그린다 → `handleFcmMessage`(notifee)           | notifee: fg `onForegroundEvent`, bg `onBackgroundEvent`, 종료 `getInitialNotification`                                                                         |
+| iOS     | fg             | `onMessage` → `handleFcmMessage`(notifee 배너)                                          | notifee `onForegroundEvent`                                                                                                                                    |
+| iOS     | bg / 종료      | OS가 `aps.alert`를 그린다(NSE가 `notifee_options`로 재구성). `handleFcmMessage`는 no-op | RNFB `onNotificationOpenedApp` / `getInitialNotification` **그리고** notifee PRESS도 발화 → 같은 URL이라 dispatcher dedup(키 = path?query, 2s)이 하나로 합친다 |
+| 둘 다   | splash 열림    | —                                                                                       | dispatcher가 bg/fg-tap을 `'cold'`로 강제해 splash 종료까지 홀드                                                                                                |
 
 누락되는 상태는 없다. 두 소스가 겹치는 상태는 iOS bg/종료 하나이고, 그래서 dispatcher가 `markHandled`를 navigate **앞**에서 찍는다.
 
@@ -56,6 +56,7 @@ app.config.ts            파일 존재 → RNFB·notify-kit 플러그인·google
 - **탭 소스는 RNFB와 notifee 둘 다 배선.** 위 표대로 플랫폼·상태별로 누가 발화하는지 다르다. 겹침은 dispatcher가 처리한다(D4·D5·D6).
 
 ## 거부된 대안 (다시 제안하지 말 것)
+
 - expo-notifications → Android 포그라운드 서비스·리치 스타일·풀스크린 인텐트 없음, FCM Mode 같은 중복/유실 대책 없음. 두 앱도 notifee.
 - `@notifee/react-native` 9.1.8 유지 → 아카이브(2026-04), 2024-12 마지막 릴리즈, SDK 54+ Android 빌드 이슈(#1284), Expo 플러그인 없음.
 - RNFB 23.x 유지 → RN 0.86 검증 없음. 템플릿은 레거시가 없어 26으로 바로.
@@ -76,23 +77,25 @@ app.config.ts            파일 존재 → RNFB·notify-kit 플러그인·google
 
 ## 프로젝트가 채우는 곳 (`grep -rn "TODO(앱)" src app.config.ts firebase`)
 
-| 어디 | 무엇 |
-|---|---|
-| `firebase/` | `GoogleService-Info.<env>.plist` · `google-services.<env>.json` (3환경). Firebase 콘솔에 APNs 키 업로드 |
-| `lib/push/token-sync.ts` | `pushTokenSyncAdapter.register/unregister` — 서버 endpoint·바디(KR `{deviceId,deviceType,pushToken}` / JP `{platform,token}`처럼 앱마다 다름) |
-| 로그아웃 흐름 | `await unregisterPushToken()` **후** `signOut()` |
-| `lib/push/taps.ts` | 배지 리셋 정책(예: 포그라운드 복귀 시 `notifee.setBadgeCount(0)`) |
-| `lib/preloader/permissions/` 결과 소비처 | 알림 거부(`shouldGuide`)일 때 설정 이동 UX(참조 앱은 팝업 → `openSettings`) |
-| `lib/push/core.ts` `setFcmConfig` | `ios.suppressForegroundBanner` 등 표시 정책, 채널 추가 |
-| `app.config.ts` notify-kit 플러그인 | Android small icon(`android.icons`), 포그라운드 서비스 타입 |
-| EAS / 서명 | NSE는 `extra.eas.build.experimental.ios.appExtensions`에 자동 등록. 수동 프로비저닝이면 `<bundleId>.NotifyKitNSE` 프로필 |
+| 어디                                     | 무엇                                                                                                                                          |
+| ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| `firebase/`                              | `GoogleService-Info.<env>.plist` · `google-services.<env>.json` (3환경). Firebase 콘솔에 APNs 키 업로드                                       |
+| `lib/push/token-sync.ts`                 | `pushTokenSyncAdapter.register/unregister` — 서버 endpoint·바디(KR `{deviceId,deviceType,pushToken}` / JP `{platform,token}`처럼 앱마다 다름) |
+| 로그아웃 흐름                            | `await unregisterPushToken()` **후** `signOut()`                                                                                              |
+| `lib/push/taps.ts`                       | 배지 리셋 정책(예: 포그라운드 복귀 시 `notifee.setBadgeCount(0)`)                                                                             |
+| `lib/preloader/permissions/` 결과 소비처 | 알림 거부(`shouldGuide`)일 때 설정 이동 UX(참조 앱은 팝업 → `openSettings`)                                                                   |
+| `lib/push/core.ts` `setFcmConfig`        | `ios.suppressForegroundBanner` 등 표시 정책, 채널 추가                                                                                        |
+| `app.config.ts` notify-kit 플러그인      | Android small icon(`android.icons`), 포그라운드 서비스 타입                                                                                   |
+| EAS / 서명                               | NSE는 `extra.eas.build.experimental.ios.appExtensions`에 자동 등록. 수동 프로비저닝이면 `<bundleId>.NotifyKitNSE` 프로필                      |
 
 ## 운영
+
 - 푸시 on/off는 파일 존재로 갈리므로 **CI/EAS에도 같은 파일이 있어야** 프로덕션 빌드에 푸시가 들어간다. 없으면 조용히 off로 빌드된다 → `STRICT_ENV_VALIDATION=1`에서는 한쪽만 있을 때 throw, 둘 다 없으면 `[push] disabled` 로그.
 - 네이티브가 바뀌므로(RNFB·notify-kit·NSE) hot-updater fingerprint가 바뀐다 — 스토어 배포 필요.
 - 시뮬레이터는 APNs를 못 받는다. Firebase 없이도 홈 "Push" 버튼(로컬 알림 → 탭 → menu-4/42)과 `xcrun simctl push <UDID> <bundleId> payload.apns`로 표시·탭·딥링크는 확인할 수 있다. FCM 수신·NSE 이미지는 실기 + Firebase 프로젝트.
 
 ## 검증 상태 (2026-09-03)
+
 - 스크래치 하네스(커밋 안 함, 레시피 template-completion A4): 구성 모드 15/15 · 미구성 모드 11/11 — extractPushUrl 사다리 · ensurePushChannel 메모이즈 · headless bg 핸들러 게이트 · onBackgroundEvent PRESS→cold 홀드 · dispatcher 두 소스 dedup(markHandled 선행) · cold 캡처 once · subscribePush 등록/해제 · 권한 사다리 · token-sync(멱등 start·signedIn 등록·refresh guard·D1 getToken throw 회복·D2 signOut 후 refresh 무시·unregister)
 - `check-all`·`expo config --type prebuild` 3회(파일 0 / 더미 2 / STRICT+1 → throw)·`expo export -p ios`(custom entry 번들)·frozen install·expo-doctor 18/18·`expo install --check` 통과
 - **실빌드(푸시 off)**: `prebuild --clean` 에서 RNFB 26.3.3 pod 이 `$RNFirebaseDisableSPM` 을 인식해 CocoaPods 경로로, static framework 로 RN 0.86.3 빌드 성공(iOS 26.4 시뮬). SDK 57 기본 `usePrecompiledModules` 와의 조합도 문제 없음 — 폴백 불필요

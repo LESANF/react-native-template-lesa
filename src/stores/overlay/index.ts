@@ -75,7 +75,7 @@ export const toast = {
 // React 밖의 async 흐름에서도 `const choice = await popup.confirm(...)`로 쓴다. 한 번에 하나만.
 export const popup = {
   confirm: (options: PopupOptions): Promise<PopupChoice> =>
-    new Promise((resolve) => {
+    new Promise(resolve => {
       // 열려 있던 팝업은 취소로 정리하고 교체한다.
       useOverlayStore.getState().popup?.resolve('cancel');
       popupId += 1;

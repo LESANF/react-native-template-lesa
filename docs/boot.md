@@ -74,6 +74,7 @@ hot-updater.config.ts · scripts/ota-deploy.mjs CLI 전용(번들 밖). 배포 �
 - **expo-splash-screen 플러그인의 `image`는 루트에.** SDK 57 플러그인은 iOS에 image가 없으면 storyboard의 imageView를 지우고 배경색을 `systemBackgroundColor`(흰색)로 남긴다 — `android` 밑에만 두면 iOS 네이티브 splash가 흰색이 되어 JS splash(#208AEF)와 이음새가 깨진다(2026-09-03 storyboard 확인). 로고·색은 두 플랫폼 공통으로 루트에 둔다.
 
 ## 거부된 대안 (다시 제안하지 말 것)
+
 - expo-updates → 앱 인프라가 hot-updater 자체 서버. EAS Update 종속·채널 모델 불일치.
 - `HotUpdater.wrap()` HOC → 부팅 파이프라인 밖에서 앱을 게이트한다. 우리 실패 정책·팝업·splash 소유권과 맞지 않음. 두 앱도 `init()` + 수동 체크.
 - 프리로더 스테이지 전체 타임아웃 → 사용자 선택 구간까지 끊어 강제 업데이트 블록을 무력화. 입력 없는 구간만.
@@ -85,26 +86,28 @@ hot-updater.config.ts · scripts/ota-deploy.mjs CLI 전용(번들 밖). 배포 �
 
 ## 프로젝트가 채우는 곳 (`grep -rn "TODO(앱)" src env-candidates.ts hot-updater.config.ts`)
 
-| 어디 | 무엇 |
-|---|---|
-| `env-candidates.ts` `urls.ota` | OTA 서버 주소(3환경). 채우면 활성 |
-| `hot-updater.config.ts` | S3 버킷·리전. 시크릿은 `.env` `APP_BUILD_ONLY_AWS_*` |
-| `api/app/requests.ts` | 강제 업데이트 정책 API(`getAppForceUpdate` — KR 응답 형태 `payload.minVersion`·`storeUrl`). 스텁 null이면 스킵 |
-| `features/splash/splash-screen.tsx` · `intro-gate.ts` | 배경색(app.config splash와 동일하게)·로고 · 인트로 영상 게이트 |
-| `lib/api/prefetch.ts` | 첫 화면 쿼리 목록(KR 위치) |
-| `utils/show-*-popup.ts` | 팝업 카피 |
-| `constants/deep-link.ts` | 유니버설 링크 https 호스트 — 채우면 파서·매처와 함께 `app.config.ts` 가 `associatedDomains`·`intentFilters` 도 파생한다 |
-| `constants/deep-link.ts` | 스펙 테이블 — `STATIC_DEEP_LINK_ROUTES`(appPaths/webPaths/to/reset/gates/whenAuthenticated) · `DYNAMIC_ROUTES_SPEC`(appPattern/queryDriven/toExpoPath/gates/safeFallbackExpoPath/navigate 오버라이드) · `EXTERNAL_WEB_PAGE_PATTERNS`(+`/external-web` 라우트) · `AUTH_LOGIN_PATH`/`AUTH_ROUTE_GROUP` |
-| `lib/deep-link/parser.ts` | `WEB_TO_APP_PATH_ALIASES` · `WEB_QUERY_TO_PATH_RULES` (웹↔앱 URL 이 다를 때) |
-| `lib/deep-link/gates/` | `GATE_MAP` 확장(KR: verified·marketing·pushPermission), `types.ts` `GateName` union |
-| `app.config.ts` | 손댈 것 없음 — 유니버설 링크 네이티브 설정은 `constants/deep-link.ts` 에서 파생 |
+| 어디                                                  | 무엇                                                                                                                                                                                                                                                                                                 |
+| ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `env-candidates.ts` `urls.ota`                        | OTA 서버 주소(3환경). 채우면 활성                                                                                                                                                                                                                                                                    |
+| `hot-updater.config.ts`                               | S3 버킷·리전. 시크릿은 `.env` `APP_BUILD_ONLY_AWS_*`                                                                                                                                                                                                                                                 |
+| `api/app/requests.ts`                                 | 강제 업데이트 정책 API(`getAppForceUpdate` — KR 응답 형태 `payload.minVersion`·`storeUrl`). 스텁 null이면 스킵                                                                                                                                                                                       |
+| `features/splash/splash-screen.tsx` · `intro-gate.ts` | 배경색(app.config splash와 동일하게)·로고 · 인트로 영상 게이트                                                                                                                                                                                                                                       |
+| `lib/api/prefetch.ts`                                 | 첫 화면 쿼리 목록(KR 위치)                                                                                                                                                                                                                                                                           |
+| `utils/show-*-popup.ts`                               | 팝업 카피                                                                                                                                                                                                                                                                                            |
+| `constants/deep-link.ts`                              | 유니버설 링크 https 호스트 — 채우면 파서·매처와 함께 `app.config.ts` 가 `associatedDomains`·`intentFilters` 도 파생한다                                                                                                                                                                              |
+| `constants/deep-link.ts`                              | 스펙 테이블 — `STATIC_DEEP_LINK_ROUTES`(appPaths/webPaths/to/reset/gates/whenAuthenticated) · `DYNAMIC_ROUTES_SPEC`(appPattern/queryDriven/toExpoPath/gates/safeFallbackExpoPath/navigate 오버라이드) · `EXTERNAL_WEB_PAGE_PATTERNS`(+`/external-web` 라우트) · `AUTH_LOGIN_PATH`/`AUTH_ROUTE_GROUP` |
+| `lib/deep-link/parser.ts`                             | `WEB_TO_APP_PATH_ALIASES` · `WEB_QUERY_TO_PATH_RULES` (웹↔앱 URL 이 다를 때)                                                                                                                                                                                                                         |
+| `lib/deep-link/gates/`                                | `GATE_MAP` 확장(KR: verified·marketing·pushPermission), `types.ts` `GateName` union                                                                                                                                                                                                                  |
+| `app.config.ts`                                       | 손댈 것 없음 — 유니버설 링크 네이티브 설정은 `constants/deep-link.ts` 에서 파생                                                                                                                                                                                                                      |
 
 ## 운영
+
 - OTA 배포: `pnpm ota:deploy:ios:production` (= prebuild 클린 → `hot-updater fingerprint create` → `deploy -c production -m "<msg> [<sha>]"`). preview는 `:preview`. `EXPO_PUBLIC_APP_ENV` 미지정 배포는 스크립트가 거부.
 - 네이티브가 바뀌면(의존성·플러그인) fingerprint가 바뀌어 기존 OTA 대상에서 자동 제외된다 — 스토어 배포가 필요하다는 신호.
 - 서버: `자체 OTA 서버`(자체 서버, `createHotUpdater` from `@hot-updater/server`) 참고. 그 README의 운영 체크리스트(HTTPS·볼륨·CLI 인증·백업)는 미완이니 그대로 믿지 말 것.
 
 ## 검증 상태 (2026-09-03)
+
 - 스크래치 하네스(커밋 안 함, 레시피 template-completion A4): preloader 13/13(격리·타임아웃·스킵/카운트·강제 업데이트 사다리·OTA 어댑터 흐름) · deep-link 10/10(parser·matcher·콜드 홀드·즉시 처리·dedup·reopen·sources·native-intent)
 - `check-all`(tsc 6) · Expo Doctor 18/18(hot-updater 플러그인 포함) · frozen install · `hot-updater.config.ts` tsx 로드 스모크
 - **미검증**: RN 0.86 네이티브 빌드에서 hot-updater 컴파일(`pnpm ios` 1회 필요) · 실제 OTA 서버 배포/롤백(서버 없음) · 시뮬 콜드 딥링크(`xcrun simctl openurl booted <scheme>://menu-4/42`). 푸시 탭 딥링크는 docs/push.md 검증 상태 참고

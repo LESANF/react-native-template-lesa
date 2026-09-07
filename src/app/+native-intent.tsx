@@ -35,13 +35,7 @@ function isDeepLink(path: string): boolean {
   return false;
 }
 
-export function redirectSystemPath({
-  path,
-  initial,
-}: {
-  path: string;
-  initial: boolean;
-}): string {
+export function redirectSystemPath({ path, initial }: { path: string; initial: boolean }): string {
   console.log('[+native-intent:redirectSystemPath] in:', { initial });
   try {
     // 우리 링크가 아니면(앱 내부 라우팅 등) 손대지 않는다.

@@ -14,16 +14,16 @@ export function setupReactQueryNativeListeners() {
   if (didSetupReactQueryNativeListeners) return;
   didSetupReactQueryNativeListeners = true;
 
-  onlineManager.setEventListener((setOnline) =>
-    NetInfo.addEventListener((state) => {
+  onlineManager.setEventListener(setOnline =>
+    NetInfo.addEventListener(state => {
       setOnline(resolveOnlineState(state));
-    }),
+    })
   );
 
   if (Platform.OS === 'web') return;
 
-  focusManager.setEventListener((handleFocus) => {
-    const subscription = AppState.addEventListener('change', (status) => {
+  focusManager.setEventListener(handleFocus => {
+    const subscription = AppState.addEventListener('change', status => {
       handleFocus(status === 'active');
     });
 

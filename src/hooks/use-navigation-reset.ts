@@ -1,4 +1,8 @@
-import { type NavigationState, type PartialState, CommonActions } from 'expo-router/react-navigation';
+import {
+  type NavigationState,
+  type PartialState,
+  CommonActions,
+} from 'expo-router/react-navigation';
 import { type Href, useNavigationContainerRef } from 'expo-router';
 import { useCallback } from 'react';
 
@@ -27,7 +31,7 @@ export type NavigationTabName = (typeof tabRoutes)[number]['name'];
 const ROOT_NAVIGATION_ROUTE_NAME = '__root';
 const TABS_ROUTE_NAME = '(tabs)';
 const DEFAULT_TAB_STACK = ['index'] as const;
-const tabNames: readonly NavigationTabName[] = tabRoutes.map((tab) => tab.name);
+const tabNames: readonly NavigationTabName[] = tabRoutes.map(tab => tab.name);
 
 // 호출부에서 넘기는 reset 입력값들.
 export type NavigationResetStackEntry =
@@ -91,16 +95,14 @@ function getStackEntryName(entry: NavigationResetStackEntry): string {
   return typeof entry === 'string' ? entry : entry.name;
 }
 
-function getTargetStack(
-  target: NavigationResetToTabOptions,
-): readonly NavigationResetStackEntry[] {
+function getTargetStack(target: NavigationResetToTabOptions): readonly NavigationResetStackEntry[] {
   return target.stack && target.stack.length > 0 ? target.stack : DEFAULT_TAB_STACK;
 }
 
 // 전체 탭 목록을 만들되, 활성 탭에만 내부 stack 을 심는다.
 function buildTabRoute(
   tabName: NavigationTabName,
-  target: NavigationResetToTabOptions,
+  target: NavigationResetToTabOptions
 ): NavigationRouteEntry {
   const stack = getTargetStack(target);
 
@@ -149,7 +151,7 @@ function buildTabsResetPayload(target: NavigationResetToTabOptions): NavigationR
   if (tabIndex === -1) {
     throw new NavigationResetError(
       'unknown-tab',
-      `useNavigationReset: unknown tab "${target.tab}". Update tabs first.`,
+      `useNavigationReset: unknown tab "${target.tab}". Update tabs first.`
     );
   }
 
@@ -157,10 +159,12 @@ function buildTabsResetPayload(target: NavigationResetToTabOptions): NavigationR
     name: TABS_ROUTE_NAME,
     state: {
       index: tabIndex,
-      routes: tabNames.map((tabName) => buildTabRoute(tabName, target)),
+      routes: tabNames.map(tabName => buildTabRoute(tabName, target)),
     },
   };
-  const innerRoutes = target.topRoute ? [tabsRoute, buildNestedRoute(target.topRoute)] : [tabsRoute];
+  const innerRoutes = target.topRoute
+    ? [tabsRoute, buildNestedRoute(target.topRoute)]
+    : [tabsRoute];
 
   return buildRootResetPayload(innerRoutes);
 }
@@ -192,10 +196,12 @@ export function useNavigationReset(): (target: NavigationResetTarget) => void {
     (target: NavigationResetTarget) => {
       navigation.dispatch(
         CommonActions.reset(
-          isResetToTabOptions(target) ? buildTabsResetPayload(target) : buildHrefResetPayload(target),
-        ),
+          isResetToTabOptions(target)
+            ? buildTabsResetPayload(target)
+            : buildHrefResetPayload(target)
+        )
       );
     },
-    [navigation],
+    [navigation]
   );
 }

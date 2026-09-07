@@ -1,5 +1,5 @@
-import { useEffect, useState, type ReactNode } from "react";
-import { StyleSheet } from "react-native";
+import { useEffect, useState, type ReactNode } from 'react';
+import { StyleSheet } from 'react-native';
 import Animated, {
   cancelAnimation,
   interpolateColor,
@@ -11,15 +11,9 @@ import Animated, {
   withRepeat,
   withSpring,
   withTiming,
-} from "react-native-reanimated";
+} from 'react-native-reanimated';
 
-import {
-  Button,
-  ScreenSystemBars,
-  ScrollView,
-  Text,
-  View,
-} from "@/components/ui";
+import { Button, ScreenSystemBars, ScrollView, Text, View } from '@/components/ui';
 
 const TRACK_WIDTH = 240;
 const KNOB_SIZE = 44;
@@ -44,11 +38,7 @@ function TimingAndSpringExample() {
   const progress = useSharedValue(0);
 
   const knobStyle = useAnimatedStyle(() => ({
-    backgroundColor: interpolateColor(
-      progress.get(),
-      [0, 1],
-      ["#64748b", "#16a34a"],
-    ),
+    backgroundColor: interpolateColor(progress.get(), [0, 1], ['#64748b', '#16a34a']),
     transform: [{ translateX: progress.get() * (TRACK_WIDTH - KNOB_SIZE) }],
   }));
 
@@ -64,14 +54,8 @@ function TimingAndSpringExample() {
   return (
     <ExampleCard title="Timing / Spring">
       <View className="items-center gap-4">
-        <View
-          className="justify-center rounded-full bg-muted"
-          style={styles.track}
-        >
-          <Animated.View
-            className="absolute h-11 rounded-full bg-primary/20"
-            style={fillStyle}
-          />
+        <View className="justify-center rounded-full bg-muted" style={styles.track}>
+          <Animated.View className="absolute h-11 rounded-full bg-primary/20" style={fillStyle} />
           <Animated.View className="size-11 rounded-full" style={knobStyle} />
         </View>
         <Button variant="secondary" onPress={toggle}>
@@ -105,8 +89,7 @@ function RepeatWorkletExample() {
       <View className="items-center justify-center py-4">
         <Animated.View
           className="size-28 items-center justify-center rounded-2xl border border-primary bg-primary/10"
-          style={pulseStyle}
-        >
+          style={pulseStyle}>
           <View className="size-9 rounded-lg bg-primary" />
         </Animated.View>
       </View>
@@ -116,22 +99,22 @@ function RepeatWorkletExample() {
 
 function DerivedReactionExample() {
   const progress = useSharedValue(0.25);
-  const [status, setStatus] = useState("idle");
+  const [status, setStatus] = useState('idle');
   const degrees = useDerivedValue(() => progress.get() * 270 - 135);
 
   useAnimatedReaction(
     () => progress.get() >= 0.75,
     (isHigh, wasHigh) => {
       if (isHigh === wasHigh) return;
-      runOnJS(setStatus)(isHigh ? "worklet: high" : "worklet: normal");
-    },
+      runOnJS(setStatus)(isHigh ? 'worklet: high' : 'worklet: normal');
+    }
   );
 
   const meterStyle = useAnimatedStyle(() => ({
     backgroundColor: interpolateColor(
       progress.get(),
       [0, 0.75, 1],
-      ["#0f172a", "#2563eb", "#dc2626"],
+      ['#0f172a', '#2563eb', '#dc2626']
     ),
     transform: [{ rotate: `${degrees.get()}deg` }],
   }));
@@ -148,10 +131,7 @@ function DerivedReactionExample() {
   return (
     <ExampleCard title="Derived / runOnJS">
       <View className="items-center gap-4">
-        <View
-          className="items-center justify-center rounded-full bg-muted"
-          style={styles.meter}
-        >
+        <View className="items-center justify-center rounded-full bg-muted" style={styles.meter}>
           <Animated.View className="h-2 w-14 rounded-full" style={meterStyle} />
         </View>
         <Text color="muted">{status}</Text>
@@ -177,10 +157,7 @@ export function Menu2Screen() {
     <>
       <ScreenSystemBars style="light" />
 
-      <ScrollView
-        className="bg-background"
-        contentContainerClassName="gap-4 p-4"
-      >
+      <ScrollView className="bg-background" contentContainerClassName="gap-4 p-4">
         <View className="gap-1">
           <Text variant="display">Menu 2</Text>
           <Text color="muted">Reanimated / Worklets smoke examples</Text>

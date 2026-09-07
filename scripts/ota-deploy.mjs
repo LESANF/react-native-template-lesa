@@ -16,7 +16,7 @@ if (appEnv !== 'preview' && appEnv !== 'production') {
   console.error('EXPO_PUBLIC_APP_ENV must be preview or production for OTA deploy.');
   process.exit(1);
 }
-const messageIndex = rest.findIndex((arg) => arg === '-m' || arg === '--message');
+const messageIndex = rest.findIndex(arg => arg === '-m' || arg === '--message');
 const userMessage = messageIndex >= 0 ? rest[messageIndex + 1] : undefined;
 
 const run = (cmd, args, extraEnv = {}) => {
@@ -26,7 +26,8 @@ const run = (cmd, args, extraEnv = {}) => {
 const out = (cmd, args) => spawnSync(cmd, args, { encoding: 'utf8' }).stdout.trim();
 
 const dirty = out('git', ['status', '--porcelain']);
-if (dirty) console.warn('\n⚠️  커밋되지 않은 변경이 있습니다. 이 번들은 특정 커밋에 대응하지 않습니다.\n');
+if (dirty)
+  console.warn('\n⚠️  커밋되지 않은 변경이 있습니다. 이 번들은 특정 커밋에 대응하지 않습니다.\n');
 const sha = out('git', ['rev-parse', '--short', 'HEAD']) + (dirty ? '-dirty' : '');
 const message = userMessage ? `${userMessage} [${sha}]` : `[${sha}]`;
 
@@ -37,4 +38,6 @@ run('pnpm', ['exec', 'hot-updater', 'fingerprint', 'create']);
 run('pnpm', ['exec', 'hot-updater', 'deploy', '-p', platform, '-c', 'production', '-m', message]);
 
 const fingerprint = JSON.parse(readFileSync('fingerprint.json', 'utf8'));
-console.log(`\n✅ deployed ${platform} (${appEnv}) — fingerprint ${fingerprint?.[platform]?.hash ?? '(see fingerprint.json)'}`);
+console.log(
+  `\n✅ deployed ${platform} (${appEnv}) — fingerprint ${fingerprint?.[platform]?.hash ?? '(see fingerprint.json)'}`
+);

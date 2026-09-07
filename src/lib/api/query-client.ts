@@ -20,8 +20,7 @@ export function createQueryClient(): QueryClient {
     defaultOptions: {
       queries: {
         gcTime: QUERY_GC_TIME_MS,
-        retry: (failureCount, error) =>
-          failureCount < QUERY_RETRY_LIMIT && shouldRetryQuery(error),
+        retry: (failureCount, error) => failureCount < QUERY_RETRY_LIMIT && shouldRetryQuery(error),
         staleTime: QUERY_STALE_TIME_MS,
         throwOnError: false,
       },

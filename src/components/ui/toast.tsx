@@ -38,7 +38,7 @@ const toastDot = tv({
 });
 
 export function GlobalToast() {
-  const currentToast = useOverlayStore((state) => state.toast);
+  const currentToast = useOverlayStore(state => state.toast);
   const { top } = useSafeAreaInsets();
 
   useEffect(() => {
@@ -55,7 +55,8 @@ export function GlobalToast() {
 
   if (!currentToast) return null;
 
-  const isStringContent = typeof currentToast.text1 === 'string' || typeof currentToast.text1 === 'number';
+  const isStringContent =
+    typeof currentToast.text1 === 'string' || typeof currentToast.text1 === 'number';
 
   return (
     <View pointerEvents="box-none" style={StyleSheet.absoluteFill}>

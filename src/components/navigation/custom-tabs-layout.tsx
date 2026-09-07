@@ -1,9 +1,4 @@
-import {
-  TabList,
-  Tabs,
-  TabSlot,
-  TabTrigger,
-} from 'expo-router/ui';
+import { TabList, Tabs, TabSlot, TabTrigger } from 'expo-router/ui';
 import { StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useCSSVariable } from 'uniwind';
@@ -26,14 +21,8 @@ export function CustomTabsLayout() {
     '--color-card',
     '--color-border',
   ]);
-  const backgroundColor = resolveColorToken(
-    backgroundColorToken,
-    TAB_BAR_BACKGROUND_FALLBACK,
-  );
-  const borderTopColor = resolveColorToken(
-    borderColorToken,
-    TAB_BAR_BORDER_FALLBACK,
-  );
+  const backgroundColor = resolveColorToken(backgroundColorToken, TAB_BAR_BACKGROUND_FALLBACK);
+  const borderTopColor = resolveColorToken(borderColorToken, TAB_BAR_BORDER_FALLBACK);
 
   return (
     <Tabs style={styles.tabs}>
@@ -49,15 +38,12 @@ export function CustomTabsLayout() {
           },
         ]}>
         <View style={styles.tabBarContent}>
-          {tabs.map((tab) => {
+          {tabs.map(tab => {
             const Icon = tab.icon;
             const route = tab.route;
 
             return (
-              <TabTrigger
-                key={route.name}
-                name={route.name}
-                asChild>
+              <TabTrigger key={route.name} name={route.name} asChild>
                 <TabButton icon={Icon} label={route.label} />
               </TabTrigger>
             );
@@ -66,16 +52,10 @@ export function CustomTabsLayout() {
       </View>
 
       <TabList style={styles.hiddenTabList}>
-        {tabs.map((tab) => {
+        {tabs.map(tab => {
           const route = tab.route;
 
-          return (
-            <TabTrigger
-              key={route.name}
-              href={route.href}
-              name={route.name}
-            />
-          );
+          return <TabTrigger key={route.name} href={route.href} name={route.name} />;
         })}
       </TabList>
     </Tabs>

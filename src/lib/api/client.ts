@@ -20,11 +20,13 @@ export type ApiAuthMode = 'none' | 'required';
 
 type ResponseParser<TResponse> = (data: unknown) => TResponse;
 
-export type ApiRequestConfig<TBody = unknown, TResponse = unknown> =
-  Omit<AxiosRequestConfig<TBody>, 'auth'> & {
-    readonly auth?: ApiAuthMode;
-    readonly parse?: ResponseParser<TResponse>;
-  };
+export type ApiRequestConfig<TBody = unknown, TResponse = unknown> = Omit<
+  AxiosRequestConfig<TBody>,
+  'auth'
+> & {
+  readonly auth?: ApiAuthMode;
+  readonly parse?: ResponseParser<TResponse>;
+};
 
 export type RawApiRequestConfig<TBody = unknown> = Omit<AxiosRequestConfig<TBody>, 'auth'> & {
   readonly auth?: ApiAuthMode;
@@ -32,11 +34,25 @@ export type RawApiRequestConfig<TBody = unknown> = Omit<AxiosRequestConfig<TBody
 
 type ApiClient = {
   get<TResponse>(url: string, config?: ApiRequestConfig<unknown, TResponse>): Promise<TResponse>;
-  post<TResponse, TBody = unknown>(url: string, data?: TBody, config?: ApiRequestConfig<TBody, TResponse>): Promise<TResponse>;
-  put<TResponse, TBody = unknown>(url: string, data?: TBody, config?: ApiRequestConfig<TBody, TResponse>): Promise<TResponse>;
-  patch<TResponse, TBody = unknown>(url: string, data?: TBody, config?: ApiRequestConfig<TBody, TResponse>): Promise<TResponse>;
+  post<TResponse, TBody = unknown>(
+    url: string,
+    data?: TBody,
+    config?: ApiRequestConfig<TBody, TResponse>
+  ): Promise<TResponse>;
+  put<TResponse, TBody = unknown>(
+    url: string,
+    data?: TBody,
+    config?: ApiRequestConfig<TBody, TResponse>
+  ): Promise<TResponse>;
+  patch<TResponse, TBody = unknown>(
+    url: string,
+    data?: TBody,
+    config?: ApiRequestConfig<TBody, TResponse>
+  ): Promise<TResponse>;
   delete<TResponse>(url: string, config?: ApiRequestConfig<unknown, TResponse>): Promise<TResponse>;
-  requestRaw<TResponse, TBody = unknown>(config: RawApiRequestConfig<TBody>): Promise<AxiosResponse<TResponse>>;
+  requestRaw<TResponse, TBody = unknown>(
+    config: RawApiRequestConfig<TBody>
+  ): Promise<AxiosResponse<TResponse>>;
 };
 
 type RefreshableAxiosError = AxiosError & {
@@ -93,18 +109,14 @@ function isRefreshableError(error: unknown): error is RefreshableAxiosError {
   return response.status === 401;
 }
 
-function splitConfig<TBody, TResponse>(
-  config?: ApiRequestConfig<TBody, TResponse>,
-) {
+function splitConfig<TBody, TResponse>(config?: ApiRequestConfig<TBody, TResponse>) {
   if (!config) return { requestConfig: undefined, parse: undefined };
   const { auth = 'none', parse, ...requestConfig } = config;
   markAuthMode(requestConfig, auth);
   return { requestConfig, parse };
 }
 
-function prepareRawConfig<TBody>(
-  config: RawApiRequestConfig<TBody>,
-): AxiosRequestConfig<TBody> {
+function prepareRawConfig<TBody>(config: RawApiRequestConfig<TBody>): AxiosRequestConfig<TBody> {
   const { auth = 'none', ...requestConfig } = config;
   markAuthMode(requestConfig, auth);
   return requestConfig;
@@ -112,7 +124,7 @@ function prepareRawConfig<TBody>(
 
 async function unwrapResponse<TResponse>(
   request: Promise<AxiosResponse<TResponse>>,
-  parse?: ResponseParser<TResponse>,
+  parse?: ResponseParser<TResponse>
 ): Promise<TResponse> {
   const response = await request;
   if (!parse) return response.data;
@@ -130,20 +142,20 @@ function createApiClient(instance: AxiosInstance): ApiClient {
       const { requestConfig, parse } = splitConfig(config);
       return unwrapResponse(
         instance.get<TResponse, AxiosResponse<TResponse>>(url, requestConfig),
-        parse,
+        parse
       );
     },
 
     post<TResponse, TBody = unknown>(
       url: string,
       data?: TBody,
-      config?: ApiRequestConfig<TBody, TResponse>,
+      config?: ApiRequestConfig<TBody, TResponse>
     ) {
       const { requestConfig, parse } = splitConfig(config);
       const request = instance.post<TResponse, AxiosResponse<TResponse>, TBody>(
         url,
         data,
-        requestConfig,
+        requestConfig
       );
       return unwrapResponse(request, parse);
     },
@@ -151,13 +163,13 @@ function createApiClient(instance: AxiosInstance): ApiClient {
     put<TResponse, TBody = unknown>(
       url: string,
       data?: TBody,
-      config?: ApiRequestConfig<TBody, TResponse>,
+      config?: ApiRequestConfig<TBody, TResponse>
     ) {
       const { requestConfig, parse } = splitConfig(config);
       const request = instance.put<TResponse, AxiosResponse<TResponse>, TBody>(
         url,
         data,
-        requestConfig,
+        requestConfig
       );
       return unwrapResponse(request, parse);
     },
@@ -165,13 +177,13 @@ function createApiClient(instance: AxiosInstance): ApiClient {
     patch<TResponse, TBody = unknown>(
       url: string,
       data?: TBody,
-      config?: ApiRequestConfig<TBody, TResponse>,
+      config?: ApiRequestConfig<TBody, TResponse>
     ) {
       const { requestConfig, parse } = splitConfig(config);
       const request = instance.patch<TResponse, AxiosResponse<TResponse>, TBody>(
         url,
         data,
-        requestConfig,
+        requestConfig
       );
       return unwrapResponse(request, parse);
     },
@@ -180,14 +192,12 @@ function createApiClient(instance: AxiosInstance): ApiClient {
       const { requestConfig, parse } = splitConfig(config);
       return unwrapResponse(
         instance.delete<TResponse, AxiosResponse<TResponse>>(url, requestConfig),
-        parse,
+        parse
       );
     },
 
     requestRaw<TResponse, TBody = unknown>(config: RawApiRequestConfig<TBody>) {
-      return instance.request<TResponse, AxiosResponse<TResponse>, TBody>(
-        prepareRawConfig(config),
-      );
+      return instance.request<TResponse, AxiosResponse<TResponse>, TBody>(prepareRawConfig(config));
     },
   };
 }
@@ -200,7 +210,7 @@ const axiosClient = createAxios({
   },
 });
 
-axiosClient.interceptors.request.use((config) => {
+axiosClient.interceptors.request.use(config => {
   const headers = ensureHeaders(config);
 
   if (isFormData(config.data)) {
@@ -224,7 +234,7 @@ axiosClient.interceptors.request.use((config) => {
 });
 
 axiosClient.interceptors.response.use(
-  (response) => response,
+  response => response,
   async (error: unknown) => {
     if (!isRefreshableError(error)) {
       return Promise.reject(toApiError(error));
@@ -240,7 +250,7 @@ axiosClient.interceptors.response.use(
     } catch (refreshError) {
       return Promise.reject(toApiError(refreshError));
     }
-  },
+  }
 );
 
 export const client = createApiClient(axiosClient);

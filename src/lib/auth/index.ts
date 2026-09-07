@@ -1,10 +1,7 @@
 import { ApiError, toApiError } from '@/lib/api/api-error';
 import { useAuthStore } from '@/stores/auth-store';
 
-import {
-  isDefinitiveRefreshRejection,
-  requestRefreshAccessToken,
-} from './refresh-request';
+import { isDefinitiveRefreshRejection, requestRefreshAccessToken } from './refresh-request';
 
 let refreshInFlight: Promise<string> | null = null;
 
@@ -47,10 +44,7 @@ async function runRefreshAccessToken() {
     return tokens.accessToken;
   } catch (error) {
     const apiError = toApiError(error);
-    if (
-      useAuthStore.getState().token === sessionToken &&
-      isDefinitiveRefreshRejection(apiError)
-    ) {
+    if (useAuthStore.getState().token === sessionToken && isDefinitiveRefreshRejection(apiError)) {
       expireAuthSession();
     }
     throw apiError;

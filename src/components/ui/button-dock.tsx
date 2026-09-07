@@ -23,7 +23,9 @@ export function ButtonDock({ children, className, shadow = false }: ButtonDockPr
       : Math.max(insets.bottom, MIN_BOTTOM_PADDING);
 
   return (
-    <View className={dock({ className })} style={[shadow ? styles.shadow : null, { paddingBottom }]}>
+    <View
+      className={dock({ className })}
+      style={[shadow ? styles.shadow : null, { paddingBottom }]}>
       {children}
     </View>
   );

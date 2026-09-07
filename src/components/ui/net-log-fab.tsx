@@ -41,7 +41,7 @@ function NetLogFabImpl() {
 
   const translateX = useSharedValue(maxX);
   const translateY = useSharedValue(
-    Math.max(minY, screenHeight - insets.bottom - FAB_SIZE - BOTTOM_NAV_GAP),
+    Math.max(minY, screenHeight - insets.bottom - FAB_SIZE - BOTTOM_NAV_GAP)
   );
   const startX = useSharedValue(0);
   const startY = useSharedValue(0);
@@ -55,7 +55,7 @@ function NetLogFabImpl() {
         startX.set(translateX.get());
         startY.set(translateY.get());
       })
-      .onUpdate((event) => {
+      .onUpdate(event => {
         translateX.set(Math.max(minX, Math.min(startX.get() + event.translationX, maxX)));
         translateY.set(Math.max(minY, Math.min(startY.get() + event.translationY, maxY)));
       })

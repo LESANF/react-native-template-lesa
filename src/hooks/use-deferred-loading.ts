@@ -5,7 +5,7 @@ export const DEFAULT_DEFERRED_LOADING_DELAY_MS = 300;
 export function useDeferredLoading(
   isLoading: boolean,
   hasData = false,
-  delayMs = DEFAULT_DEFERRED_LOADING_DELAY_MS,
+  delayMs = DEFAULT_DEFERRED_LOADING_DELAY_MS
 ): boolean {
   const shouldShowLoading = isLoading && !hasData;
   const [isDelayed, setIsDelayed] = useState(false);

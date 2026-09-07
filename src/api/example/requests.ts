@@ -10,7 +10,7 @@ import { parseExampleTodoResponse } from './types';
 
 export function getExampleTodo(
   { id }: ExampleTodoVariables,
-  signal?: AbortSignal,
+  signal?: AbortSignal
 ): Promise<ExampleTodoResponse> {
   return client.get(`/todos/${id}`, {
     auth: 'none',
@@ -20,7 +20,7 @@ export function getExampleTodo(
 }
 
 export function createExamplePost(
-  data: CreateExamplePostRequest,
+  data: CreateExamplePostRequest
 ): Promise<CreateExamplePostResponse> {
   return client.post('/posts', data, { auth: 'none' });
 }

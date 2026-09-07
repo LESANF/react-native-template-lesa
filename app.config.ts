@@ -1,15 +1,15 @@
-import "tsx/cjs";
+import 'tsx/cjs';
 
-import type { ConfigContext, ExpoConfig } from "expo/config";
+import type { ConfigContext, ExpoConfig } from 'expo/config';
 
-import { APP_ENV, Env } from "./env";
-import { DEEP_LINK_HTTPS_HOSTS } from "./src/constants/deep-link";
+import { APP_ENV, Env } from './env';
+import { DEEP_LINK_HTTPS_HOSTS } from './src/constants/deep-link';
 
-import type { AppIconBadgeConfig } from "app-icon-badge/types";
+import type { AppIconBadgeConfig } from 'app-icon-badge/types';
 
 // app.config 는 Node(tsx/cjs)에서만 실행된다. @types/node 를 devDep 으로 들이지 않으려고
 // node:fs 를 require + 최소 타입 단언으로 읽는다(클라이언트 번들과 무관한 파일이다).
-const { existsSync } = require("node:fs") as {
+const { existsSync } = require('node:fs') as {
   existsSync: (path: string) => boolean;
 };
 
@@ -19,7 +19,7 @@ const { existsSync } = require("node:fs") as {
  * - 평소 개발: warn 후 빈 값으로 진행
  * EXPO_PUBLIC_ 접두사가 없고 Node(app.config)에서만 읽히므로 클라이언트 번들에 들어가지 않는다.
  */
-const STRICT = process.env.STRICT_ENV_VALIDATION === "1";
+const STRICT = process.env.STRICT_ENV_VALIDATION === '1';
 function requireInStrict(key: string): string {
   const value = process.env[key];
   if (!value) {
@@ -27,13 +27,13 @@ function requireInStrict(key: string): string {
     if (STRICT) throw new Error(message);
     console.warn(message);
   }
-  return value ?? "";
+  return value ?? '';
 }
-const mask = (value: string) => (value ? `****${value.slice(-4)}` : "(missing)");
+const mask = (value: string) => (value ? `****${value.slice(-4)}` : '(missing)');
 
 // 예시 시크릿 — 읽기 경로를 보여주는 자리표시. TODO(앱): 실제 시크릿으로 교체하고 필요한
 // config plugin 옵션에 전달한다(예: sentry authToken). expo.extra 에는 절대 넣지 않는다.
-const EXAMPLE_BUILD_SECRET = requireInStrict("APP_BUILD_ONLY_EXAMPLE_SECRET");
+const EXAMPLE_BUILD_SECRET = requireInStrict('APP_BUILD_ONLY_EXAMPLE_SECRET');
 if (STRICT) {
   console.log(`🔐 BUILD_SECRET APP_BUILD_ONLY_EXAMPLE_SECRET: ${mask(EXAMPLE_BUILD_SECRET)}`);
 }
@@ -62,9 +62,7 @@ if (presentGoogleServices.length === 1) {
   if (STRICT) throw new Error(message);
   console.warn(message);
 } else if (!pushEnabled) {
-  console.log(
-    `[push] disabled — firebase/ 에 ${APP_ENV} 설정 파일이 없습니다 (docs/push.md)`,
-  );
+  console.log(`[push] disabled — firebase/ 에 ${APP_ENV} 설정 파일이 없습니다 (docs/push.md)`);
 }
 
 /**
@@ -74,133 +72,133 @@ if (presentGoogleServices.length === 1) {
  * · proguard(release). 앱 전용(Airbridge·ChannelTalk·fbsdk·ATT·Noto 폰트·결제 스킴·Analytics 메타데이터)은 제외.
  */
 // 로컬 `expo run:ios --device` 서명용. 시크릿은 아니지만 계정 종속이라 .env 에 둔다. 없으면 Xcode 자동 서명에 맡긴다.
-const APPLE_TEAM_ID = process.env.APP_BUILD_ONLY_APPLE_TEAM_ID ?? "";
+const APPLE_TEAM_ID = process.env.APP_BUILD_ONLY_APPLE_TEAM_ID ?? '';
 
 // 유니버설 링크: `src/constants/deep-link.ts` 의 DEEP_LINK_HTTPS_HOSTS 를 채우면 파서·매처와 함께 네이티브 설정도 켜진다.
 // non-production 은 `?mode=developer` 로 AASA 캐시 없이 즉시 검증(Apple 개발자 모드).
 const UNIVERSAL_LINK_HOSTS = DEEP_LINK_HTTPS_HOSTS;
 const associatedDomains = UNIVERSAL_LINK_HOSTS.map(
-  (host) => `applinks:${host}${APP_ENV === "production" ? "" : "?mode=developer"}`,
+  host => `applinks:${host}${APP_ENV === 'production' ? '' : '?mode=developer'}`
 );
-const universalLinkIntentFilters = UNIVERSAL_LINK_HOSTS.map((host) => ({
-  action: "VIEW",
+const universalLinkIntentFilters = UNIVERSAL_LINK_HOSTS.map(host => ({
+  action: 'VIEW',
   autoVerify: true,
-  data: [{ scheme: "https", host }],
-  category: ["BROWSABLE", "DEFAULT"],
+  data: [{ scheme: 'https', host }],
+  category: ['BROWSABLE', 'DEFAULT'],
 }));
 
 // dev/preview 빌드의 앱 아이콘에 환경·버전 배지 — 홈 화면에서 빌드를 구분한다(prebuild 시 jimp 로 합성).
 const appIconBadgeConfig: AppIconBadgeConfig = {
-  enabled: APP_ENV !== "production",
+  enabled: APP_ENV !== 'production',
   badges: [
-    { text: APP_ENV, type: "banner", color: "white" },
-    { text: Env.version.app, type: "ribbon", color: "white" },
+    { text: APP_ENV, type: 'banner', color: 'white' },
+    { text: Env.version.app, type: 'ribbon', color: 'white' },
   ],
 };
 
 // notify-kit 플러그인이 iOS NSE 타깃(NotifyKitNSE)을 prebuild 에서 생성한다 — 푸시가 켜졌을 때만.
-const PUSH_PLUGINS: NonNullable<ExpoConfig["plugins"]> = pushEnabled
+const PUSH_PLUGINS: NonNullable<ExpoConfig['plugins']> = pushEnabled
   ? [
-      ["@react-native-firebase/app", { ios: { disableSPM: true } }],
-      "@react-native-firebase/messaging",
-      ["react-native-notify-kit", { ios: { notificationServiceExtension: true } }],
+      ['@react-native-firebase/app', { ios: { disableSPM: true } }],
+      '@react-native-firebase/messaging',
+      ['react-native-notify-kit', { ios: { notificationServiceExtension: true } }],
     ]
   : [];
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
-    ...config,
-    name: Env.identity.name,
-    description: `${Env.identity.name} app`,
-    slug: Env.identity.slug,
-    version: Env.version.app,
-    scheme: Env.identity.scheme,
-    platforms: ["ios", "android"], // 웹 미지원
-    orientation: "portrait",
-    icon: "./assets/images/icon.png",
-    userInterfaceStyle: "automatic",
-    assetBundlePatterns: ["**/*"],
-    ios: {
-      icon: "./assets/expo.icon",
-      supportsTablet: true,
-      bundleIdentifier: Env.identity.bundleId,
-      buildNumber: Env.version.iosBuildNumber,
-      ...(APPLE_TEAM_ID ? { appleTeamId: APPLE_TEAM_ID } : {}),
-      ...(associatedDomains.length > 0 ? { associatedDomains } : {}),
-      infoPlist: {
-        // 표준 암호화(HTTPS)만 사용한다는 선언 — 스토어 제출 시 설문 스킵.
-        // 커스텀 암호화를 쓰게 되면 true 로 바꾸고 수출 규정 문서를 준비하세요.
-        ITSAppUsesNonExemptEncryption: false,
-        // data-only/silent 푸시를 백그라운드에서 받아 notify-kit 이 그리려면 필요하다.
-        ...(pushEnabled ? { UIBackgroundModes: ["remote-notification"] } : {}),
-      },
-      ...(pushEnabled
-        ? {
-            googleServicesFile: GOOGLE_SERVICES.ios,
-            // development 인증서로 서명한 빌드가 production APNs 를 쓰면 토큰이 무효가 된다.
-            entitlements: {
-              "aps-environment": APP_ENV === "production" ? "production" : "development",
-            },
-          }
-        : {}),
+  ...config,
+  name: Env.identity.name,
+  description: `${Env.identity.name} app`,
+  slug: Env.identity.slug,
+  version: Env.version.app,
+  scheme: Env.identity.scheme,
+  platforms: ['ios', 'android'], // 웹 미지원
+  orientation: 'portrait',
+  icon: './assets/images/icon.png',
+  userInterfaceStyle: 'automatic',
+  assetBundlePatterns: ['**/*'],
+  ios: {
+    icon: './assets/expo.icon',
+    supportsTablet: true,
+    bundleIdentifier: Env.identity.bundleId,
+    buildNumber: Env.version.iosBuildNumber,
+    ...(APPLE_TEAM_ID ? { appleTeamId: APPLE_TEAM_ID } : {}),
+    ...(associatedDomains.length > 0 ? { associatedDomains } : {}),
+    infoPlist: {
+      // 표준 암호화(HTTPS)만 사용한다는 선언 — 스토어 제출 시 설문 스킵.
+      // 커스텀 암호화를 쓰게 되면 true 로 바꾸고 수출 규정 문서를 준비하세요.
+      ITSAppUsesNonExemptEncryption: false,
+      // data-only/silent 푸시를 백그라운드에서 받아 notify-kit 이 그리려면 필요하다.
+      ...(pushEnabled ? { UIBackgroundModes: ['remote-notification'] } : {}),
     },
-    android: {
-      adaptiveIcon: {
-        backgroundColor: "#E6F4FE",
-        foregroundImage: "./assets/images/android-icon-foreground.png",
-        backgroundImage: "./assets/images/android-icon-background.png",
-        monochromeImage: "./assets/images/android-icon-monochrome.png",
-      },
-      package: Env.identity.package,
-      versionCode: Env.version.androidVersionCode,
-      predictiveBackGestureEnabled: false,
-      // Android 13+ 런타임 권한. 푸시가 꺼져 있어도 로컬 알림(notify-kit)에 필요하다.
-      permissions: ["android.permission.POST_NOTIFICATIONS"],
-      ...(universalLinkIntentFilters.length > 0 ? { intentFilters: universalLinkIntentFilters } : {}),
-      ...(pushEnabled ? { googleServicesFile: GOOGLE_SERVICES.android } : {}),
-    },
-    plugins: [
-      "expo-router",
-      // OTA(hot-updater): 채널은 production 고정, 환경 분리는 서버 URL·버킷. 프리빌드 시 fingerprint를 네이티브에 기록한다.
-      ["@hot-updater/react-native", { channel: "production" }],
-      "expo-font",
-      "expo-image",
-      "expo-web-browser",
-      [
-        "react-native-edge-to-edge",
-        {
-          android: {
-            parentTheme: "Default",
-            enforceNavigationBarContrast: false,
+    ...(pushEnabled
+      ? {
+          googleServicesFile: GOOGLE_SERVICES.ios,
+          // development 인증서로 서명한 빌드가 production APNs 를 쓰면 토큰이 무효가 된다.
+          entitlements: {
+            'aps-environment': APP_ENV === 'production' ? 'production' : 'development',
           },
-        },
-      ],
-      [
-        "expo-splash-screen",
-        {
-          // image 는 루트에 둔다 — iOS 는 image 가 없으면 storyboard 배경색을 systemBackground(흰색)로 남겨
-          // JS splash(#208AEF)와 이음새가 깨진다(SDK 57 플러그인 동작, 2026-09-03 확인). 두 플랫폼 공통.
-          backgroundColor: "#208AEF",
-          image: "./assets/images/splash-icon.png",
-          imageWidth: 76,
-        },
-      ],
-      // RNFB 는 푸시 off 에도 컴파일된다 → static framework 는 무조건(빌드 flavor 하나).
-      // android.enableProguardInReleaseBuilds: release 번들 축소·난독화(KR/JP 동일).
-      [
-        "expo-build-properties",
-        { ios: { useFrameworks: "static" }, android: { enableProguardInReleaseBuilds: true } },
-      ],
-      ["react-native-permissions", { iosPermissions: ["Notifications"] }],
-      // 프로젝트 자체 플러그인(plugins/with-plugin → android · ios). 푸시 off 면 iOS 쪽이 Podfile 에 DisableSPM 을 넣는다.
-      ["./plugins/with-plugin", { pushEnabled }],
-      ["app-icon-badge", appIconBadgeConfig],
-      ...PUSH_PLUGINS,
-    ],
-    // reactCompiler 는 두지 않는다 — 부팅 경로를 검증하는 동안 변수를 줄인다(참조 앱 KR/JP 도 typedRoutes 만 켠다).
-    experiments: {
-      typedRoutes: true,
+        }
+      : {}),
+  },
+  android: {
+    adaptiveIcon: {
+      backgroundColor: '#E6F4FE',
+      foregroundImage: './assets/images/android-icon-foreground.png',
+      backgroundImage: './assets/images/android-icon-background.png',
+      monochromeImage: './assets/images/android-icon-monochrome.png',
     },
-    // ── EAS 연결 시 (create-my-stack 또는 `eas init` 이 채움) ──
-    // owner: 'your-expo-account',
-    // extra: { eas: { projectId: 'xxxxxxxx-xxxx-...' } },
+    package: Env.identity.package,
+    versionCode: Env.version.androidVersionCode,
+    predictiveBackGestureEnabled: false,
+    // Android 13+ 런타임 권한. 푸시가 꺼져 있어도 로컬 알림(notify-kit)에 필요하다.
+    permissions: ['android.permission.POST_NOTIFICATIONS'],
+    ...(universalLinkIntentFilters.length > 0 ? { intentFilters: universalLinkIntentFilters } : {}),
+    ...(pushEnabled ? { googleServicesFile: GOOGLE_SERVICES.android } : {}),
+  },
+  plugins: [
+    'expo-router',
+    // OTA(hot-updater): 채널은 production 고정, 환경 분리는 서버 URL·버킷. 프리빌드 시 fingerprint를 네이티브에 기록한다.
+    ['@hot-updater/react-native', { channel: 'production' }],
+    'expo-font',
+    'expo-image',
+    'expo-web-browser',
+    [
+      'react-native-edge-to-edge',
+      {
+        android: {
+          parentTheme: 'Default',
+          enforceNavigationBarContrast: false,
+        },
+      },
+    ],
+    [
+      'expo-splash-screen',
+      {
+        // image 는 루트에 둔다 — iOS 는 image 가 없으면 storyboard 배경색을 systemBackground(흰색)로 남겨
+        // JS splash(#208AEF)와 이음새가 깨진다(SDK 57 플러그인 동작, 2026-09-03 확인). 두 플랫폼 공통.
+        backgroundColor: '#208AEF',
+        image: './assets/images/splash-icon.png',
+        imageWidth: 76,
+      },
+    ],
+    // RNFB 는 푸시 off 에도 컴파일된다 → static framework 는 무조건(빌드 flavor 하나).
+    // android.enableProguardInReleaseBuilds: release 번들 축소·난독화(KR/JP 동일).
+    [
+      'expo-build-properties',
+      { ios: { useFrameworks: 'static' }, android: { enableProguardInReleaseBuilds: true } },
+    ],
+    ['react-native-permissions', { iosPermissions: ['Notifications'] }],
+    // 프로젝트 자체 플러그인(plugins/with-plugin → android · ios). 푸시 off 면 iOS 쪽이 Podfile 에 DisableSPM 을 넣는다.
+    ['./plugins/with-plugin', { pushEnabled }],
+    ['app-icon-badge', appIconBadgeConfig],
+    ...PUSH_PLUGINS,
+  ],
+  // reactCompiler 는 두지 않는다 — 부팅 경로를 검증하는 동안 변수를 줄인다(참조 앱 KR/JP 도 typedRoutes 만 켠다).
+  experiments: {
+    typedRoutes: true,
+  },
+  // ── EAS 연결 시 (create-my-stack 또는 `eas init` 이 채움) ──
+  // owner: 'your-expo-account',
+  // extra: { eas: { projectId: 'xxxxxxxx-xxxx-...' } },
 });
