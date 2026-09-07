@@ -7,12 +7,12 @@ CLI 코드는 이 레포가 아니라 `future/ascii-cli-test`(→ `create-lesa-a
 ## 파일 지도
 
 ```
-create-lesa-app/                     (별도 레포/디렉터리, npm 발행 대상)
+create-lesa-app/                     (`future/ascii-cli-test` 를 살림. 지금은 npm 미발행)
   src/intro.tsx                      .asciimtn 파서 + ink 렌더 (기존 lesa-appkit-intro.tsx)
   src/prompts.tsx                    질문 플로우 (기존 preview.js 의 StepRail·StatusLine·HelpText)
   src/derive.ts                      slug → 전 필드 파생 (순수 함수, 테스트 대상)
   src/apply.ts                       env-candidates.ts 치환 · .env 생성
-  src/fetch.ts                       GitHub tarball 다운로드 + 압축 해제
+  src/copy.ts                        로컬 템플릿 폴더 복사 (배포 방식이 바뀌면 이 파일만 교재)
   src/index.ts                       오케스트레이션 + 실패 시 cleanup
   assets/lesa-appkit.asciimtn        인트로 애니메이션
 ```
@@ -84,7 +84,7 @@ CLI 가 `.env` 를 미리 만들어 그 줄만 채운다.
 ## 생성 순서
 
 1. 대상 디렉터리가 비어 있는지 확인 (아니면 중단)
-2. GitHub tarball 다운로드 → 압축 해제 (`.git` 이 따라오지 않는다)
+2. 로컬 템플릿 폴더 복사 (`.git` · `node_modules` · `ios` · `android` · `.expo` · `.env` 제외)
 3. `env-candidates.ts` 치환 → 잔여 자리표시 검사
 4. Apple Team ID 를 받았으면 `.env` 생성
 5. `git init` + 초기 커밋
@@ -100,8 +100,12 @@ CLI 가 `.env` 를 미리 만들어 그 줄만 채운다.
 
 - **npm 패키지 `create-lesa-app`.** `create-my-stack` 은 이미 남이 쓰고 있다(0.5.0).
   `create-` 접두사가 있어야 `npm create lesa-app` 이 동작한다.
-- **템플릿은 GitHub tarball 로 받는다** (`LESANF/react-native-template-lesa`).
-  git 이 필요 없고 `.git` 히스토리도 따라오지 않는다.
+- **템플릿은 로컬 폴더에서 복사한다.** 레포가 **private** 이라(확인함) tarball 은 토큰이
+  필요하고, `npm create` 를 쓰는 사람이 토큰을 가질 수 없다. 지금 목적은 "만들어서 써보기"라
+  로컬 복사로 충분하다 — 배포 방식은 템플릿이 완성된 뒤 결정하고 `copy.ts` 하나만 교체한다.
+  `.git` 은 복사하지 않는다.
+- **npm 에 발행하지 않는다(지금).** 로컬에서 `pnpm link` 또는 `npx .` 으로 쓴다.
+  패키지명 `create-lesa-app` 은 선점만 해둔 상태(npm 로그인 `lesanf` 확인).
 - **한글 이름은 두 번 묻는다.** 자동 로마자 변환 금지(위 "질문 플로우").
 - **`slug` 하나가 단일 입력.** scheme·bundleId·package 를 따로 묻지 않는다 — 개별 조정은
   생성 후 `env-candidates.ts` 한 줄이다.
@@ -117,15 +121,20 @@ CLI 가 `.env` 를 미리 만들어 그 줄만 채운다.
 - AST 변환·템플릿 엔진(handlebars 등) → 자리표시 문자열 치환으로 충분하고 실패가 눈에 보인다.
 - `pnpm install`·`prebuild` 자동 실행 → 실패 지점이 CLI 밖인데 CLI 탓으로 보인다.
 - 템플릿 레포에 CLI 를 넣기 → `ascii-cli-test` 의 ink 인트로·평가물을 살리기로 했다.
-- `create-my-stack` 이름 → npm 에 이미 있다.
+- `create-my-stack` 이름 → npm 에 이미 있다(0.5.0).
+- **레포를 public 으로 바꿔 tarball 받기 → 거부(2026-09-07).** `docs/` 가 참조 앱
+  (`참조 앱 KR`·`참조 앱 JP`)의 **결함 목록 D1~D19** 와 OTA 서버 아키텍처
+  (`자체 OTA 서버`: 자체 서버), 로컬 절대 경로를 담고 있다. 시크릿은 없지만 사내
+  프로덕션 앱의 약점은 공개할 성질이 아니다. 공개하려면 `docs/` 를 먼저 일반화해야 한다.
+- private npm 패키지($7/월) → 지금은 로컬 복사로 충분하다.
 
 ## 채우는 곳 (CLI 쪽 TODO)
 
-| 어디                          | 무엇                                                               |
-| ----------------------------- | ------------------------------------------------------------------ |
-| npm 로그인                    | 미로그인 상태. `npm login`(2FA 포함)                               |
-| `assets/lesa-appkit.asciimtn` | 822KB. `npm create` 는 실행마다 패키지를 받으므로 자를지 결정 필요 |
-| GitHub tarball URL            | 레포가 private 이면 토큰이 필요하다 — 현재 상태 확인               |
+| 어디                          | 무엇                                                                      |
+| ----------------------------- | ------------------------------------------------------------------------- |
+| 템플릿 폴더 경로              | 지금은 인자나 상대 경로로 받는다. 배포 방식이 정해지면 `copy.ts` 를 교체  |
+| `assets/lesa-appkit.asciimtn` | 822KB. 로컬 복사 방식에선 문제없지만 npm 발행 시 자를지 결정 필요         |
+| 배포 방식                     | 템플릿 완성 후 결정 — public + tarball(docs 일반화 선행) 또는 private npm |
 
 ## 검증 상태
 
