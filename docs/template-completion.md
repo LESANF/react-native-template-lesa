@@ -157,7 +157,7 @@
 - [~] 딥링크 모듈 — 뼈대만(캡처·큐·라우트 테이블·native-intent, 하네스 10/10). 게이트·보류 재생은 프로젝트 정책으로 제외
 - [~] 문서: docs/boot.md + decisions/handoff/data-layer/README/AGENTS
 - [x] **iOS 네이티브 splash 흰색 버그 수정(2026-09-03)**: `expo-splash-screen` 플러그인에 `image` 를 `android` 밑에만 두면 SDK 57 iOS storyboard 는 imageView 를 제거하고 배경색을 `systemBackgroundColor`(흰색)로 남긴다(플러그인 `applySplashScreenStoryboard` 동작) → JS splash(#208AEF)와 이음새 깨짐. `image`·`imageWidth` 를 루트로 이동 → storyboard 에 imageView + `SplashScreenBackground`(#208AEF) 확인(`prebuild --clean --no-install`)
-- [!] **dev client 흰 화면(2026-09-03, 내 시뮬 관측 — QA 는 사용자 몫)**: `expo run:ios` 빌드 성공 후 dev client 로 열면 흰 화면 + dev 메뉴 버튼만 보임. Metro 는 `iOS Bundled index.js` 와 headless `[push] disabled` 로그까지만 찍고, `_layout.tsx` 모듈 스코프 probe(임시 console.log, 제거함)는 **한 줄도 안 찍힘** → 루트 레이아웃 청크(`src/app/_layout.tsx`)가 요청조차 안 됨(Metro 로그에 청크 빌드 없음; curl 로 직접 요청하면 정상 빌드됨). `main` 을 `expo-router/entry` 로 되돌려도 동일 → **푸시 커스텀 엔트리와 무관, C2/SDK 57 부팅 상태의 문제**. 후보: expo-router `ExpoRoot` 가 라우터 초기화 전 `null` 렌더 상태에 머무름(initial URL / dev-client URL 처리) — 사용자 QA 에서 dev 메뉴 → 에러/로그 확인 필요. 워밍 딥링크(`openurl …://menu-4/42`)도 `[deep-link]` 로그 없음(트리 미마운트와 일치)
+- [x] **dev client 흰 화면 해소 확인(2026-09-07, 사용자 Android 빌드·실행)**: 2026-09-03 에 `_layout.tsx` 청크가 Metro 에 요청조차 되지 않아 흰 화면이던 증상이 재현되지 않는다. 그 사이 변경 중 유력한 원인은 `unstable_settings.anchor` 복원 — 당시엔 anchor 가 제거된 상태였고 expo-router 는 라우트 노드의 `initialRouteName` 을 `unstable_settings` 에서만 만든다(`routing.md` "anchor")
 - [ ] **시뮬(사용자) — 커밋의 마지막 관문**: `npx expo prebuild -p ios` 후 `pnpm ios`(ios/ 는 splash 수정으로 재생성됨, Pods 는 run:ios 가 설치) → 콜드 부팅 splash→tabs 이음새 · dev에서 `[Preloader/ota] skipped` 로그 · `xcrun simctl openurl booted <scheme>://menu-4/42` 콜드(앱 종료 후 → splash 거쳐 detail)/웜(즉시) · 홈 Overlays의 Popup confirm · 강제 업데이트는 `fetchForcedUpdatePolicy` 스텁을 잠깐 outdated로 바꿔 팝업·스토어 이동 1회 확인 후 복원
 - [ ] 검증 후 커밋 5개(팝업 / 프리로더·splash / OTA / 딥링크 / 문서) — 관련 파일만 stage
 - 앱 TODO: `urls.ota`·S3 버킷·AWS 키·정책 API·권한 주입·프리페치 목록·딥링크 호스트/라우트 (`docs/boot.md` 표)
@@ -172,7 +172,7 @@
 - [x] 하네스 구성 15/15 · 미구성 11/11 (token-sync 상태기계 D1/D2·extract-url·background 가드·dispatcher dedup·permission 사다리) · `check-all` · `expo config` 3회 게이트(파일 0/더미 2/STRICT+1 throw) · `expo export -p ios`(custom entry) 통과. hot-updater doctor 는 stale `ios/`·fingerprint.json 부재 3건(entry 무관, prebuild 후 재확인)
 - [x] 게이트: frozen install · `check-all` · expo-doctor 18/18 · `expo install --check` up to date (2026-09-03)
 - [x] 실빌드(2026-09-03, 푸시 off): `CI=1 expo prebuild --clean -p ios` → pod install이 `$RNFirebaseDisableSPM = true` 인식("SPM disabled, using CocoaPods") + static → `run:ios --device` **Build Succeeded**(RNFB 26.3.3·notify-kit 10.7·permissions 5.6 on RN 0.86.3, 0 error / 경고 3: RNFB Core Configuration·Dev Launcher 스크립트 의존성 — 무해). 17 Pro Max에 설치·실행
-- [x] 부팅 로그: 번들 `index.js` 엔트리 로드 · headless `[push] disabled — Firebase 미구성(getApps()=0)` 출력 · 크래시 없음. 단 C2 항목의 dev client 흰 화면(위 C2 `[!]`) 때문에 그 이후(프리로더·권한 다이얼로그·홈 Push 버튼)는 사용자 QA 에서 확인
+- [x] 부팅 로그: 번들 `index.js` 엔트리 로드 · headless `[push] disabled — Firebase 미구성(getApps()=0)` 출력 · 크래시 없음. 그 이후(프리로더·권한 다이얼로그·홈 Push 버튼)는 사용자 QA 에서 확인 — 흰 화면은 2026-09-07 해소됨(위 C2)
 - [ ] **시뮬(사용자) — 커밋의 마지막 관문**: 첫 부팅 권한 다이얼로그 1회 · 홈 Push 버튼 → 배너 → 탭 → menu-4/42(fg, enqueue 1회) · 백그라운드 탭 · 앱 종료 후 `xcrun simctl push <UDID> <bundleId> p.apns`(aps.alert + deep_link) → splash 거쳐 detail, navigate 1회 · C2 항목 재확인
 - [ ] 검증 후 커밋 2개(feat 푸시 / docs) — C2 5커밋 뒤에. C2 시점 스냅샷은 세션 scratchpad `c2-snapshot/`
 - 앱 TODO: Firebase 파일 3환경·APNs 키·토큰 어댑터(등록/해제 API)·로그아웃 전 `unregisterPushToken()`·서버 `buildNotifyKitPayload`·배지/권한 blocked UX·small icon·NSE 서명 (`docs/push.md` 표)
@@ -211,7 +211,7 @@
 
 ### C4. 자동화와 릴리즈
 
-- [ ] CI: frozen install → check-all → Expo Doctor → iOS export (기본은 로컬 툴체인 — EAS Build 전제 없음)
+- [x] **결정 — CI 워크플로는 넣지 않는다(2026-09-07, 사용자 지시).** 게이트는 로컬 `pnpm run check-all`. 받는 팀이 자기 파이프라인을 붙인다.
 - [ ] CHANGELOG와 tag 기반 릴리즈 절차
 - [ ] clean clone 전체 검증
 
