@@ -33,6 +33,8 @@ export const pushTokenSyncAdapter: PushTokenSyncAdapter = {
 let started = false;
 /** 마지막으로 서버에 올린 토큰 — 같은 값이면 네트워크를 아낀다. */
 let lastRegistered: string | null = null;
+/** 진행 중인 동기화. auth 전이와 onTokenRefresh 가 같은 tick 에 겹쳐도 POST 는 한 번이다(KR). */
+let inFlight: Promise<void> | null = null;
 
 async function register(token: string): Promise<void> {
   if (token === lastRegistered) return;
@@ -42,17 +44,25 @@ async function register(token: string): Promise<void> {
 
 async function syncIfSignedIn(): Promise<void> {
   if (useAuthStore.getState().status !== 'signedIn') return;
+  if (inFlight) return inFlight;
 
-  let token: string;
-  try {
-    token = await getToken(getPushMessaging());
-  } catch (error) {
-    // iOS 는 APNs 토큰이 도착하기 전에 throw 한다. 조용히 넘기면 onTokenRefresh 가 회복시킨다(결함 D1).
-    console.log('[push] getToken 실패 — onTokenRefresh 를 기다린다', error);
-    return;
-  }
+  // try/catch/finally 를 이 안에 둔다 — 밖에 두면 두 번째 호출자가 받은 promise 가 rejected 로
+  // 남아 unhandled rejection 이 된다(호출부는 전부 `void`). KR 과 같은 형태.
+  inFlight = (async () => {
+    try {
+      const token = await getToken(getPushMessaging());
+      // fetch 중 로그아웃했으면 등록하지 않는다(KR: "auth lost during fetch").
+      if (useAuthStore.getState().status !== 'signedIn') return;
+      await register(token);
+    } catch (error) {
+      // iOS 는 APNs 토큰이 도착하기 전에 throw 한다. 넘기면 onTokenRefresh 가 회복시킨다(결함 D1).
+      console.log('[push] 토큰 동기화 실패 — onTokenRefresh 를 기다린다', error);
+    } finally {
+      inFlight = null;
+    }
+  })();
 
-  await register(token);
+  return inFlight;
 }
 
 /**

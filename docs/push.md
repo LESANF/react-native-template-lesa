@@ -69,6 +69,31 @@ app.config.ts            파일 존재 → RNFB·notify-kit 플러그인·google
 - **채널 상수는 한 곳** — `PUSH_CHANNEL_ID` 와 `firebase.json` 이 같은 값이어야 FCM SDK 가 직접
   그리는 알림도 같은 중요도로 떨어진다. 참조 앱은 3곳에 흩어져 있었다(D13).
 
+## 토큰 동기화 (2026-09-07 KR 대조로 보강)
+
+`startPushTokenSync()` 는 프리로더 권한 스테이지 뒤 splash 가 부른다. 상태기계는 auth 전이 구독 +
+`onTokenRefresh` 두 입구를 갖는다.
+
+KR 대조에서 **템플릿이 빠뜨린 KR 보호 두 개**를 찾아 이식했다(재현으로 확인):
+
+| 보호                 | 없으면                                                                                                                                        | KR 근거                                                                                                                           |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `inFlight` 단일화    | auth 전이와 `onTokenRefresh` 가 같은 tick 에 겹치면 **같은 토큰을 두 번 POST** 한다. `lastRegistered` 는 await 후에 세팅되므로 창이 열려 있다 | `inFlightRegister` — "auth-transition 직후 onTokenRefresh 가 emit 되며 두 번 발화해 동일 페이로드가 동시에 POST 되는 race 차단용" |
+| fetch 후 auth 재확인 | `getToken()` 대기 중 로그아웃하면 **로그아웃한 사용자의 토큰을 등록**한다                                                                     | "aborted (auth lost during fetch)"                                                                                                |
+
+`try/catch/finally` 는 IIFE **안**에 둔다 — 밖에 두면 두 번째 호출자가 받은 promise 가 rejected 로
+남아 unhandled rejection 이 된다(호출부는 전부 `void`).
+
+확인된 나머지 주장:
+
+- **D1**(권한 전 토큰) — `getToken` 실패를 삼키고 `onTokenRefresh` 로 회복. 유효.
+- **D2**(로그아웃 재등록) — `onTokenRefresh` 의 status guard 로 막는다. 별도 플래그 불필요. 유효.
+- **D3**(채널 지연) — 템플릿은 `index.js` 모듈 스코프에서 생성, KR 은 `_layout`(React 마운트). 개선 유효.
+- **D13**(채널 문자열) — `PUSH_CHANNEL_ID` 와 `firebase.json` 이 같은 값('high-priority'). 확인.
+- **extractors** — KR 과 로직 동일, 키 목록만 `constants/push` 상수로 뽑음.
+- **로그아웃 순서** — KR 은 `unregisterDeviceToken()` → `postAuthLogout()` → `clearTokens()`.
+  템플릿 TODO 가 같은 순서를 지시한다. 일치.
+
 ## 거부된 대안 (다시 제안하지 말 것)
 
 - notify-kit **FCM Mode** → 모든 상태의 표시를 notify-kit 이 가로채는 방식. KR 정책(백그라운드/종료는 OS)과 목적이 겹치는데 실기 검증 이력이 없고 NSE 타깃·수동 프로비저닝이 따라온다. (2026-09-07 사용자 지시로 철회)
