@@ -194,6 +194,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     // 프로젝트 자체 플러그인(plugins/with-plugin → android · ios). 푸시 off 면 iOS 쪽이 Podfile 에 DisableSPM 을 넣는다.
     ['./plugins/with-plugin', { pushEnabled, displayName: Env.identity.displayName }],
     ['app-icon-badge', appIconBadgeConfig],
+    // 어트리뷰션 SDK(선택)의 config plugin 자리 — 붙이면 여기 한 줄, 떼면 지운다.
+    // JS init 호출은 없다(KR 확인: 플러그인이 네이티브를 다 잡는다). 딥링크 콜백 배선과
+    // 링크 도메인 등록까지 4접점은 `lib/deep-link/attribution.ts` 주석 참고.
     ...PUSH_PLUGINS,
   ],
   // reactCompiler 는 두지 않는다 — 부팅 경로를 검증하는 동안 변수를 줄인다(참조 앱 KR/JP 도 typedRoutes 만 켠다).

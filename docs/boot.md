@@ -73,6 +73,32 @@ hot-updater.config.ts · scripts/ota-deploy.mjs CLI 전용(번들 밖). 배포 �
 - **JS splash 라우트에 영상 없음.** 네이티브 splash와 같은 배경색 + 로고. 참조 앱의 인트로 영상(expo-video)은 브랜드 자산이라 제외.
 - **expo-splash-screen 플러그인의 `image`는 루트에.** SDK 57 플러그인은 iOS에 image가 없으면 storyboard의 imageView를 지우고 배경색을 `systemBackgroundColor`(흰색)로 남긴다 — `android` 밑에만 두면 iOS 네이티브 splash가 흰색이 되어 JS splash(#208AEF)와 이음새가 깨진다(2026-09-03 storyboard 확인). 로고·색은 두 플랫폼 공통으로 루트에 둔다.
 
+## 어트리뷰션 SDK — 선택, 뗐다 붙였다 (2026-09-07, KR 대조 확인)
+
+참조 앱 KR 은 Airbridge(디퍼드 딥링크 지원)를 쓰고 JP 는 쓰지 않는다. 템플릿은 **둘 다 가능해야**
+하므로 SDK import 를 `lib/deep-link/attribution.ts` 한 파일에 가둔다. 비어 있으면 미사용이고
+런타임 비용이 0이며, 붙이고 뗄 때 템플릿 소유 파일(`hooks/use-deep-link.ts`)을 건드리지 않는다.
+푸시의 `pushTokenSyncAdapter` 와 같은 관용구다.
+
+**손대는 곳 4개** (KR = Airbridge 기준, 실제 소스 대조):
+
+| #   | 어디                                             | 무엇                                                                                                                                           |
+| --- | ------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | `app.config.ts` plugins                          | SDK 의 config plugin. **JS init 호출은 없다** — KR 의 `index.js`·`_layout` 어디에도 `Airbridge.init()` 이 없고 플러그인이 네이티브를 다 잡는다 |
+| 2   | `constants/deep-link.ts` `DEEP_LINK_HTTPS_HOSTS` | SDK 링크 도메인 추가. iOS `associatedDomains` · Android `intentFilters` · `+native-intent` 인식이 이 한 곳에서 파생된다                        |
+| 3   | `lib/deep-link/attribution.ts`                   | `subscribeDeepLink` 하나. KR 은 `Airbridge.setOnDeeplinkReceived(url => …enqueueExternalSdkUrl(url))` 한 줄이다                                |
+| 4   | (선택) 이벤트 taxonomy                           | KR `lib/airbridge/{events,identity,product}.ts`. 구매·장바구니 등 도메인 이벤트 — 앱 범위, 템플릿 밖                                           |
+
+**중복 제거와의 커플링 — 모르고 바꾸면 조용히 깨진다.** `HANDLED_TTL_MS`(2초)는 같은 링크가
+여러 source 로 들어오는 창이다. KR 이 그 값으로 문제없이 도는 이유는 SDK 가 링크를 OS Linking 으로
+재전파하지 않기 때문이다(`iosPropagateDeeplink: false`) — 전달 경로가 하나뿐이라 중복 자체가 없다.
+전파를 켜면 OS Linking 과 SDK 콜백이 각각 전달하고, SDK 는 자기 서버를 왕복하므로 간격이 2초를
+넘겨 같은 화면으로 두 번 이동할 수 있다. 켜야 한다면 TTL 을 함께 올린다. KR 소스에는 이 이유가
+적혀 있지 않다.
+
+**템플릿이 KR 보다 나은 지점**: KR 은 링크 호스트 목록을 `+native-intent.tsx` 와 `app.config.ts`
+두 곳에 중복으로 갖고 있다. 템플릿은 `DEEP_LINK_HTTPS_HOSTS` 하나에서 셋 다 파생한다.
+
 ## 거부된 대안 (다시 제안하지 말 것)
 
 - expo-updates → 앱 인프라가 hot-updater 자체 서버. EAS Update 종속·채널 모델 불일치.
@@ -97,6 +123,7 @@ hot-updater.config.ts · scripts/ota-deploy.mjs CLI 전용(번들 밖). 배포 �
 | `constants/deep-link.ts`                              | 유니버설 링크 https 호스트 — 채우면 파서·매처와 함께 `app.config.ts` 가 `associatedDomains`·`intentFilters` 도 파생한다                                                                                                                                                                              |
 | `constants/deep-link.ts`                              | 스펙 테이블 — `STATIC_DEEP_LINK_ROUTES`(appPaths/webPaths/to/reset/gates/whenAuthenticated) · `DYNAMIC_ROUTES_SPEC`(appPattern/queryDriven/toExpoPath/gates/safeFallbackExpoPath/navigate 오버라이드) · `EXTERNAL_WEB_PAGE_PATTERNS`(+`/external-web` 라우트) · `AUTH_LOGIN_PATH`/`AUTH_ROUTE_GROUP` |
 | `lib/deep-link/parser.ts`                             | `WEB_TO_APP_PATH_ALIASES` · `WEB_QUERY_TO_PATH_RULES` (웹↔앱 URL 이 다를 때)                                                                                                                                                                                                                         |
+| `lib/deep-link/attribution.ts`                        | 어트리뷰션 SDK(선택). 비우면 미사용 — 위 "어트리뷰션 SDK" 절의 4접점                                                                                                                                                                                                                                 |
 | `lib/deep-link/gates/`                                | `GATE_MAP` 확장(KR: verified·marketing·pushPermission), `types.ts` `GateName` union                                                                                                                                                                                                                  |
 | `app.config.ts`                                       | 손댈 것 없음 — 유니버설 링크 네이티브 설정은 `constants/deep-link.ts` 에서 파생                                                                                                                                                                                                                      |
 
