@@ -6,6 +6,7 @@ import { Linking } from 'react-native';
 import { Env } from '@env';
 import { popup, type PopupOptions } from '@/stores/overlay';
 
+// TODO(앱): 팝업 카피를 브랜드 톤으로 교체한다.
 const FORCED_UPDATE_POPUP: PopupOptions = {
   title: '업데이트 안내',
   message: `새로운 기능 추가와 최적의 이용 환경을 위해 ${Env.identity.name} 앱을 최신 버전으로 업데이트해주세요.`,

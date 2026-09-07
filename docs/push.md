@@ -118,14 +118,16 @@ KR 대조에서 **템플릿이 빠뜨린 KR 보호 두 개**를 찾아 이식했
 
 ## 프로젝트가 채우는 곳 (`grep -rn "TODO(앱)" src app.config.ts firebase`)
 
-| 어디                                     | 무엇                                                                                                                                          |
-| ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| `firebase/`                              | `GoogleService-Info.<env>.plist` · `google-services.<env>.json` (3환경). Firebase 콘솔에 APNs 키 업로드                                       |
-| `lib/push/token-sync.ts`                 | `pushTokenSyncAdapter.register/unregister` — 서버 endpoint·바디(KR `{deviceId,deviceType,pushToken}` / JP `{platform,token}`처럼 앱마다 다름) |
-| 로그아웃 흐름                            | `await unregisterPushToken()` **후** `signOut()`                                                                                              |
-| `lib/push/taps.ts`                       | 배지 리셋 정책(예: 포그라운드 복귀 시 `notifee.setBadgeCount(0)`)                                                                             |
-| `lib/preloader/permissions/` 결과 소비처 | 알림 거부(`shouldGuide`)일 때 설정 이동 UX(참조 앱은 팝업 → `openSettings`)                                                                   |
-| `app.config.ts` notify-kit 플러그인      | Android small icon(`android.icons`), 포그라운드 서비스 타입                                                                                   |
+| 어디                                                                                                 | 무엇                                                                                                                                                       |
+| ---------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `firebase/` (코드 마커 없음 — 파일을 두는 디렉터리다)                                                | `GoogleService-Info.<env>.plist` · `google-services.<env>.json` (3환경). Firebase 콘솔에 APNs 키 업로드                                                    |
+| `lib/push/token-sync.ts`                                                                             | `pushTokenSyncAdapter.register/unregister` — 서버 endpoint·바디(KR `{deviceId,deviceType,pushToken}` / JP `{platform,token}`처럼 앱마다 다름)              |
+| 로그아웃 흐름                                                                                        | `await unregisterPushToken()` **후** `signOut()`                                                                                                           |
+| `constants/push.ts`                                                                                  | `PUSH_CHANNEL_NAME`(Android 설정 화면 문구) · `PUSH_DEEP_LINK_DATA_KEYS`(서버 계약대로 줄인다) · `SHOW_FOREGROUND_NOTIFICATION`(포그라운드 배너 표시 여부) |
+| `lib/push/background.ts`                                                                             | 헤드리스 부수효과 — 배지 저장·로컬 캐시 갱신 등. 표시는 OS 가 하므로 그리지 않는다. React·화면 import 금지                                                 |
+| `lib/push/taps.ts`                                                                                   | 포그라운드 수신 시 알림 배지·목록 쿼리 invalidate(KR 은 배지/카테고리/목록 3개) · 배지 리셋 정책(`notifee.setBadgeCount(0)`)                               |
+| `lib/preloader/permissions/` 결과 소비처 (코드 마커 없음 — 그 폴더는 KR verbatim 이라 손대지 않는다) | 알림 거부(`shouldGuide`)일 때 설정 이동 UX(참조 앱은 팝업 → `openSettings`)                                                                                |
+| `app.config.ts` notify-kit 플러그인                                                                  | Android small icon(`android.icons`), 포그라운드 서비스 타입                                                                                                |
 
 ## 운영
 

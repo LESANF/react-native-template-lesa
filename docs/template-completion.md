@@ -229,13 +229,14 @@
 1. clean clone → `pnpm install --frozen-lockfile` → `CI=true pnpm run check-all` → `npx expo-doctor` → `npx expo export -p ios` 전부 green
 2. 작업 트리 clean — A1~A6(A5 삭제)의 모든 `[~]`가 커밋됨
 3. B1·B3 사용자 확인 완료
-4. `grep -rn "TODO(앱)" src` 결과가 `data-layer.md`·`boot.md`·`push.md` "채우는 곳"과 1:1
-   — **2026-09-07 대조: 아직 1:1 아님.** 코드 마커는 22개 파일, 문서 표는 15개 경로.
-   표의 "어디" 열에 없는 마커: `lib/deep-link/matcher.ts`(2) · `dispatcher.ts` · `types.ts` ·
-   `hooks/use-deep-link.ts`(어트리뷰션 SDK) · `constants/push.ts`(2) · `app/_layout.tsx`(리셋 정책) ·
-   `app.config.ts`(예시 시크릿). 일부는 다른 행의 셀 본문에 언급돼 있어 완전 누락은 아니다.
-   역방향(표에 있으나 코드 마커 없음): `firebase/` · `lib/preloader/permissions/` ·
-   `lib/push/core.ts` · `utils/show-*-popup.ts`. 마커를 추가할지 표를 줄일지 결정이 남았다
+4. `grep -rn "TODO(앱)"` 결과가 섹션 문서 "채우는 곳" 표와 1:1
+   — **2026-09-07 대조 완료(0건 불일치).** 마커 26개 파일 전부 소관 문서 표에 행이 있다.
+   보강한 것: `constants/push.ts`·`lib/push/background.ts` 행 신설, `lib/push/taps.ts` 행에
+   invalidate 추가(push.md) · `lib/deep-link/dispatcher.ts` 행 신설(boot.md) ·
+   `utils/show-*-popup.ts`(팝업 카피)·`constants/tab-routes.ts`(탭 구성)에 마커 추가.
+   코드 마커가 **없는 것이 의도**인 표 행 2개는 그렇게 표시했다: `firebase/`(파일을 두는
+   디렉터리) · `lib/preloader/permissions/`(KR verbatim 이라 손대지 않는다).
+   소관은 `AGENTS.md` 의 폴더→문서 매핑을 따른다.
 5. A4의 결정(SecureStore 미채택·required 미시연)이 `decisions.md`/`data-layer.md`에 기록됨이 `decisions.md`에 기록됨
 6. C1 잔재 0, C2 OTA 결정 기록, C2b 푸시 결정 기록, C3 온보딩 체크리스트 존재
 7. 새 사용자가 README + `data-layer.md`만으로 identity·API URL을 교체하고 실행할 수 있다

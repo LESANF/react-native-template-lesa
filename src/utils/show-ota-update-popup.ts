@@ -10,6 +10,7 @@ export async function showOtaUpdatePopup(): Promise<OtaUpdateChoice> {
   await SplashScreen.hideAsync().catch(() => undefined);
 
   // popup.confirm 은 한 번만 resolve 한다 — KR 의 `fired` 가드가 구조적으로 보장된다.
+  // TODO(앱): 팝업 카피를 브랜드 톤으로 교체한다.
   const choice = await popup.confirm({
     title: '업데이트 안내',
     message: `새로운 기능 추가와 최적의 이용 환경을 위해 ${Env.identity.name} 앱을 최신 버전으로 업데이트해주세요.`,
