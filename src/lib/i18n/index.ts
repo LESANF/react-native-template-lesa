@@ -1,5 +1,13 @@
+import { getLocales } from 'expo-localization';
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
+
+/** 기본 언어 — resources 에 없는 언어면 fallbackLng 가 받는다. */
+const DEFAULT_LANGUAGE = 'ko';
+
+// 디바이스 설정 언어. 리소스가 없으면 fallbackLng 로 떨어지고, 리소스가 비어 있으면
+// 키(=한국어 원문)가 그대로 나오므로 어느 경우에도 화면이 깨지지 않는다.
+const deviceLanguage = getLocales()[0]?.languageCode ?? DEFAULT_LANGUAGE;
 
 /**
  * 단일 언어 기본 셋업.
@@ -17,8 +25,8 @@ import { initReactI18next } from 'react-i18next';
  */
 // eslint-disable-next-line import/no-named-as-default-member -- i18next 표준 체이닝 API
 void i18n.use(initReactI18next).init({
-  lng: 'ko',
-  fallbackLng: 'ko',
+  lng: deviceLanguage,
+  fallbackLng: DEFAULT_LANGUAGE,
   resources: { ko: { translation: {} } },
   keySeparator: false,
   nsSeparator: false,

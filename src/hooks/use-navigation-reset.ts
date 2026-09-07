@@ -17,7 +17,8 @@ export class NavigationResetError extends Error {
 type RouteParams = Record<string, unknown>;
 type NavigationResetState = PartialState<NavigationState>;
 type NavigationRouteEntry = NavigationResetState['routes'][number];
-type NavigationTabName = (typeof tabRoutes)[number]['name'];
+// 탭 이름 union — matcher 의 reset 추론이 이 타입으로 좁힌다(아이콘/에셋을 끌고 오지 않는 타입 전용 통로).
+export type NavigationTabName = (typeof tabRoutes)[number]['name'];
 
 // expo-router가 모든 앱 라우트를 감싸는 숨은 루트 네비게이터 이름. reset 페이로드는 실제
 // 상태 트리와 모양이 일치해야 해서 이 래퍼 없이는 reset이 깨진다(실측 확인).

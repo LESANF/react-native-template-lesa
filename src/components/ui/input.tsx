@@ -35,6 +35,8 @@ export function Input({
   onFocus,
   onBlur,
   ref,
+  // Text 와 동일 — 디바이스 시스템 폰트 스케일이 레이아웃을 깨는 것을 막는다(참조 앱 KR/JP 동일 정책).
+  allowFontScaling = false,
   ...props
 }: InputProps) {
   const [focused, setFocused] = useState(false);
@@ -54,6 +56,7 @@ export function Input({
       ) : null}
       <TextInput
         ref={ref}
+        allowFontScaling={allowFontScaling}
         editable={!disabled}
         // Uniwind는 placeholder 색을 accent prefix로 추출한다.
         placeholderTextColorClassName="accent-muted-foreground"
