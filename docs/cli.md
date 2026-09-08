@@ -1,13 +1,13 @@
 # create-lesa-app — 프로젝트 생성 CLI
 
 이 템플릿에서 새 프로젝트를 만든다(실행 방법은 맨 아래 "실행 방법").
-CLI 코드는 이 레포가 아니라 `future/ascii-cli-test`(→ `create-lesa-app`)에 있고,
+CLI 코드는 이 레포가 아니라 **형제 레포 `../create-lesa-app`** 에 있고,
 **치환 대상은 이 문서가 단일 출처다** — 템플릿 필드가 바뀌면 여기와 CLI 를 같이 고친다.
 
 ## 파일 지도
 
 ```
-create-lesa-app/                     (`future/ascii-cli-test` 를 살림. 지금은 npm 미발행)
+create-lesa-app/                     (`~/Desktop/Repo/create-lesa-app`. 지금은 npm 미발행)
   src/derive.ts                      slug → 전 필드 파생 (순수 함수, 테스트 대상)
   src/flow.ts                        프롬프트 스텝 머신 (순수 함수 — TTY 없이 테스트한다)
   src/apply.ts                       env-candidates.ts 치환 · .env 생성
@@ -141,7 +141,11 @@ CLI 가 `.env` 를 미리 만들어 그 줄만 채운다.
 - API URL·OTA·유니버설 링크 질문 → 생성 시점에 알 수 없는 값이다(위 "묻지 않는 것").
 - AST 변환·템플릿 엔진(handlebars 등) → 자리표시 문자열 치환으로 충분하고 실패가 눈에 보인다.
 - `pnpm install`·`prebuild` 자동 실행 → 실패 지점이 CLI 밖인데 CLI 탓으로 보인다.
-- 템플릿 레포에 CLI 를 넣기 → `ascii-cli-test` 의 ink 인트로·평가물을 살리기로 했다.
+- 템플릿 레포에 CLI 를 넣기 → 별 레포로 둔다. 치환 계약만 이 문서가 갖는다.
+- `future/ascii-cli-test` 유지 → **거부(2026-09-08).** ASCII 낙서용 폴더였고 git 레포도
+  아니었다. 최종 산출물이 CLI 로 확정됐으니 `../create-lesa-app` 으로 승격하고 git 을 얹었다.
+  평가물(ascii-motion·pikachu·preview 변주 5종·clack·gum, 약 1.7MB)과 안 쓰는 의존성
+  (`sharp`·`@clack/prompts`)은 제거했다.
 - `create-my-stack` 이름 → npm 에 이미 있다(0.5.0).
 - **레포를 public 으로 바꿔 tarball 받기 → 거부(2026-09-07).** `docs/` 가 참조 앱
   (`참조 앱 KR`·`참조 앱 JP`)의 **결함 목록 D1~D19** 와 OTA 서버 아키텍처
@@ -157,6 +161,7 @@ CLI 가 `.env` 를 미리 만들어 그 줄만 채운다.
 | 어디                          | 무엇                                                                      |
 | ----------------------------- | ------------------------------------------------------------------------- |
 | 템플릿 폴더 경로              | 지금은 인자나 상대 경로로 받는다. 배포 방식이 정해지면 `copy.ts` 를 교체  |
+| `types: ["node"]` (tsconfig)  | `node:*` 내장 모듈 타입에 필요하다. 빼면 `tsc` 가 깨진다(실측)            |
 | `assets/lesa-appkit.asciimtn` | 822KB 원본. 발행 시엔 `src/assets/intro.json`(56KB)만 있으면 되므로 제외  |
 | 배포 방식                     | 템플릿 완성 후 결정 — public + tarball(docs 일반화 선행) 또는 private npm |
 
@@ -208,9 +213,9 @@ CLI 가 `.env` 를 미리 만들어 그 줄만 채운다.
 **실행 방법 (지금):**
 
 ```bash
-cd ~/Desktop/Repo/future/ascii-cli-test
-pnpm start ../my-new-app --template ~/Desktop/Repo/lesa-expo-template
-# 또는 LESA_TEMPLATE_DIR=~/Desktop/Repo/lesa-expo-template pnpm start ../my-new-app
+cd ~/Desktop/Repo/create-lesa-app
+pnpm start ../my-new-app --template ../lesa-expo-template
+# 또는 LESA_TEMPLATE_DIR=../lesa-expo-template pnpm start ../my-new-app
 ```
 
 스크립트 이름은 `start` 다 — `create` 로 두면 **pnpm 내장 `pnpm create`**(npm 에서
