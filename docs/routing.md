@@ -492,7 +492,7 @@ specifics evolved during implementation. Verified in the iOS simulator.
   (array + reduce) helper was REJECTED: too rigid for providers that break
   the mold (render-prop / conditional / coupled / position-specific).
   Explicit nesting accommodates any shape. Rule: providers ONLY here — no
-  sibling components / conditional UI (that mixing is what tangled 참조 앱's
+  sibling components / conditional UI (that mixing is what tangled 참조 앱의
   9-deep pyramid).
 - `global-overlays.tsx` — 【띄우는 것】 things mounted after the navigator
   (toasts, global sheets, headless runners). Toast is mounted now;
@@ -501,7 +501,7 @@ specifics evolved during implementation. Verified in the iOS simulator.
   implementation, this file only mounts them. Replaces the old
   global-modals.tsx + handlers.tsx split (one slot).
 - `bootstrap.ts` REMOVED — sync module-load setup inlined into
-  `app/_layout.tsx` module scope (matches 참조 앱/Obytes). The "bootstrap"
+  `app/_layout.tsx` module scope (matches 참조 앱·Obytes). The "bootstrap"
   name was dropped as unclear.
 - ErrorBoundary = **Suspensive** (`@suspensive/react`, Toss) wired NOW: root
   boundary in app-providers, shared `ErrorFallback` in `components/ui`

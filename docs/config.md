@@ -94,7 +94,7 @@ export const Env = defineEnv(values); // Env.identity.bundleId: string
 export default Env;
 ```
 
-This kills the Obytes/참조 앱 triple enumeration (record block + zod
+This kills the Obytes·참조 앱 triple enumeration (record block + zod
 schema + `_env` mapping). Adding a value = one edit in one file.
 zod is NOT used for code-sourced values (the type checker already
 guarantees them); validation applies only to real process.env reads.
@@ -213,9 +213,9 @@ Xcode 프로젝트·스킴·`PRODUCT_NAME` 을 파생하는데, `sanitizedName()
 | `name`                | iOS 프로젝트·스킴  | Android `rootProject.name` |
 | --------------------- | ------------------ | -------------------------- |
 | `write-your-app-name` | `writeyourappname` | `write-your-app-name`      |
-| `워크아웃`            | **`app`**          | `워크아웃`                 |
-| `워크아웃 KR`         | **`KR`**           | `워크아웃 KR`              |
-| `ワークスアウト`      | **`app`**          | `ワークスアウト`           |
+| `마이앱`              | **`app`**          | `마이앱`                   |
+| `마이앱 KR`           | **`KR`**           | `마이앱 KR`                |
+| `マイアプリ`          | **`app`**          | `マイアプリ`               |
 
 프로젝트가 `app` 이 되면 `xcodebuild -scheme`·Fastlane·EAS 가 전부 `app` 을 잡고,
 이름을 바꾸면 sanitize 결과가 달라져 `ios/` 폴더가 갈아엎어진다. Android 는 Gradle 금지
@@ -231,9 +231,9 @@ Xcode 프로젝트·스킴·`PRODUCT_NAME` 을 파생하는데, `sanitizedName()
   (mod 는 나중에 등록된 것이 나중에 실행 — `prebuild -p android` 로 확인).
 - `rootProject.name` 과 Xcode 프로젝트명은 ASCII `name` 을 유지한다.
 
-검증(2026-09-07, `displayName: '워크아웃'`): `strings.xml` `app_name` = `워크아웃` ·
+검증(2026-09-07, `displayName: '마이앱'`): `strings.xml` `app_name` = `마이앱` ·
 `settings.gradle` `rootProject.name` = `write-your-app-name` · `expo config --type prebuild`
-의 `CFBundleDisplayName` = `워크아웃`.
+의 `CFBundleDisplayName` = `마이앱`.
 
 거부: KR 처럼 `plugins/with-display-name.ts` 를 따로 두는 것 — Android mod 한 개라
 `with-android-plugin.ts` 안에 있는 게 맞다(파일 수를 늘릴 이유가 없다).

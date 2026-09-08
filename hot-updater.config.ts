@@ -9,7 +9,7 @@ import { defineConfig } from 'hot-updater';
 import { APP_ENV, Env } from './env';
 
 // OTA 배포 설정 (CLI 전용 — 앱 번들에 들어가지 않는다). 런타임 서버 주소는 env-candidates의 urls.ota.
-// TODO(앱): 환경별 S3 버킷·리전. 시크릿은 .env의 APP_BUILD_ONLY_AWS_*. 서버는 자체 OTA 서버 참고.
+// TODO(앱): 환경별 S3 버킷·리전. 시크릿은 .env의 APP_BUILD_ONLY_AWS_*.
 const S3_BUCKETS = {
   development: 'write-your-ota-bucket-dev',
   preview: 'write-your-ota-bucket-dev',

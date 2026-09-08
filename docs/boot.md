@@ -22,7 +22,7 @@
   `preventAutoHideAsync()` in global scope (race-critical: in a hook = too
   late, splash already gone). `hideAsync()` owned by the initializer (app
   enters even on failure). Callbacks injected (DI) = "주입하면 활성화".
-  `splash.tsx` = custom preloader route. Modeled on 참조 앱's lib/preloader.
+  `splash.tsx` = custom preloader route. Modeled on 참조 앱의 lib/preloader.
 
 ## 파일 지도 & 의존 방향
 

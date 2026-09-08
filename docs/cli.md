@@ -30,9 +30,9 @@ create-lesa-app/                     (`~/Desktop/Repo/create-lesa-app`. 지금�
 
 ◆ 01 NAME  ──  ○ 02 SLUG|LABEL  ──  ○ 03 TEAM  ──  ○ 04 READY
 
-? App name         워크아웃 | gym-log        ← 언어 무관
-    ├─ 비ASCII → 그게 홈 화면 이름.  ? Slug              workout
-    └─ ASCII   → 그게 slug.          ? Home screen name  Gym Log  (선택)
+? App name         마이앱 | my-app        ← 언어 무관
+    ├─ 비ASCII → 그게 홈 화면 이름.  ? Slug              my-app
+    └─ ASCII   → 그게 slug.          ? Home screen name  My App  (선택)
 ? Apple Team ID  (선택 · iOS 전용 · Enter 로 건너뛰기)
 
 04 READY 에서 파생 결과(scheme·bundleId·package·version)를 보여주고 Enter 로 생성한다.
@@ -40,8 +40,8 @@ create-lesa-app/                     (`~/Desktop/Repo/create-lesa-app`. 지금�
 
 **질문 3개(양쪽 경로 동일).** 언어를 고르게 하지 않는다 — 이름이 `^[a-z][a-z0-9-]*$` 를 통과하면 그게
 곧 slug 이고, 아니면 slug 을 한 번 더 묻는다(선택 질문 하나가 줄고 분기가 값에서 나온다).
-한글에서 ASCII 를 자동 변환하지 않는다 — 로마자 변환은 손실이 크고 (`워크아웃` →
-`weokeuaus`), 이 값이 Xcode 프로젝트명·스킴·`PRODUCT_NAME` 이 된다.
+한글에서 ASCII 를 자동 변환하지 않는다 — 로마자 변환은 손실이 크고 (`마이앱` →
+`maiaeb`), 이 값이 Xcode 프로젝트명·스킴·`PRODUCT_NAME` 이 된다.
 
 **사용자에게 보이는 문구는 영어다.** 코드 주석·이 문서는 한국어를 유지한다.
 
@@ -63,8 +63,8 @@ create-lesa-app/                     (`~/Desktop/Repo/create-lesa-app`. 지금�
 
 `<slug*>` = **하이픈을 제거한 slug**. `android.package` 는 "문자·숫자·밑줄만, 점으로 구분"
 이라 하이픈을 못 쓴다(SDK 57 app config 문서 확인). iOS bundleId 는 허용하지만 둘을 같게
-두려고 같은 값을 쓴다 — `gym-log` → `com.gymlog.development`. `scheme` 은 패턴이
-`^[a-z][a-z0-9+.-]*$` 라 하이픈을 그대로 둔다(`gym-log-dev`).
+두려고 같은 값을 쓴다 — `my-app` → `com.myapp.development`. `scheme` 은 패턴이
+`^[a-z][a-z0-9+.-]*$` 라 하이픈을 그대로 둔다(`my-app-dev`).
 
 `slug` 검증: `^[a-z][a-z0-9-]*$`. 대문자·공백·한글은 거부하고 다시 묻는다.
 Xcode 프로젝트명은 `sanitizedName()` 이 non-word 를 지우므로 ASCII 가 아니면 `app` 이 된다
@@ -135,7 +135,7 @@ CLI 가 `.env` 를 미리 만들어 그 줄만 채운다.
   값싸다(입력 → 필드 표).
 - **홈 화면 이름을 ASCII 경로에서 받는다(2026-09-08).** `displayName` 이 비면 템플릿이
   `name` 을 그대로 쓴다(`app.config.ts` 의 `CFBundleDisplayName` · `with-android-plugin.ts`
-  의 `app_name`). ASCII 경로는 항상 비어서 `gym-log` 가 홈 화면에 그대로 떴고 대소문자·공백을
+  의 `app_name`). ASCII 경로는 항상 비어서 `my-app` 가 홈 화면에 그대로 떴고 대소문자·공백을
   줄 방법이 없었다. 선택 질문이라 생략하면 종전과 같다.
 - **Apple Team ID 는 iOS 전용이라고 힌트에 쓴다.** 안드로이드는 물어볼 게 없다(위 표).
 - **인트로는 무한 루프.** 프레임 state 를 `Intro` 가 들고 있어 형제인 프롬프트는 리렌더되지
@@ -182,20 +182,20 @@ CLI 가 `.env` 를 미리 만들어 그 줄만 채운다.
 
 **통과:**
 
-| 무엇                     | 결과                                                                                                                                            |
-| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| `validateSlug` 12케이스  | `workout`·`my-app`·`a`·`app2` 통과 / 한글·대문자·숫자시작·공백·언더스코어·빈값·하이픈끝·하이픈시작 거부                                         |
-| `derive` 파생            | scheme·bundleId 3환경 · `package === bundleId` · 영문 시 `displayName=''`                                                                       |
-| 치환(실제 템플릿 파일)   | identity 전부 · `urls`·`version` 미변경 · 잔여 자리표시 0                                                                                       |
-| 잔여 자리표시 가드       | 자리표시를 바꾼 템플릿에서 `ApplyError` + **줄번호까지** 출력                                                                                   |
-| 복사                     | 33개 → **30개**. gitignore 대상 11종 전부 제외, 필수 파일·중첩 구조 보존                                                                        |
-| 복사 가드                | 템플릿 아닌 폴더 거부 · 비어있지 않은 대상 거부 · git 레포 아님 거부                                                                            |
-| 실패 시 cleanup          | 치환 실패 시 대상 디렉터리 삭제 확인                                                                                                            |
-| 생성 프로젝트            | `git` 초기 커밋(216파일) · frozen install · **`check-all` green**                                                                               |
-| `.env`                   | Team ID 가 `postinstall` 에 덮이지 않고 `expo lint` 가 실제로 export                                                                            |
-| **한글 이름 → 네이티브** | `CFBundleDisplayName`=`워크아웃` · `strings.xml app_name`=`워크아웃` · `rootProject.name`=`workout` · `applicationId`=`com.workout.development` |
-| 인자 검증                | 대상·템플릿 경로 누락 시 사용법 출력                                                                                                            |
-| `tsc --noEmit`           | 통과(`@types/node` + tsconfig 추가)                                                                                                             |
+| 무엇                     | 결과                                                                                                                                     |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `validateSlug` 12케이스  | `my-app`·`my-app`·`a`·`app2` 통과 / 한글·대문자·숫자시작·공백·언더스코어·빈값·하이픈끝·하이픈시작 거부                                   |
+| `derive` 파생            | scheme·bundleId 3환경 · `package === bundleId` · 영문 시 `displayName=''`                                                                |
+| 치환(실제 템플릿 파일)   | identity 전부 · `urls`·`version` 미변경 · 잔여 자리표시 0                                                                                |
+| 잔여 자리표시 가드       | 자리표시를 바꾼 템플릿에서 `ApplyError` + **줄번호까지** 출력                                                                            |
+| 복사                     | 33개 → **30개**. gitignore 대상 11종 전부 제외, 필수 파일·중첩 구조 보존                                                                 |
+| 복사 가드                | 템플릿 아닌 폴더 거부 · 비어있지 않은 대상 거부 · git 레포 아님 거부                                                                     |
+| 실패 시 cleanup          | 치환 실패 시 대상 디렉터리 삭제 확인                                                                                                     |
+| 생성 프로젝트            | `git` 초기 커밋(216파일) · frozen install · **`check-all` green**                                                                        |
+| `.env`                   | Team ID 가 `postinstall` 에 덮이지 않고 `expo lint` 가 실제로 export                                                                     |
+| **한글 이름 → 네이티브** | `CFBundleDisplayName`=`마이앱` · `strings.xml app_name`=`마이앱` · `rootProject.name`=`my-app` · `applicationId`=`com.myapp.development` |
+| 인자 검증                | 대상·템플릿 경로 누락 시 사용법 출력                                                                                                     |
+| `tsc --noEmit`           | 통과(`@types/node` + tsconfig 추가)                                                                                                      |
 
 **2026-09-08 추가 검증** (`pnpm test` + pty 로 실제 CLI 를 구동):
 
@@ -203,28 +203,28 @@ CLI 가 `.env` 를 미리 만들어 그 줄만 채운다.
 | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------- |
 | 스텝 머신 7군      | ASCII 이름은 slug 스킵 · 비ASCII 는 slug 필수 · 빈값/공백 거부 · 잘못된 slug 6종 재질문 · 이름을 비ASCII 로 고치면 slug 재질문 · trim |
 | 인트로 렌더        | pty 로 워드마크 출력 확인, 1회 재생 후 정지                                                                                           |
-| 전 구간 구동(한글) | `워크아웃`+`workout`+TeamID → 216파일 커밋 · `displayName='워크아웃'` · `.env` Team ID                                                |
-| 전 구간 구동(영문) | `gym-log` → slug 스텝 건너뜀 · Team ID 생략 시 "Xcode automatic signing"                                                              |
+| 전 구간 구동(한글) | `마이앱`+`my-app`+TeamID → 216파일 커밋 · `displayName='마이앱'` · `.env` Team ID                                                     |
+| 전 구간 구동(영문) | `my-app` → slug 스텝 건너뜀 · Team ID 생략 시 "Xcode automatic signing"                                                               |
 | 파일 수 일치       | 생성 216 = 템플릿 `git ls-files` 216                                                                                                  |
 
 **고친 결함(같은 구동에서 발견):**
 
-- **하이픈 slug 이 잘못된 Android package 를 만들었다.** `gym-log` → `com.gym-log.development`.
+- **하이픈 slug 이 잘못된 Android package 를 만들었다.** `my-app` → `com.my-app.development`.
   `android.package` 는 하이픈을 못 쓴다(문서 확인). 리버스 도메인에서만 하이픈을 제거한다.
 - **줄바꿈이 섞인 붙여넣기가 값에 `\r` 로 들어갔다.** ink 는 `input === '\r'` 일 때만
-  `key.return` 을 세우므로 `'workout\r'` 한 덩어리는 전부 텍스트가 된다. 제어문자를 걷어내고
+  `key.return` 을 세우므로 `'my-app\r'` 한 덩어리는 전부 텍스트가 된다. 제어문자를 걷어내고
   줄바꿈이 있었으면 Enter 로 본다.
-- READY 요약의 라벨 열 폭이 11 이라 `displayName워크아웃` 으로 붙었다 → 13.
+- READY 요약의 라벨 열 폭이 11 이라 `displayName마이앱` 으로 붙었다 → 13.
 
 **2026-09-08 연결 검증:**
 
-| 무엇                 | 결과                                                                     |
-| -------------------- | ------------------------------------------------------------------------ |
-| `bin` 실행           | 래퍼 없이는 `ERR_UNKNOWN_FILE_EXTENSION` — 래퍼 추가 후 정상             |
-| `npm link`           | nvm bin 이 이미 PATH 에 있어 셸 프로필 수정 없이 등록                    |
-| 임의 cwd · 인자 없음 | `create-lesa-app 워크아웃앱` → 형제 템플릿 자동 탐색 → 216파일 초기 커밋 |
-| 한글 디렉터리명      | `워크아웃앱` 으로 생성됨(디렉터리명은 `name` 과 무관)                    |
-| tarball 독립 실행    | 원본 `.asciimtn` 없이 워드마크 렌더 + 생성 완료 (풀어서 구동)            |
+| 무엇                 | 결과                                                                 |
+| -------------------- | -------------------------------------------------------------------- |
+| `bin` 실행           | 래퍼 없이는 `ERR_UNKNOWN_FILE_EXTENSION` — 래퍼 추가 후 정상         |
+| `npm link`           | nvm bin 이 이미 PATH 에 있어 셸 프로필 수정 없이 등록                |
+| 임의 cwd · 인자 없음 | `create-lesa-app 마이앱` → 형제 템플릿 자동 탐색 → 216파일 초기 커밋 |
+| 한글 디렉터리명      | `마이앱` 으로 생성됨(디렉터리명은 `name` 과 무관)                    |
+| tarball 독립 실행    | 원본 `.asciimtn` 없이 워드마크 렌더 + 생성 완료 (풀어서 구동)        |
 
 **미검증 — 사용자 몫:**
 
