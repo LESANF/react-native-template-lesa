@@ -28,17 +28,17 @@ create-lesa-app/                     (`~/Desktop/Repo/create-lesa-app`. 지금�
 ```
 [인트로 ASCII 워드마크 — 1회 재생 후 배너로 정지]
 
-◆ 01 NAME  ──  ○ 02 SLUG  ──  ○ 03 TEAM  ──  ○ 04 READY
+◆ 01 NAME  ──  ○ 02 SLUG|LABEL  ──  ○ 03 TEAM  ──  ○ 04 READY
 
-? App name         워크아웃        ← 언어 무관
-    ├─ ASCII 면    slug 로 재사용하고 02 를 건너뛴다
-    └─ 비ASCII 면  ? Slug          workout
-? Apple Team ID  (선택, Enter 로 건너뛰기)
+? App name         워크아웃 | gym-log        ← 언어 무관
+    ├─ 비ASCII → 그게 홈 화면 이름.  ? Slug              workout
+    └─ ASCII   → 그게 slug.          ? Home screen name  Gym Log  (선택)
+? Apple Team ID  (선택 · iOS 전용 · Enter 로 건너뛰기)
 
 04 READY 에서 파생 결과(scheme·bundleId·package·version)를 보여주고 Enter 로 생성한다.
 ```
 
-**질문 2~3개.** 언어를 고르게 하지 않는다 — 이름이 `^[a-z][a-z0-9-]*$` 를 통과하면 그게
+**질문 3개(양쪽 경로 동일).** 언어를 고르게 하지 않는다 — 이름이 `^[a-z][a-z0-9-]*$` 를 통과하면 그게
 곧 slug 이고, 아니면 slug 을 한 번 더 묻는다(선택 질문 하나가 줄고 분기가 값에서 나온다).
 한글에서 ASCII 를 자동 변환하지 않는다 — 로마자 변환은 손실이 크고 (`워크아웃` →
 `weokeuaus`), 이 값이 Xcode 프로젝트명·스킴·`PRODUCT_NAME` 이 된다.
@@ -49,17 +49,17 @@ create-lesa-app/                     (`~/Desktop/Repo/create-lesa-app`. 지금�
 
 `slug` 하나에서 전부 나온다. production 은 접미사가 없다(템플릿 자리표시와 같은 컨벤션).
 
-| 필드                         | development                | preview               | production    |
-| ---------------------------- | -------------------------- | --------------------- | ------------- |
-| `identity.name`              | `<slug>` (전 환경 공통)    |                       |               |
-| `identity.displayName`       | 한글 입력값, 영문이면 `''` |                       |               |
-| `identity.slug`              | `<slug>`                   |                       |               |
-| `identity.scheme`            | `<slug>-dev`               | `<slug>-preview`      | `<slug>`      |
-| `identity.bundleId`          | `com.<slug*>.development`  | `com.<slug*>.preview` | `com.<slug*>` |
-| `identity.package`           | bundleId 와 동일           |                       |               |
-| `version.app`                | `0.0.1`                    | `0.0.1`               | `0.0.1`       |
-| `version.iosBuildNumber`     | `1`                        | `1`                   | `1`           |
-| `version.androidVersionCode` | `1`                        | `1`                   | `1`           |
+| 필드                         | development                                          | preview               | production    |
+| ---------------------------- | ---------------------------------------------------- | --------------------- | ------------- |
+| `identity.name`              | `<slug>` (전 환경 공통)                              |                       |               |
+| `identity.displayName`       | 비ASCII 면 이름, ASCII 면 따로 받은 값(생략 시 `''`) |                       |               |
+| `identity.slug`              | `<slug>`                                             |                       |               |
+| `identity.scheme`            | `<slug>-dev`                                         | `<slug>-preview`      | `<slug>`      |
+| `identity.bundleId`          | `com.<slug*>.development`                            | `com.<slug*>.preview` | `com.<slug*>` |
+| `identity.package`           | bundleId 와 동일                                     |                       |               |
+| `version.app`                | `0.0.1`                                              | `0.0.1`               | `0.0.1`       |
+| `version.iosBuildNumber`     | `1`                                                  | `1`                   | `1`           |
+| `version.androidVersionCode` | `1`                                                  | `1`                   | `1`           |
 
 `<slug*>` = **하이픈을 제거한 slug**. `android.package` 는 "문자·숫자·밑줄만, 점으로 구분"
 이라 하이픈을 못 쓴다(SDK 57 app config 문서 확인). iOS bundleId 는 허용하지만 둘을 같게
@@ -76,6 +76,7 @@ Xcode 프로젝트명은 `sanitizedName()` 이 non-word 를 지우므로 ASCII �
 | ----------------------- | ------------------------------------------------------------------------------------------- |
 | `urls.api`              | 프로젝트 서버가 정해질 때 채운다. production 은 `.invalid` 로 남아 부팅 throw 가 안전장치다 |
 | `urls.ota`              | 빈 값 = OTA 비활성. 자체 서버가 생기면 채운다                                               |
+| 안드로이드 서명         | release 는 keystore **파일** + Gradle 환경변수다(`with-android-plugin.ts`). debug 는 불필요 |
 | 유니버설 링크 호스트    | 도메인·AASA 준비가 선행이라 생성 시점에 알 수 없다                                          |
 | 에셋 · `firebase/` 파일 | 바이너리라 CLI 가 만들 수 없다                                                              |
 | `TODO(앱)` 26곳         | 코드 판단이 필요하다. 생성 후 안내에 `grep` 명령을 남긴다                                   |
@@ -124,8 +125,6 @@ CLI 가 `.env` 를 미리 만들어 그 줄만 채운다.
 - **한글 이름은 두 번 묻는다.** 자동 로마자 변환 금지(위 "질문 플로우").
 - **스텝 전이는 `flow.ts` 순수 함수.** `useInput` 안에 있으면 TTY 없이는 한 줄도 검증할 수
   없다 — 실제로 slug 스텝이 정말 뜨는지 확인이 불가능했다. UI 는 그리기만 한다.
-- **인트로는 1회 재생 후 정지.** 글리프는 10프레임 모두 같고 색만 흐른다. 루프로 두면
-  프롬프트 위에서 계속 리렌더된다. 정지 후에는 매 렌더 출력이 같아 비용이 없다.
 - **인트로 프레임을 미리 굽는다.** 822KB JSON 을 런타임에 파싱하고 셀마다 `<Text>` 를 만들면
   ink 노드가 1020 개다. 행별 색 런으로 접어 56KB · 프레임당 ~262 노드
   (`scripts/bake-intro.mjs`, 재실행으로 재생성 가능).
@@ -134,6 +133,13 @@ CLI 가 `.env` 를 미리 만들어 그 줄만 채운다.
 - **버전은 묻지 않는다.** 전부 `0.0.1` / `1`.
 - **`derive.ts` 는 순수 함수로 분리한다.** 파생 규칙이 유일하게 논리다운 부분이고 테스트가
   값싸다(입력 → 필드 표).
+- **홈 화면 이름을 ASCII 경로에서 받는다(2026-09-08).** `displayName` 이 비면 템플릿이
+  `name` 을 그대로 쓴다(`app.config.ts` 의 `CFBundleDisplayName` · `with-android-plugin.ts`
+  의 `app_name`). ASCII 경로는 항상 비어서 `gym-log` 가 홈 화면에 그대로 떴고 대소문자·공백을
+  줄 방법이 없었다. 선택 질문이라 생략하면 종전과 같다.
+- **Apple Team ID 는 iOS 전용이라고 힌트에 쓴다.** 안드로이드는 물어볼 게 없다(위 표).
+- **인트로는 무한 루프.** 프레임 state 를 `Intro` 가 들고 있어 형제인 프롬프트는 리렌더되지
+  않는다 — 입력 커서에 영향이 없다.
 - **`bin` 은 tsx 로더를 등록하는 래퍼다(2026-09-08).** node 는 `.tsx` 를 직접 실행할 수
   없어(`ERR_UNKNOWN_FILE_EXTENSION`) `bin` 이 `src/index.tsx` 를 가리키면 바로 죽는다.
   빌드 단계를 두는 대신 4줄 래퍼를 둔다 — 그래서 `tsx` 가 dependency 다.
@@ -159,7 +165,6 @@ CLI 가 `.env` 를 미리 만들어 그 줄만 채운다.
   프로덕션 앱의 약점은 공개할 성질이 아니다. 공개하려면 `docs/` 를 먼저 일반화해야 한다.
 - private npm 패키지($7/월) → 지금은 로컬 복사로 충분하다.
 - **한글/영문 선택 질문 → 거부(2026-09-08).** 값에서 판별할 수 있는 것을 사람에게 묻는다.
-- 인트로 애니메이션 루프 재생 → 프롬프트 위에서 매 프레임 리렌더된다.
 - `bin` 을 `.tsx` 로 직접 지정 → node 가 확장자를 몰라 죽는다(실측).
 - 빌드 산출물(dist) 도입 → 로더 등록 4줄로 충분하다.
 - `.asciimtn` 을 런타임에 파싱 → 822KB · ink 노드 1020 개.
