@@ -1,38 +1,16 @@
 /**
- * env-candidates.ts — 이 앱의 모든 환경 설정값.
+ * 이 앱의 환경 설정값. 일상적으로 고치는 파일은 이것 하나다 — 사용법은 `docs/config.md`.
  *
- * ─ 사용법 ────────────────────────────────────────────────────────────
- * 일상적으로 편집하는 파일은 이것 하나입니다.
- *
- * 1. 모든 환경에서 같은 값  → 그냥 값을 적는다.
- *      name: 'MyApp'
- *
- * 2. 환경마다 다른 값(후보) → { development, preview, production } 객체.
- *      apiUrl: { development: '...', preview: '...', production: '...' }
- *    env.ts 의 defineEnv 가 현재 EXPO_PUBLIC_APP_ENV 에 맞는 값을
- *    자동으로 당선시킵니다. 세 키 중 하나라도 빠지면 즉시 throw.
- *
- * ─ 규칙 ──────────────────────────────────────────────────────────────
- * - 이 파일은 순수 데이터입니다. import 금지 (순환 참조 원천 차단).
- * - 시크릿 금지 — 여기 값은 전부 클라이언트 번들에 들어갑니다.
- *   빌드 시크릿은 .env 에 두고 app.config.ts 에서만 읽습니다.
- * - 사용처에서는 `import Env from '@env'` 후 `Env.identity.bundleId` 처럼
- *   접근합니다. 환경 분기는 이미 끝난 평범한 값입니다.
+ * - **시크릿 금지.** 여기 값은 전부 클라이언트 번들에 들어간다. 빌드 시크릿은 `.env` 에 두고
+ *   `app.config.ts` 에서만 읽는다.
+ * - **import 금지.** 순수 데이터여야 순환 참조가 안 생긴다.
+ * - `{ development, preview, production }` 은 세 키가 다 있어야 한다 — 하나라도 빠지면 throw.
  */
 export const values = {
   identity: {
-    /**
-     * ASCII 로 둔다. Expo prebuild 가 이 값에서 iOS Xcode 프로젝트·스킴·PRODUCT_NAME 을
-     * 파생하면서 non-word 문자를 전부 지우는데(`sanitizedName`, 정규식에 u 플래그 없음)
-     * 한글·가나만인 이름은 전부 날아가 프로젝트가 `app` 이 된다. 홈 화면 이름은 displayName.
-     */
+    /** **ASCII 로 둔다.** prebuild 가 non-word 를 지워서 한글 이름은 프로젝트가 `app` 이 된다. */
     name: 'write-your-app-name',
-    /**
-     * 홈 화면에 보이는 이름 — 비우면 `name` 을 그대로 쓴다(기본).
-     * 채우면 iOS 는 `CFBundleDisplayName`, Android 는 strings.xml 의 `app_name` 만 바뀌고
-     * 프로젝트·스킴 이름은 ASCII `name` 을 유지한다.
-     * TODO(앱): 앱 이름이 한글·일본어면 여기 채운다 (예: '워크아웃').
-     */
+    /** 홈 화면 이름. 비우면 `name` 을 쓴다. TODO(앱): 한글·일본어 이름이면 여기 채운다. */
     displayName: '',
     slug: 'write-your-app-slug',
     scheme: {
@@ -76,8 +54,7 @@ export const values = {
       preview: 'https://jsonplaceholder.typicode.com',
       production: 'https://api.example.invalid',
     },
-    // OTA(hot-updater) 서버. 빈 문자열 = 비활성(프리로더 ota 스테이지 스킵).
-    // TODO(앱): 자체 서버 주소로 교체 (예: 'https://ota.example.com/hot-updater'). 참고: 자체 OTA 서버
+    // 빈 문자열 = OTA 비활성. TODO(앱): 자체 서버 주소로 교체한다.
     ota: {
       development: '',
       preview: '',
