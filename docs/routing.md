@@ -325,6 +325,18 @@ app/ — features and lib cannot import from providers.
   code-review territory.
 - This rule is WHY "delete the folder and you're done" works.
 
+### 루트 `_layout` 모듈 스코프 설정
+
+- **Reanimated strict 경고를 `warn` 으로 낮춘다.** shared value 를 렌더 중 읽는 등의 경고가
+  개발 중 잡음이 크다. 실제 오류는 여전히 출력된다. 롤백 = 그 블록 제거(기본값 strict).
+- **`freezeOnBlur` 전역 활성.** 가려진 화면의 React 리렌더를 동결해 blur 상태 화면이 스택에
+  쌓일 때 배경 렌더 비용을 막는다. 타이머는 계속 돌고 렌더만 미뤄지며 복귀 시 자동 해동된다.
+  native-stack 은 최상단 "바로 아래" 화면은 의도적으로 동결하지 않으므로(스와이프백 대응)
+  **3장 이상 깊이부터 효과가 난다.** 롤백은 그 줄 제거(전역 해제), 화면별 예외는 해당
+  `Stack.Screen` 의 `freezeOnBlur: false`.
+- **OTA init 은 URL 이 비면 건너뛴다.** KR 은 모듈 스코프에서 무조건 init 하지만 템플릿은
+  기본 OTA 서버가 없다.
+
 ### app/ rules
 
 - Route files are 1-line re-exports:
