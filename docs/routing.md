@@ -31,6 +31,221 @@ hooks/use-navigation-reset.ts  탭·스택 reset 합성
 | `constants/tab-routes.ts` · `tabs.ts` | 탭 구성. 아이콘 교체는 `tabs.ts` 헤더 4단계         |
 | `app/auth/login` · `app/external-web` | 딥링크 게이트·외부 웹 라우트 — 아직 없다(`boot.md`) |
 
+## 딥링크 스펙 테이블 — 필드 설명
+
+`src/constants/deep-link.ts` 는 spec 테이블만 들고, 매칭은 `lib/deep-link/matcher.ts` 가 한다.
+흐름은 `푸시/Linking url → parser → matcher(DYNAMIC queryDriven → STATIC → EXTERNAL_WEB → DYNAMIC) → gates → navigate`.
+
+**`app.config.ts` 가 이 파일을 import 한다**(유니버설 링크 네이티브 설정 파생) — 런타임 import 를
+넣으면 prebuild 가 깨진다. 타입 전용 import 만 허용된다.
+
+### `StaticRoute`
+
+| 필드                |                                                                          |
+| ------------------- | ------------------------------------------------------------------------ |
+| `appPaths`          | app-scheme 매칭 path. **선행 슬래시 없음** — parser 가 그렇게 정규화한다 |
+| `webPaths`          | web-link 매칭 path (parser alias 적용 후). 웹 URL 과 앱 경로가 다를 때   |
+| `to`                | Expo Router 라우트                                                       |
+| `reset`             | 명시적 stack 합성. 미지정 시 `to` 에서 자동 추론                         |
+| `gates`             | 통과 게이트. 로그인 필요하면 `['auth']`                                  |
+| `whenAuthenticated` | 인증 시 redirect (KR 예: authRegister → mypage)                          |
+
+`StaticResetSpec` 은 `tab`(활성 base 탭) · `stack`(탭 내부 stack) · `topRoute`(`(tabs)` 위에 쌓을
+root-level 라우트).
+
+`to` 만으로 뒤로가기 스택이 안 나오면 `reset` 을 명시한다 — 폴더+index 라우트처럼 등록명이
+다를 때 그렇다.
+
+### `DynamicRouteSpec`
+
+| 필드                   |                                                                          |
+| ---------------------- | ------------------------------------------------------------------------ |
+| `appPattern`           | `'menu-4/:id'` 같은 패턴. `:` = named param, 선행 슬래시 없음            |
+| `queryDriven`          | query 기반 매칭. string 단일 또는 `readonly string[]`(배열은 OR)         |
+| `toExpoPath`           | matched params + query → expo-router path. native-intent 와 handler 공통 |
+| `gates`                | 통과 게이트                                                              |
+| `safeFallbackExpoPath` | 게이트·비동기 처리가 끝나기 전 사용자가 볼 화면                          |
+| `navigate`             | 이동 자체를 앱이 가져갈 때                                               |
+
+**동적 세그먼트가 있으면 `navigate` 를 직접 주는 편이 안전하다.** 기본 이동은 `toExpoPath` 결과에서
+reset 을 추론하는데, 파일 기반 등록명(`[id]`)과 URL 값(`42`)이 달라 external(cold·background·
+overlay-tap) 진입에서 미매치할 수 있다. KR 은 라우트마다 명시 reset 을 썼다:
+
+```ts
+navigate: (_parsed, entrySource, ctx, { id }) => {
+  if (entrySource === 'in-app' || entrySource === 'foreground-tap') {
+    ctx.router.push({ pathname: '/(tabs)/menu-4/[id]', params: { id } });
+    return;
+  }
+  ctx.reset({ tab: 'menu-4', stack: ['index', { name: '[id]', params: { id } }] });
+};
+```
+
+### 상수
+
+| 상수                                   |                                                                                                                                                                                           |
+| -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `DEEP_LINK_HTTPS_HOSTS`                | 유니버설 링크 호스트 화이트리스트. 비면 https 는 전부 `unknown` → noop, 앱 스킴만 동작. 어트리뷰션 SDK 링크 도메인도 여기 — `associatedDomains`·`intentFilters`·native-intent 가 파생된다 |
+| `SAFE_REDIRECT_PATH`                   | cold 진입에서 `+native-intent` 가 돌려주는 경로. 실제 이동은 splash 가 닫힌 뒤 dispatcher 가 정하므로 화면을 붙잡아 두기만 한다                                                           |
+| `SAFE_FALLBACK_PATH`                   | 매칭 실패·게이트 미통과 시 착지점. `+not-found` 로 빠지는 것보다 낫다                                                                                                                     |
+| `HANDLED_TTL_MS`                       | 같은 링크가 여러 source 로 들어올 때의 중복 판정 창. 어트리뷰션 SDK 가 링크를 OS Linking 으로 재전파하면 올려야 한다                                                                      |
+| `HANDLED_MAX`                          | 처리 이력 맵 상한. 넘으면 만료분부터 청소                                                                                                                                                 |
+| `SPLASH_HANDOFF_DELAY_MS`              | splash → dispatcher 핸드오프 지연. `router.replace` 와 dispatcher reset 충돌 방지                                                                                                         |
+| `AUTH_LOGIN_PATH` · `AUTH_ROUTE_GROUP` | auth 게이트가 여는 로그인 화면과 그 라우트 그룹 첫 세그먼트(deferred 재생이 "모달이 닫혔는지" 판단하는 기준)                                                                              |
+| `EXTERNAL_WEB_PAGE_PATTERNS`           | 우리 웹 도메인의 마케팅 정적 페이지 — 앱 안에서 단순 웹뷰. 토큰·브릿지 없음. 매칭되면 matcher 가 `/external-web?path=/<path>` 핸들러를 만든다                                             |
+| `DEEP_LINK_FALLBACK_ROUTE`             | miss fallback. dispatcher 가 noop 처리하므로 거의 쓰이지 않는다                                                                                                                           |
+
+## 딥링크 런타임 — 타입과 API
+
+### `LinkKind` (parser 가 판별)
+
+|              |                                                     |
+| ------------ | --------------------------------------------------- |
+| `app-scheme` | `myapp://menu-4/42`                                 |
+| `web-link`   | `https://<DEEP_LINK_HTTPS_HOSTS 중 하나>/menu-4/42` |
+| `unknown`    | 우리 링크가 아님 → dispatcher noop                  |
+
+### `EntrySource`
+
+`cold` 만 splash 종료를 기다리고 나머지는 즉시 처리된다.
+
+|                  |                                                                                                                      |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `cold`           | 앱 종료 상태에서 OS 가 링크로 실행                                                                                   |
+| `background`     | 앱이 백그라운드에 있다가 링크로 복귀                                                                                 |
+| `foreground-tap` | 앱이 떠 있는 상태에서 알림 탭 (푸시 SDK 가 enqueue)                                                                  |
+| `in-app`         | 인앱 배너·버튼이 `emitInApp` 으로 발생시킨 링크                                                                      |
+| `overlay-tap`    | `(tabs)` 밖 root-level 오버레이(예: 알림 목록)에서 발생. external 과 같은 reset 처리를 받아 뒤로가기 스택이 살아난다 |
+
+### `ResolvedHandler`
+
+matchRoute 가 돌려주는, 그 링크에 고정된 핸들러.
+
+| 필드                   |                                                                                                      |
+| ---------------------- | ---------------------------------------------------------------------------------------------------- |
+| `match`                | 매칭 검증. matchRoute 가 이미 확정하므로 현재는 항상 true                                            |
+| `gates`                | 통과해야 하는 게이트                                                                                 |
+| `navigate`             | 실제 진입 (reset · push · navigate)                                                                  |
+| `name`                 | 로깅·디버깅용                                                                                        |
+| `expoPath`             | native-intent 가 돌려줄 경로. **dispatcher 의 이동과 같은 화면으로 수렴해야** `+not-found` 를 피한다 |
+| `safeFallbackExpoPath` | 게이트가 있는 라우트의 안전 착지점. splash 가 먼저 이 화면으로 빠져나온 뒤 게이트 UI 가 그 위에 뜬다 |
+
+`GateName` 의 구현은 `lib/deep-link/gates` 의 `GATE_MAP`. 게이트를 추가하면 union 을 넓힌다
+(KR: `'auth' | 'verified' | 'marketing' | 'pushPermission'`).
+
+### dispatcher — 큐가 필요한 이유
+
+흐름은 `enqueue → processNextEntry → matchRoute → runGates → handler.navigate`.
+
+1. cold 진입은 네비게이터가 준비되기 전에 도착한다 → splash 가 닫힐 때까지 붙잡아 둔다.
+2. 같은 링크가 여러 source(OS Linking · 푸시 · 인앱)로 동시에 들어온다 → 한 번만 처리한다.
+
+`peekColdSafeFallback` 은 큐 첫 cold entry 의 `safeFallbackExpoPath` 를 mutation 없이 본다.
+splash → dispatcher 핸드오프에서 밑에 깔 화면을 정하는데, 없으면 미등록 링크로 콜드 진입했을 때
+dispatcher 가 noop 하고 splash 에 갇힌다.
+
+|                            |                                         |
+| -------------------------- | --------------------------------------- |
+| 미등록 라우트              | 안전 경로(홈)                           |
+| 등록 + `safeFallback` 지정 | 그 화면 (게이트 UI 가 그 위에 뜬다)     |
+| 등록 + 미지정              | `null` — dispatcher 의 이동 흐름 그대로 |
+
+`enqueueOrFallback` 은 매처에 없는 URL 도 최소한의 결과를 보장한다. silent noop 이면 "탭했는데
+아무 일도 안 남"이 되기 때문이다. 인앱 호출처(배너·알림 목록 등)가 쓴다.
+
+|                         |                                                                      |
+| ----------------------- | -------------------------------------------------------------------- |
+| 매처 등록 path          | 정상 enqueue                                                         |
+| 우리 도메인 미등록 path | 안전 경로. TODO(앱): KR 은 `/external-web?path=…` 인앱 웹뷰로 보낸다 |
+| 외부 도메인             | 시스템 브라우저 (`Linking.openURL`)                                  |
+| parse 실패              | noop                                                                 |
+
+`onExternalUrl` 은 어트리뷰션 SDK 등 외부 SDK 콜백으로 들어온 URL 을 받는다(KR 은 Airbridge 의
+deeplink 콜백). SDK 는 `entrySource` 를 알려주지 않으므로 splash 상태로 cold/background 를 판별한다.
+
+### 진입 source
+
+어디로 들어오든 최종 목적지는 `dispatcher.enqueue` 하나다.
+
+- **OS Linking** — cold(`getInitialURL`) + background(`url` 이벤트)
+- **in-app** — `emitInApp`. 인앱 배너·버튼이 같은 라우팅 규칙을 타게 한다
+- **푸시 알림 탭** — `sources.ts` 를 거치지 않는다. `lib/push/background.ts`(headless) 와
+  `lib/push/taps.ts`(React 계층)가 `deepLinkDispatcher.enqueue` 로 직접 합류한다
+
+## matcher · parser
+
+### 우선순위
+
+`DYNAMIC queryDriven → STATIC → EXTERNAL_WEB_PAGE → DYNAMIC path-pattern → null`.
+Lookup table 은 모듈 로드 시 1회 빌드한다.
+
+### `inferResetFromTo` — `to` → reset 옵션 추론
+
+| `to`                    | reset                                     |
+| ----------------------- | ----------------------------------------- |
+| `/(tabs)?tab=x`         | 첫 탭 + params                            |
+| `/(tabs)`               | 첫 탭                                     |
+| `/(tabs)/menu-5`        | `menu-5` 탭                               |
+| `/(tabs)/menu-3/detail` | `menu-3` 탭 + nested                      |
+| `/whatever`             | `null` — 탭 밖이라 명시 reset 이 필요하다 |
+
+미등록 탭으로 reset 하면 네비게이션이 통째로 실패하므로, `null` 이면 호출부가 `navigate` 로 떨어진다.
+
+### DYNAMIC 핸들러 — KR 이 넣었던 앱 고유 동작
+
+템플릿의 기본 이동은 `toExpoPath` 로 `expoPath` 만 통일하고 일반 규칙으로 처리한다.
+KR 은 여기가 라우트 이름별 switch 였고 핸들러마다 다음이 들어 있었다:
+
+- 명시 reset (`topRoute: { name: 'product', nested: [{ name: '[id]', params: { id } }] }`)
+- 진입 전 prefetch 검증 후 토스트만 띄우고 중단 (종료된 응모 · 삭제된 게시물)
+- 진입 전 스토어 커밋 (검색어·필터를 한 번에 set — 화면 렌더 race 방지)
+
+그런 동작이 필요하면 `DYNAMIC_ROUTES_SPEC` 의 `navigate` 로 라우트마다 넣는다. matcher 의 기본
+이동은 손대지 않는다. 기본값은 cold 는 splash 를 replace, 그 외 외부 진입은 navigate, 인앱은 push.
+
+### auth 게이트가 있는 STATIC 의 cold 진입
+
+splash 가 미리 `(tabs)` 로 replace → dispatcher 가 로그인 모달 push → dismiss 하면 `(tabs)`.
+이렇게 하지 않으면 splash 위에 모달이 갇힌다. background/foreground 는 `+native-intent` 가
+redirect 하고, 게이트 없는 static 은 handler 의 reset 이 덮는다.
+
+### parser
+
+등록 호스트마다 apex + www 두 변형을 모두 매칭한다.
+
+우리 링크가 아니면 `transport: 'unknown'` 으로 돌려준다 — `null` 이 아닌 이유는 호출부가
+"파싱 실패"와 "남의 링크"를 구분할 필요가 없기 때문이다. 경로가 없는 우리 링크(bare scheme)는 `null`.
+
+```
+myapp://menu-4/42?mode=edit    → { transport: 'app-scheme', path: 'menu-4/42' }
+https://example.com/menu-4/42  → { transport: 'web-link',   path: 'menu-4/42' }   (호스트 등록 시)
+https://other.com/whatever     → { transport: 'unknown',    path: '' }
+```
+
+**`WEB_PATH_ALIASES`** — web path → app canonical, 첫 매칭만 적용. 웹과 앱 URL 이 1:1 이면 비워 둔다.
+KR 예:
+
+```ts
+[
+  /^my-page\/orders\/.+$/,
+  'mypage/orders',
+] // 상세 ID 를 리스트 path 로 (앱에 상세가 없을 때)
+[
+  (/^my-page\//, 'mypage/')
+] // prefix 치환 — 더 구체적인 규칙 뒤에 둔다
+[
+  (/^app-download$/, 'raffle')
+] // 웹 랜딩 → 앱 화면
+[(/^product\//, 'products/')]; // 레거시 단수 path → canonical 복수
+```
+
+**query → path** 규칙은 alias 보다 먼저 적용되고, 소비한 query 키는 제거된다. KR 예:
+
+```ts
+{ matchPath: p => p === 'wear', queryKey: 'openSliderStyling', toPath: v => `wear/${v}` }
+{ matchPath: p => p === 'search/result', queryKey: 'searchKeyword', toPath: v => `search/${v}` }
+```
+
 ## 확정 결정 — 폴더 구조와 라우팅 (2026-06-11)
 
 ### Goal

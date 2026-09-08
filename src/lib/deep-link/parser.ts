@@ -6,7 +6,7 @@ import type { LinkTransport, ParsedDeepLink } from './types';
 
 const APP_SCHEMES: readonly string[] = [Env.identity.scheme];
 
-// 등록 호스트마다 apex + www 두 변형을 모두 매칭한다 (KR 이 자기 호스트 하나에 하던 것을 목록으로).
+// 등록 호스트마다 apex + www 두 변형을 모두 매칭한다.
 const WEB_HOSTS = DEEP_LINK_HTTPS_HOSTS.flatMap(host => {
   const apex = host.replace(/^www\./, '');
   return [apex, `www.${apex}`];
@@ -14,39 +14,17 @@ const WEB_HOSTS = DEEP_LINK_HTTPS_HOSTS.flatMap(host => {
 
 const SCHEME_TRAILING_COLON = /:$/;
 
-/**
- * web path → app canonical. 첫 매칭만 적용한다.
- *
- * TODO(앱): 웹과 앱의 URL 이 1:1 이면 비워 둔다. 다르면 여기서 흡수한다 (KR 예):
- *   [/^my-page\/orders\/.+$/, 'mypage/orders']   상세 ID 를 리스트 path 로 (앱에 상세 화면이 없을 때)
- *   [/^my-page\//, 'mypage/']                    prefix 치환 — 더 구체적인 규칙 뒤에 둔다
- *   [/^app-download$/, 'raffle']                 웹 랜딩 → 앱 화면
- *   [/^product\//, 'products/']                  레거시 단수 path → canonical 복수
- */
+// TODO(앱): 웹과 앱 URL 이 1:1 이면 비워 둔다. 첫 매칭만 적용 — 예시는 `docs/routing.md`.
 const WEB_TO_APP_PATH_ALIASES: [RegExp, string][] = [];
 
-/**
- * web query → app path segment. alias 보다 먼저 적용되고, 소비한 query 키는 제거된다.
- *
- * TODO(앱): KR 예 —
- *   { matchPath: p => p === 'wear', queryKey: 'openSliderStyling', toPath: v => `wear/${v}` }
- *   { matchPath: p => p === 'search/result', queryKey: 'searchKeyword', toPath: v => `search/${v}` }
- */
+// alias 보다 먼저 적용되고 소비한 query 키는 제거된다. TODO(앱): 예시는 `docs/routing.md`.
 const WEB_QUERY_TO_PATH_RULES: {
   matchPath: (path: string) => boolean;
   queryKey: string;
   toPath: (value: string) => string;
 }[] = [];
 
-/**
- * url 문자열 → 정규화된 링크. 우리 링크가 아니면 transport='unknown' 으로 돌려준다
- * (null 이 아니라 unknown 인 이유: 호출부가 "파싱 실패"와 "남의 링크"를 구분할 필요가 없다).
- * 경로가 없는 우리 링크(bare scheme)는 null — 라우팅할 대상이 없다.
- *
- *   myapp://menu-4/42?mode=edit        → { transport: 'app-scheme', path: 'menu-4/42' }
- *   https://example.com/menu-4/42      → { transport: 'web-link',   path: 'menu-4/42' }  (호스트 등록 시)
- *   https://other.com/whatever         → { transport: 'unknown',    path: '' }
- */
+/** 남의 링크는 `transport: 'unknown'`, 경로 없는 우리 링크는 `null` — `docs/routing.md`. */
 export function parseDeepLink(input: string | null | undefined): ParsedDeepLink | null {
   if (!input) return null;
 
@@ -92,7 +70,6 @@ function buildParsed(
   };
 }
 
-/** web path 를 app canonical 로. query→path 규칙이 alias 보다 우선한다. */
 function applyWebNormalization(
   rawPath: string,
   rawQuery: Record<string, string>
