@@ -12,15 +12,13 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const FAB_SIZE = 44;
 const EDGE_GAP = 12;
-// 탭바를 가리지 않는 초기 위치. 드래그하면 사용자가 원하는 곳으로 옮긴다.
+// 탭바를 가리지 않는 초기 위치.
 const BOTTOM_NAV_GAP = 76;
 const LOGGER_ROUTE = '/dev/network-logger';
 
 /**
- * 개발 빌드 전용 네트워크 로거 진입 버튼 — 드래그로 옮기고, 탭하면 `/dev/network-logger` 로 간다.
- *
- * 프로덕션에서는 아래 가드가 트리 전체를 잘라낸다(`__DEV__` 상수 폴딩 + minify).
- * 훅보다 앞에서 return 하면 rules-of-hooks 위반이라, 가드와 구현을 두 컴포넌트로 나눈다.
+ * 개발 전용 네트워크 로거 버튼. `__DEV__` 가드가 프로덕션에서 트리를 잘라낸다.
+ * 가드와 구현을 나눈 이유: 훅보다 앞에서 return 하면 rules-of-hooks 위반.
  */
 export function NetLogFab() {
   if (!__DEV__) return null;
@@ -31,7 +29,7 @@ function NetLogFabImpl() {
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const pathname = usePathname();
-  // 로거 화면 위에서는 자기 자신을 가리지 않게 숨긴다.
+  // 로거 화면 위에서는 숨긴다.
   const isVisible = !pathname?.startsWith(LOGGER_ROUTE);
 
   const minX = insets.left + EDGE_GAP;
@@ -51,7 +49,7 @@ function NetLogFabImpl() {
 
     const pan = Gesture.Pan()
       .onStart(() => {
-        // .get()/.set() 접근자를 쓴다 — `.value =` 직접 대입은 react-hooks/immutability 위반이다.
+        // `.value =` 직접 대입은 react-hooks/immutability 위반.
         startX.set(translateX.get());
         startY.set(translateY.get());
       })
@@ -60,7 +58,7 @@ function NetLogFabImpl() {
         translateY.set(Math.max(minY, Math.min(startY.get() + event.translationY, maxY)));
       })
       .onEnd(() => {
-        // 손을 떼면 가까운 좌/우 엣지로 스냅 — 화면 중앙에 떠 있지 않게.
+        // 가까운 엣지로 스냅.
         const snapToLeft = translateX.get() + FAB_SIZE / 2 < screenWidth / 2;
         translateX.set(withSpring(snapToLeft ? minX : maxX));
       });
@@ -69,7 +67,7 @@ function NetLogFabImpl() {
       if (success) runOnJS(openLogger)();
     });
 
-    // Race = 드래그가 시작되면 탭은 취소된다(옮기려다 열리는 사고 방지).
+    // Race — 드래그가 시작되면 탭은 취소된다.
     return Gesture.Race(pan, tap);
   }, [startX, startY, translateX, translateY, screenWidth, minX, maxX, minY, maxY]);
 

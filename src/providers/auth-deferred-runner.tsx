@@ -17,7 +17,7 @@ import { useAuthStore } from '@/stores/auth-store';
 export function AuthDeferredRunner() {
   const isSignedIn = useAuthStore(state => state.status === 'signedIn');
   const segments = useSegments();
-  // AUTH_ROUTE_GROUP 라우트가 아직 없어 expo-router 의 세그먼트 union 에 없다 — 문자열로 비교한다.
+  // AUTH_ROUTE_GROUP 라우트가 없어 세그먼트 union 에도 없다 — 문자열 비교.
   const isOnAuth = (segments[0] as string | undefined) === AUTH_ROUTE_GROUP;
 
   useEffect(() => {

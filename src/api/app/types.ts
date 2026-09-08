@@ -9,7 +9,7 @@ export type AppForceUpdateStoreUrl = {
 };
 
 export type AppForceUpdatePayload = {
-  /** 플랫폼 공통이면 문자열, 다르면 { ios, android }. semver 문자열. */
+  /** 공통이면 문자열, 다르면 `{ ios, android }`. semver. */
   readonly minVersion: string | AppForceUpdateVersion;
   readonly storeUrl: AppForceUpdateStoreUrl;
 };

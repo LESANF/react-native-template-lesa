@@ -21,19 +21,16 @@ export class NavigationResetError extends Error {
 type RouteParams = Record<string, unknown>;
 type NavigationResetState = PartialState<NavigationState>;
 type NavigationRouteEntry = NavigationResetState['routes'][number];
-// 탭 이름 union — matcher 의 reset 추론이 이 타입으로 좁힌다(아이콘/에셋을 끌고 오지 않는 타입 전용 통로).
+// 탭 이름 union. 아이콘·에셋을 끌고 오지 않는 타입 전용 통로.
 export type NavigationTabName = (typeof tabRoutes)[number]['name'];
 
-// expo-router가 모든 앱 라우트를 감싸는 숨은 루트 네비게이터 이름. reset 페이로드는 실제
-// 상태 트리와 모양이 일치해야 해서 이 래퍼 없이는 reset이 깨진다(실측 확인).
-// 공개 API가 아닌 내부값이므로 SDK 업그레이드 시 expo-router/build/constants.js 의
-// INTERNAL_SLOT_NAME('__root')과 여전히 일치하는지 확인할 것. (SDK 57 / expo-router 57.0.17 일치 확인)
+// expo-router 의 숨은 루트 네비게이터. 이게 없으면 reset 이 깨진다.
+// 내부값이라 SDK 업그레이드 시 expo-router 의 INTERNAL_SLOT_NAME 과 대조할 것.
 const ROOT_NAVIGATION_ROUTE_NAME = '__root';
 const TABS_ROUTE_NAME = '(tabs)';
 const DEFAULT_TAB_STACK = ['index'] as const;
 const tabNames: readonly NavigationTabName[] = tabRoutes.map(tab => tab.name);
 
-// 호출부에서 넘기는 reset 입력값들.
 export type NavigationResetStackEntry =
   | string
   | {
@@ -41,7 +38,7 @@ export type NavigationResetStackEntry =
       readonly params?: RouteParams;
     };
 
-// (tabs) 위에 쌓을 루트 라우트. 동적/중첩 라우트는 nested 로 이어 붙인다.
+// (tabs) 위에 쌓을 루트 라우트. 중첩은 nested.
 export type NavigationResetNestedRoute = {
   readonly name: string;
   readonly params?: RouteParams;
@@ -50,7 +47,7 @@ export type NavigationResetNestedRoute = {
 
 export type NavigationResetTopRoute = string | NavigationResetNestedRoute;
 
-// tab/stack 은 탭 내부를 재구성하고, topRoute 는 탭 바깥 루트 스택 위에 올린다.
+// tab·stack 은 탭 내부, topRoute 는 탭 바깥.
 export type NavigationResetToTabOptions = {
   readonly tab: NavigationTabName;
   readonly stack?: readonly NavigationResetStackEntry[];
@@ -63,7 +60,7 @@ function isResetToTabOptions(target: NavigationResetTarget): target is Navigatio
   return typeof target === 'object' && 'tab' in target;
 }
 
-// 문자열/객체/nested 입력을 React Navigation route entry 로 바꾼다.
+// 입력 → React Navigation route entry.
 function buildNestedRoute(route: NavigationResetTopRoute): NavigationRouteEntry {
   if (typeof route === 'string') {
     return { name: route };
@@ -99,7 +96,7 @@ function getTargetStack(target: NavigationResetToTabOptions): readonly Navigatio
   return target.stack && target.stack.length > 0 ? target.stack : DEFAULT_TAB_STACK;
 }
 
-// 전체 탭 목록을 만들되, 활성 탭에만 내부 stack 을 심는다.
+// 활성 탭에만 내부 stack 을 심는다.
 function buildTabRoute(
   tabName: NavigationTabName,
   target: NavigationResetToTabOptions
@@ -114,7 +111,7 @@ function buildTabRoute(
     const onlyEntry = stack[0];
     const onlyName = getStackEntryName(onlyEntry);
     if (onlyName === tabName || onlyName === 'index') {
-      // leaf/default 탭은 Expo Router 가 기본 child 를 해석하게 두는 편이 안전하다.
+      // leaf 탭은 Expo Router 가 기본 child 를 해석하게 둔다.
       return typeof onlyEntry === 'string' || !onlyEntry.params
         ? { name: tabName }
         : { name: tabName, params: onlyEntry.params };
@@ -130,7 +127,7 @@ function buildTabRoute(
   };
 }
 
-// Expo Router 앱 라우트는 React Navigation tree 의 __root 아래에 들어간다.
+// 앱 라우트는 __root 아래에 들어간다.
 function buildRootResetPayload(innerRoutes: NavigationRouteEntry[]): NavigationResetState {
   return {
     index: 0,
@@ -188,7 +185,7 @@ function buildHrefResetPayload(target: Href): NavigationResetState {
   return buildRootResetPayload([{ name: routeName, params: target.params }]);
 }
 
-// CommonActions.reset 을 감싼 앱 전용 reset 훅.
+// CommonActions.reset 래퍼.
 export function useNavigationReset(): (target: NavigationResetTarget) => void {
   const navigation = useNavigationContainerRef();
 

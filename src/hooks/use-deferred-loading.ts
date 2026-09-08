@@ -10,8 +10,7 @@ export function useDeferredLoading(
   const shouldShowLoading = isLoading && !hasData;
   const [isDelayed, setIsDelayed] = useState(false);
 
-  // 입력이 바뀌면 렌더 중에 즉시 리셋한다(React 공식 "adjusting state" 패턴).
-  // 효과 안의 동기 setState는 연쇄 렌더를 만들어 lint(set-state-in-effect)가 막는다.
+  // 렌더 중 리셋(React "adjusting state"). effect 안의 setState 는 lint 가 막는다.
   const [prevInputs, setPrevInputs] = useState({ delayMs, shouldShowLoading });
   if (prevInputs.shouldShowLoading !== shouldShowLoading || prevInputs.delayMs !== delayMs) {
     setPrevInputs({ delayMs, shouldShowLoading });

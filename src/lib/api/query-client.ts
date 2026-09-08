@@ -6,8 +6,7 @@ const QUERY_RETRY_LIMIT = 2;
 const QUERY_STALE_TIME_MS = 30 * 1000;
 const QUERY_GC_TIME_MS = 5 * 60 * 1000;
 
-// TODO(앱): 재시도 정책 — 백엔드에 맞게 조정. 네트워크·타임아웃·5xx만 재시도(일시적 실패).
-// 429·408도 재시도하려면 마지막 줄에 `|| error.status === 429` 식으로 추가한다.
+// 네트워크·타임아웃·5xx 만 재시도. TODO(앱): 429·408 이 필요하면 추가.
 function shouldRetryQuery(error: unknown): boolean {
   if (!(error instanceof ApiError)) return false;
   if (error.code === API_ERROR_CODES.canceled) return false;

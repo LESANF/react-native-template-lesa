@@ -1,6 +1,4 @@
-/**
- * 딥링크 진입점 — 큐 + 중복 제거 + 순차 처리. 흐름과 API 표는 `docs/routing.md`.
- */
+/** 딥링크 진입점 — 큐 · 중복 제거 · 순차 처리. `docs/routing.md`. */
 
 import { Linking } from 'react-native';
 
@@ -19,7 +17,7 @@ let isProcessing = false;
 let navigateContext: NavigateContext | null = null;
 const lastHandled = new Map<string, number>();
 
-// 손으로 `k=v` 를 이으면 `{a:'b&c=d'}` 와 `{a:'b',c:'d'}` 가 같은 키가 되어 멀쩡한 링크가 버려진다.
+// 손으로 이으면 `{a:'b&c=d'}` 와 `{a:'b',c:'d'}` 가 같은 키가 된다.
 function makeKey(payload: DeepLinkPayload): string {
   const params = new URLSearchParams(payload.parsed.query);
   params.sort();
@@ -57,8 +55,7 @@ async function processNextEntry() {
 
   isProcessing = true;
 
-  // 처리 중에도 큐에 남긴다 — 먼저 빼면 `await runGates` 동안 중복 검사에서 사라져
-  // 같은 링크가 두 번 통과한다.
+  // 먼저 빼면 `await` 동안 중복 검사에서 사라져 두 번 통과한다.
   const payload = queue[readyIndex];
 
   try {
@@ -71,13 +68,13 @@ async function processNextEntry() {
     const currentContext = navigateContext;
     await runGates(handler.gates, GATE_MAP, currentContext, () => {
       console.log('[deep-link] navigate:', handler.name);
-      // navigate 직후 동기적으로 표시한다 — await 하면 두 source 가 겹쳐 이중 navigate 가 된다.
+      // await 하면 두 source 가 겹쳐 이중 navigate 가 된다.
       void handler.navigate(payload.parsed, payload.entrySource, currentContext);
       markHandled(payload);
     });
   } catch (error) {
     console.error('[deep-link] dispatch error', error);
-    // cold 는 splash 가 이동을 위임한 상태다 — 여기서 실패하면 splash 에 갇힌다.
+    // cold 는 여기서 실패하면 splash 에 갇힌다.
     if (payload.entrySource === 'cold' && navigateContext) {
       try {
         navigateContext.router.replace(SAFE_FALLBACK_PATH as Href);
@@ -94,7 +91,7 @@ async function processNextEntry() {
 }
 
 export const deepLinkDispatcher = {
-  /** 외부 SDK 콜백 URL. entrySource 를 안 주므로 splash 상태로 판별한다. */
+  /** 외부 SDK 콜백. entrySource 를 안 주므로 splash 상태로 판별한다. */
   enqueueExternalSdkUrl(url: string | null | undefined) {
     this.enqueue(url, isSplashClosed ? 'background' : 'cold');
   },
@@ -103,8 +100,7 @@ export const deepLinkDispatcher = {
     const parsed = parseDeepLink(url);
     if (!parsed || parsed.transport === 'unknown' || !parsed.path) return;
 
-    // splash 가 열려 있는데 background/foreground-tap 이 오면 '/splash' 위에 push 된다 —
-    // 닫힐 때까지 cold 로 홀드한다. in-app 은 화면이 이미 떠 있다는 뜻이라 제외.
+    // splash 중 bg/fg-tap 은 '/splash' 위에 push 된다 → cold 로 홀드. in-app 은 제외.
     if (!isSplashClosed && entrySource !== 'in-app') entrySource = 'cold';
 
     const payload: DeepLinkPayload = {
@@ -141,7 +137,7 @@ export const deepLinkDispatcher = {
     return queue.length > 0;
   },
 
-  /** splash 밑에 깔 화면. 없으면 미등록 링크 콜드 진입에서 splash 에 갇힌다 — `docs/routing.md`. */
+  /** splash 밑에 깔 화면. 없으면 미등록 링크 콜드 진입에서 갇힌다. */
   peekSafeFallback(): string | null {
     const next = queue.find(queuedPayload => queuedPayload.entrySource === 'cold');
     if (!next) return null;
@@ -150,7 +146,7 @@ export const deepLinkDispatcher = {
     return handler.safeFallbackExpoPath ?? null;
   },
 
-  /** 매처에 없는 URL 도 최소한의 결과를 보장한다 — 분기 표는 `docs/routing.md`. */
+  /** 매처에 없는 URL 도 최소한의 결과를 보장. 분기 표 `docs/routing.md`. */
   async enqueueOrFallback(url: string | null | undefined, entrySource: EntrySource) {
     if (!url) return;
     const parsed = parseDeepLink(url);

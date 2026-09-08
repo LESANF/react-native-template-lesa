@@ -97,7 +97,7 @@ function ensureHeaders(config: InternalAxiosRequestConfig) {
   return config.headers;
 }
 
-// TODO(앱): 만료 신호가 401이 아닌 서버는 아래 조건을 바꾼다 (예: 403이면 `=== 403`, JP가 그 경우).
+// TODO(앱): 만료 신호가 401 이 아니면 조건을 바꾼다(JP 는 403).
 function isRefreshableError(error: unknown): error is RefreshableAxiosError {
   if (!isAuthRefreshConfigured) return false;
   if (!isAxiosError(error)) return false;

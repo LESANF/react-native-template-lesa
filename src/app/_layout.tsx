@@ -21,26 +21,23 @@ import { DeepLinkRunner } from '@/providers/deep-link-runner';
 import { GlobalOverlays } from '@/providers/global-overlays';
 import { hydrateAuth, useAuthStore } from '@/stores/auth-store';
 
-// strict 경고를 warn 으로 — 실제 오류는 여전히 출력된다. 사유는 docs/routing.md.
+// strict → warn. 오류는 그대로 출력된다. `docs/routing.md`.
 configureReanimatedLogger({ level: ReanimatedLogLevel.warn, strict: false });
 
-// 가려진 화면의 리렌더 동결. native-stack 은 최상단 바로 아래를 동결하지 않아 3장 이상
-// 깊이부터 효과가 난다 — docs/routing.md.
+// 가려진 화면 리렌더 동결. 3장 이상 깊이부터 효과 — `docs/routing.md`.
 enableFreeze(true);
 
-// 부팅 ① 동기 모듈 로드 — splash 를 거치지 않는 진입(딥링크·푸시)에도 실행된다.
+// 부팅 ① 동기 모듈 로드. splash 를 건너뛰는 진입에도 실행된다.
 loadSelectedTheme();
 setupReactQueryNativeListeners();
 hydrateAuth();
 
-// 네이티브 splash 는 여기서 잡는다 — 훅 안에서 잡으면 이미 늦다. 해제는
-// useSplashInitializer 의 finally 단독 소유.
+// 여기서 잡아야 한다 — 훅 안은 늦다. 해제는 useSplashInitializer 의 finally.
 SplashScreen.preventAutoHideAsync();
 // URL 이 비면 건너뛴다.
 if (Env.urls.ota) HotUpdater.init({ baseURL: Env.urls.ota });
 
-// anchor 는 아래 Stack 의 initialRouteName 과 같은 값이어야 한다 — expo-router 는 노드의
-// initialRouteName 을 unstable_settings 에서만 만든다(빼면 자식 정렬·딥링크 랭킹이 모른다).
+// 아래 Stack 의 initialRouteName 과 **같아야** 한다. expo-router 는 여기서만 읽는다.
 export const unstable_settings = { anchor: 'splash' };
 
 export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {

@@ -7,12 +7,12 @@ import { DEEP_LINK_HTTPS_HOSTS } from './src/constants/deep-link';
 
 import type { AppIconBadgeConfig } from 'app-icon-badge/types';
 
-// @types/node 를 devDep 으로 들이지 않으려고 require + 최소 단언으로 읽는다.
+// @types/node 를 안 들이려고 require + 단언.
 const { existsSync } = require('node:fs') as {
   existsSync: (path: string) => boolean;
 };
 
-// 빌드 전용 시크릿(.env 의 APP_BUILD_ONLY_*)은 이 파일에서만 읽는다 — docs/config.md.
+// `.env` 의 APP_BUILD_ONLY_* 는 이 파일에서만 읽는다 — docs/config.md.
 const STRICT = process.env.STRICT_ENV_VALIDATION === '1';
 function requireInStrict(key: string): string {
   const value = process.env[key];
@@ -25,14 +25,13 @@ function requireInStrict(key: string): string {
 }
 const mask = (value: string) => (value ? `****${value.slice(-4)}` : '(missing)');
 
-// TODO(앱): 실제 시크릿으로 교체해 config plugin 옵션에 넘긴다. expo.extra 에는 넣지 않는다.
+// TODO(앱): 실제 시크릿으로 교체. **expo.extra 에는 넣지 않는다.**
 const EXAMPLE_BUILD_SECRET = requireInStrict('APP_BUILD_ONLY_EXAMPLE_SECRET');
 if (STRICT) {
   console.log(`🔐 BUILD_SECRET APP_BUILD_ONLY_EXAMPLE_SECRET: ${mask(EXAMPLE_BUILD_SECRET)}`);
 }
 
-// 푸시 활성화 = plist + json 이 둘 다 있을 때. 없으면 RNFB 플러그인이 prebuild 에서
-// throw 하므로 게이트가 필요하다 — docs/push.md.
+// 푸시 활성화 = plist + json 둘 다. 없이 켜면 RNFB 가 prebuild 에서 throw — docs/push.md.
 const GOOGLE_SERVICES = {
   ios: `./firebase/GoogleService-Info.${APP_ENV}.plist`,
   android: `./firebase/google-services.${APP_ENV}.json`,
@@ -50,11 +49,10 @@ if (presentGoogleServices.length === 1) {
   console.log(`[push] disabled — firebase/ 에 ${APP_ENV} 설정 파일이 없습니다 (docs/push.md)`);
 }
 
-// 비우면 Xcode 자동 서명. 로컬 `expo run:ios --device` 에만 쓴다.
+// 비우면 Xcode 자동 서명.
 const APPLE_TEAM_ID = process.env.APP_BUILD_ONLY_APPLE_TEAM_ID ?? '';
 
-// 호스트 한 곳(constants/deep-link)에서 iOS·Android 를 같이 파생한다.
-// non-production 의 `?mode=developer` 는 AASA 캐시를 건너뛴다 — docs/boot.md.
+// 호스트 한 곳에서 iOS·Android 파생. `?mode=developer` 는 AASA 캐시를 건너뛴다.
 const UNIVERSAL_LINK_HOSTS = DEEP_LINK_HTTPS_HOSTS;
 const associatedDomains = UNIVERSAL_LINK_HOSTS.map(
   host => `applinks:${host}${APP_ENV === 'production' ? '' : '?mode=developer'}`
@@ -66,7 +64,7 @@ const universalLinkIntentFilters = UNIVERSAL_LINK_HOSTS.map(host => ({
   category: ['BROWSABLE', 'DEFAULT'],
 }));
 
-// dev/preview 아이콘에 환경·버전 배지 — 홈 화면에서 빌드를 구분한다.
+// dev/preview 아이콘에 환경·버전 배지.
 const appIconBadgeConfig: AppIconBadgeConfig = {
   enabled: APP_ENV !== 'production',
   badges: [
@@ -103,17 +101,17 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     ...(APPLE_TEAM_ID ? { appleTeamId: APPLE_TEAM_ID } : {}),
     ...(associatedDomains.length > 0 ? { associatedDomains } : {}),
     infoPlist: {
-      // 표준 암호화(HTTPS)만 쓴다는 선언 — 커스텀 암호화를 쓰면 true 로 바꾼다.
+      // 표준 암호화만 쓴다는 선언. 커스텀 암호화를 쓰면 true.
       ITSAppUsesNonExemptEncryption: false,
-      // 홈 화면 이름만 갈아끼운다 — `name`(ASCII)은 Xcode 프로젝트·스킴·PRODUCT_NAME 이 쓴다.
+      // 홈 화면 이름만. `name`(ASCII)은 Xcode 프로젝트·스킴이 쓴다.
       ...(Env.identity.displayName ? { CFBundleDisplayName: Env.identity.displayName } : {}),
-      // data-only/silent 푸시를 백그라운드에서 받아 notify-kit 이 그리려면 필요하다.
+      // data-only 푸시를 백그라운드에서 받으려면 필요.
       ...(pushEnabled ? { UIBackgroundModes: ['remote-notification'] } : {}),
     },
     ...(pushEnabled
       ? {
           googleServicesFile: GOOGLE_SERVICES.ios,
-          // development 인증서로 서명한 빌드가 production APNs 를 쓰면 토큰이 무효가 된다.
+          // development 서명 빌드가 production APNs 를 쓰면 토큰이 무효가 된다.
           entitlements: {
             'aps-environment': APP_ENV === 'production' ? 'production' : 'development',
           },
@@ -130,14 +128,14 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     package: Env.identity.package,
     versionCode: Env.version.androidVersionCode,
     predictiveBackGestureEnabled: false,
-    // Android 13+ 런타임 권한. 푸시가 꺼져 있어도 로컬 알림(notify-kit)에 필요하다.
+    // Android 13+ 런타임 권한. 푸시 off 에도 로컬 알림에 필요.
     permissions: ['android.permission.POST_NOTIFICATIONS'],
     ...(universalLinkIntentFilters.length > 0 ? { intentFilters: universalLinkIntentFilters } : {}),
     ...(pushEnabled ? { googleServicesFile: GOOGLE_SERVICES.android } : {}),
   },
   plugins: [
     'expo-router',
-    // OTA: 채널은 production 고정, 환경 분리는 서버 URL·버킷 — docs/boot.md.
+    // 채널은 production 고정. 환경 분리는 서버 URL·버킷.
     ['@hot-updater/react-native', { channel: 'production' }],
     'expo-font',
     'expo-image',
@@ -160,22 +158,22 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         imageWidth: 76,
       },
     ],
-    // static 은 무조건 — RNFB 는 푸시 off 에도 컴파일된다(docs/push.md).
+    // static 은 무조건 — RNFB 는 푸시 off 에도 컴파일된다.
     [
       'expo-build-properties',
       { ios: { useFrameworks: 'static' }, android: { enableProguardInReleaseBuilds: true } },
     ],
     ['react-native-permissions', { iosPermissions: ['Notifications'] }],
-    // 자체 플러그인 — android: 폴더블·release 서명 / ios: Podfile DisableSPM.
+    // 자체 플러그인 — 폴더블 · release 서명 · Podfile DisableSPM.
     ['./plugins/with-plugin', { pushEnabled, displayName: Env.identity.displayName }],
     ['app-icon-badge', appIconBadgeConfig],
-    // 어트리뷰션 SDK(선택) 자리 — 붙이면 한 줄 추가. 접점은 lib/deep-link/attribution.ts.
+    // 어트리뷰션 SDK(선택) 자리. 접점은 lib/deep-link/attribution.ts.
     ...PUSH_PLUGINS,
   ],
   experiments: {
     typedRoutes: true,
   },
-  // EAS 는 기본 미연결 — `eas init` 또는 아래 두 줄로 붙인다(docs/config.md "EAS").
+  // EAS 미연결. `eas init` 또는 아래 두 줄로 붙인다.
   // owner: 'your-expo-account',
   // extra: { eas: { projectId: 'xxxxxxxx-xxxx-...' } },
 });

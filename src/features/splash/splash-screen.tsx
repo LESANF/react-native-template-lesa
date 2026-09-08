@@ -11,8 +11,8 @@ import { wait } from '@/utils/wait';
 
 import { useSplashIntro } from './intro-gate';
 
-// app.config 의 expo-splash-screen backgroundColor 와 **같아야** 이음새가 없다.
-// TODO(앱): 브랜드 배경색·로고로 교체(두 곳을 함께).
+// app.config 의 expo-splash-screen backgroundColor 와 **같아야** 한다.
+// TODO(앱): 브랜드 배경색·로고로 교체(두 곳 함께).
 const SPLASH_BACKGROUND_COLOR = '#208AEF';
 const SPLASH_LOGO_SIZE = 76;
 
@@ -49,10 +49,10 @@ export function SplashScreen() {
   useEffect(() => {
     if (!isInitialized) return;
 
-    // 권한 스테이지 뒤에 시작한다 — 다이얼로그 전에 토큰을 받으러 가면 iOS 에서 경합한다.
+    // 권한 다이얼로그 전에 토큰을 받으면 iOS 에서 경합한다.
     startPushTokenSync();
 
-    // 성공 경로는 reload 로 재시작되므로 여기는 실패 경로에서만 도달한다.
+    // 성공은 reload 로 재시작 — 여기는 실패 경로만 도달.
     if (isOtaPending) {
       goToTabs();
       return;
@@ -62,13 +62,13 @@ export function SplashScreen() {
       console.warn('[Splash] Failures:', failures);
     }
 
-    // 반환값이 cleanup — unmount 되면 이동하지 않는다.
+    // 반환값이 cleanup — unmount 시 이동 안 함.
     return intro.start(goToTabs);
-    // failures 는 매 업데이트마다 새 참조라 deps 제외 — 변경 신호는 length.
+    // failures 는 매번 새 참조 — 변경 신호는 length.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isInitialized, isOtaPending, failureCount, goToTabs, intro]);
 
-  // OTA 다운로드 중. 성공하면 reload 로 이 화면째 사라진다.
+  // OTA 다운로드 중. 성공하면 reload.
   if (isOtaPending) {
     return (
       <View className="flex-1 items-center justify-center bg-white">

@@ -58,7 +58,7 @@ function toHttpError(error: AxiosError): ApiError {
 
   const status = response.status;
   const code = readStringField(response.data, ['code', 'errorCode']) ?? API_ERROR_CODES.http;
-  // statusText는 RN에서 빈 문자열('')인 경우가 흔해 ??가 아니라 ||로 거른다.
+  // RN 의 statusText 는 빈 문자열이 흔해 `??` 가 아니라 `||`.
   const message =
     readStringField(response.data, ['message', 'error', 'detail']) ||
     response.statusText ||

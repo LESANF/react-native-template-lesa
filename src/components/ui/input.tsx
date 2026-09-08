@@ -18,7 +18,7 @@ const input = tv({
   },
 });
 
-// RHF/zod 제어 입력은 auth/form 단계에서 별도 ControlledInput으로 추가한다.
+// RHF/zod 제어 입력은 별도 ControlledInput 으로.
 export type InputProps = TextInputProps & {
   label?: string;
   error?: string;
@@ -35,7 +35,7 @@ export function Input({
   onFocus,
   onBlur,
   ref,
-  // Text 와 동일 — 디바이스 시스템 폰트 스케일이 레이아웃을 깨는 것을 막는다(참조 앱 KR/JP 동일 정책).
+  // 시스템 폰트 스케일이 레이아웃을 깨는 것을 막는다(Text 와 동일).
   allowFontScaling = false,
   ...props
 }: InputProps) {
@@ -58,7 +58,7 @@ export function Input({
         ref={ref}
         allowFontScaling={allowFontScaling}
         editable={!disabled}
-        // Uniwind는 placeholder 색을 accent prefix로 추출한다.
+        // Uniwind 는 placeholder 색을 accent prefix 로 추출한다.
         placeholderTextColorClassName="accent-muted-foreground"
         style={{ includeFontPadding: false, textAlignVertical: 'center' }}
         className={styles.field({ className })}

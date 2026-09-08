@@ -11,15 +11,14 @@ import { Text } from './text';
 export { popup };
 export type { PopupChoice, PopupOptions } from '@/stores/overlay';
 
-// 전역 확인 팝업 호스트 — GlobalOverlays가 마운트한다. 열기/닫기는 popup.confirm/close.
-// 렌더는 store 구독, 선택 결과는 store에 든 resolve로 호출부 Promise에 전달된다.
+// 전역 확인 팝업 호스트. 결과는 store 의 resolve 로 호출부 Promise 에 전달된다.
 export function GlobalPopup() {
   const current = useOverlayStore(state => state.popup);
 
   useEffect(() => {
     if (!current) return;
 
-    // 팝업이 열린 동안 Android 뒤로가기는 항상 소비한다. dismissible이면 취소로 닫는다.
+    // 열린 동안 Android 뒤로가기를 소비한다. dismissible 이면 취소로 닫는다.
     const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
       if (current.dismissible) popup.close('cancel', current.id);
       return true;
@@ -32,7 +31,7 @@ export function GlobalPopup() {
 
   const { id, title, message, confirmText, cancelText, dismissible, blur } = current;
   const isStringMessage = typeof message === 'string' || typeof message === 'number';
-  // Dimmed의 blur는 판별 유니언(true | false)이라 boolean을 바로 못 넘긴다.
+  // Dimmed 의 blur 는 판별 유니언이라 boolean 을 바로 못 넘긴다.
   const dimmedVisual = blur ? ({ blur: true } as const) : ({ blur: false } as const);
 
   return (

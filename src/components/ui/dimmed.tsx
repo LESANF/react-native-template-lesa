@@ -42,7 +42,7 @@ export type LoadingDimmedProps = DimmedVisualProps & {
 
 export type DimmedProps = DismissibleDimmedProps | LoadingDimmedProps;
 
-// Dimmed는 store를 모른다. popup/sheet/loading 화면이 직접 렌더하고 생명주기를 소유한다.
+// store 를 모른다 — 생명주기는 호출 화면이 소유한다.
 const DEFAULT_BLUR_AMOUNT = 5;
 const DEFAULT_SCRIM_COLOR = 'black';
 const DEFAULT_SCRIM_OPACITY = 0.5;
@@ -75,10 +75,10 @@ export function Dimmed(props: DimmedProps) {
       style={StyleSheet.absoluteFill}>
       {blur && (
         <BlurView
-          // community/blur의 blurAmount(0~10대) 감도를 expo-blur intensity(0~100)로 환산
+          // blurAmount(0~10) → expo-blur intensity(0~100) 환산.
           intensity={blurAmount * 10}
           tint="dark"
-          // Android 기본은 반투명 틴트만 — 실제 블러를 원하면 이 실험 옵션이 필요
+          // Android 기본은 틴트만 — 실제 블러엔 이 실험 옵션이 필요.
           experimentalBlurMethod="dimezisBlurView"
           pointerEvents="none"
           style={StyleSheet.absoluteFill}

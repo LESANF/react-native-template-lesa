@@ -51,7 +51,7 @@ type ButtonVariants = VariantProps<typeof button>;
 export type ButtonProps = {
   children: ReactNode;
   loading?: boolean;
-  /** 기본은 더블탭 방지용 throttle on. 입력 필드/반복 액션처럼 즉시 반응이 필요하면 끈다. */
+  /** 더블탭 방지 throttle. 즉시 반응이 필요하면 끈다. */
   throttleDisabled?: boolean;
   className?: string;
 } & PressableProps &
@@ -72,8 +72,7 @@ export function Button({
   const styles = button({ variant, size, disabled: isDisabled, loading });
   const isCompact = variant === 'ghost' || variant === 'link';
 
-  // 더블탭 방지: leading-edge 500ms. ref 읽기/쓰기를 이벤트 핸들러 안으로 한정해
-  // react-hooks/refs 규칙을 지키면서, onPress는 항상 현재 렌더의 최신 값을 쓴다.
+  // leading-edge 500ms. ref 접근을 핸들러 안으로 한정해 react-hooks/refs 를 지킨다.
   const lastPressAtRef = useRef(0);
   const handlePress = (e: GestureResponderEvent) => {
     if (!throttleDisabled) {
@@ -94,7 +93,7 @@ export function Button({
       onPress={handlePress}
       {...props}>
       {loading ? (
-        // 현재 로띠는 흰색 에셋이라 primary 계열 로딩에 맞춘다.
+        // 로띠가 흰색 에셋이라 primary 계열에 맞춘다.
         <LottieView source={dotLoadingWhite} autoPlay loop style={{ width: 60, height: 60 }} />
       ) : typeof children === 'string' || typeof children === 'number' ? (
         <Text className={styles.text()}>{children}</Text>

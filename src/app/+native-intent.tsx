@@ -1,7 +1,6 @@
 /**
- * OS 링크를 라우팅 전에 가로챈다 — cold/bg 동작은 `docs/boot.md`.
- * **enqueue 하지 않는다** — RN Linking 이 같은 링크를 이미 물고 있어 중복이 된다.
- * React 밖이라 스토어는 `getState()` 스냅샷만.
+ * OS 링크를 라우팅 전에 가로챈다 — `docs/boot.md`.
+ * **enqueue 금지**(RN Linking 과 중복). React 밖이라 스토어는 `getState()` 만.
  */
 
 import { Env } from '@env';
@@ -33,7 +32,7 @@ function isDeepLink(path: string): boolean {
 export function redirectSystemPath({ path, initial }: { path: string; initial: boolean }): string {
   console.log('[+native-intent:redirectSystemPath] in:', { initial });
   try {
-    // 우리 링크가 아니면(앱 내부 라우팅 등) 손대지 않는다.
+    // 우리 링크가 아니면 손대지 않는다.
     if (!isDeepLink(path)) return path;
 
     if (initial) {
@@ -45,17 +44,17 @@ export function redirectSystemPath({ path, initial }: { path: string; initial: b
     const parsed = parseDeepLink(path);
     const handler = parsed ? matchRoute(parsed) : null;
 
-    // 게이트가 우선인 라우트 — 그 화면을 먼저 깔고 dispatcher 가 위에서 진행한다.
+    // 게이트 우선 라우트 — 그 화면을 먼저 깐다.
     if (handler?.safeFallbackExpoPath) return handler.safeFallbackExpoPath;
 
-    // 비인증 + auth 게이트 — 화면 mount 를 막는다(401 무한 cycle 방지).
+    // 비인증 + auth 게이트 — mount 를 막는다(401 무한 cycle).
     if (handler?.gates.includes('auth') && useAuthStore.getState().status !== 'signedIn') {
       return SAFE_FALLBACK_PATH;
     }
 
     return handler?.expoPath ?? SAFE_FALLBACK_PATH;
   } catch (error) {
-    // 여기서 throw 하면 앱이 링크로 열릴 때마다 죽는다. 무슨 일이 있어도 경로를 돌려준다.
+    // throw 하면 링크로 열 때마다 죽는다. 무조건 경로를 돌려준다.
     console.error('[deep-link/native-intent] error', error);
     return SAFE_REDIRECT_PATH;
   }

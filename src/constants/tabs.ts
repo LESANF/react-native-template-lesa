@@ -1,6 +1,6 @@
 /**
- * 탭 아이콘 매핑. 추가·교체 4단계는 `docs/ui.md` "탭 아이콘 교체".
- * **폴더 탭은 그 폴더에 `_layout.tsx` 가 있어야 등록된다** — 없으면 조용히 빠진다.
+ * 탭 아이콘 매핑. 교체 4단계는 `docs/ui.md`.
+ * **폴더 탭은 `_layout.tsx` 가 있어야 등록된다** — 없으면 조용히 빠진다.
  */
 import { tabRoutes } from './tab-routes';
 
@@ -37,7 +37,7 @@ type TabConfig = {
   readonly nativeIcon: NativeTabIcon;
 };
 
-// 순수 route 데이터는 `./tab-routes` 에 — 아이콘 없이 읽어야 하는 곳이 있다.
+// 순수 route 데이터는 `./tab-routes`.
 export { tabRoutes } from './tab-routes';
 
 export const tabs = [

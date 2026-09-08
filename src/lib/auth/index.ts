@@ -28,7 +28,7 @@ async function runRefreshAccessToken() {
   try {
     const tokens = await requestRefreshAccessToken(refreshToken);
 
-    // refresh 사이 세션이 바뀌었다면 이전 응답을 폐기해 새 세션을 덮지 않는다.
+    // refresh 사이 세션이 바뀌면 이전 응답을 폐기한다.
     if (useAuthStore.getState().token !== sessionToken) {
       throw new ApiError({
         code: 'AUTH_SESSION_CLOSED',
@@ -51,8 +51,7 @@ async function runRefreshAccessToken() {
   }
 }
 
-// 동시에 여러 요청이 401을 맞아도 refresh 네트워크 호출은 1회만 나가도록
-// 진행 중인 Promise를 공유한다(single-flight). 완료 후 해제되어 다음 만료 때 재사용된다.
+// single-flight — 여러 요청이 401 을 맞아도 refresh 는 1회.
 export function refreshAccessToken(): Promise<string> {
   if (refreshInFlight) return refreshInFlight;
 
