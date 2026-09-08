@@ -20,13 +20,10 @@ if (isPushConfigured) {
   console.log('[push] disabled — Firebase 미구성(getApps()=0)');
 }
 
-/**
- * 우리가 그린 알림(로컬·포그라운드 배너)의 탭. notify-kit 의 background 는
- * "백그라운드 또는 종료" 둘 다다. 프로세스당 1회, 모듈 스코프에서만 등록된다.
- */
+/** notify-kit 의 background 는 "백그라운드 또는 종료" 둘 다다. 프로세스당 1회. */
 notifee.onBackgroundEvent(async ({ type, detail }) => {
   if (type === EventType.PRESS) enqueuePushTap(extractFromNotifeeDetail(detail), 'background');
 });
 
-// 첫 알림이 fallback 채널로 떨어지지 않게 부팅 즉시 시작한다.
+// 첫 알림이 fallback 채널로 떨어지지 않게 부팅 즉시.
 void ensurePushChannel();

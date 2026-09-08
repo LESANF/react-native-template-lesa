@@ -141,6 +141,44 @@ duplication. Third usage: promote to components/ui + add one line to the
 barrel. Consumers always import from '@/components/ui', so post-promotion
 churn is zero.
 
+## 탭 아이콘 교체 — 4단계
+
+1. `assets/icons/tabs/<name>.svg` 를 넣는다 (32×32 viewBox, 단색 path, `fill="black"`).
+2. `pnpm icons:tabs` → `<name>.png/@2x/@3x`(기본색)와 `<name>-selected*`(선택색) 6장이 생성된다.
+   NativeTabs(iOS 26·Android)가 이 PNG 쌍을 쓴다. 색은 `scripts/gen-tab-icons.sh` 상단 두 값.
+3. `components/icons/tabs.tsx` 에 같은 path 로 SVG 컴포넌트를 추가한다 — NativeTabs 를 못 쓰는
+   fallback 커스텀 탭바가 `color` prop 으로 칠한다.
+4. `constants/tab-routes.ts` 의 `tabRoutes`(순수 데이터)와 `constants/tabs.ts` 의 `tabs`
+   (아이콘 매핑)에 한 줄씩 추가한다.
+
+**폴더 탭은 그 폴더에 `_layout.tsx` 가 있어야 등록된다** — 없으면 조용히 빠진다.
+
+순수 route 데이터를 `tab-routes.ts` 로 분리한 이유: 아이콘 없이 읽어야 하는 곳(딥링크 matcher,
+네비게이션 유틸)이 `tabs.ts` 의 SVG·PNG import 를 끌고 오지 않게 하려는 것이다.
+
+## i18n — 단일 언어로 시작해 나중에 다국어로
+
+`src/lib/i18n` 은 `resources` 가 비어 있는 상태로 셋업돼 있다. 그러면 `t('안녕하세요')` 가
+`'안녕하세요'` 를 그대로 반환하므로, **화면에는 한국어를 바로 적고 번역 파일은 만들지 않는다.**
+
+```tsx
+<Text>{t('안녕하세요')}</Text>
+```
+
+다국어가 필요해지는 날 JSX 는 한 줄도 안 바꾼다:
+
+```ts
+import en from '@/translations/en.json';
+resources: { ko: ..., en: { translation: en } }
+// 이후 changeLanguage('en') 하면 같은 <Text> 가 매핑된 영어로 나온다
+```
+
+- `USE_DEVICE_LANGUAGE` 를 `true` 로 바꾸면 디바이스 언어를 따라간다(기본 off, 단일 언어면
+  켜도 결과가 같다). `expo-localization` 의존성은 이미 있다.
+- `keySeparator` · `nsSeparator` 를 `false` 로 둔 이유: 한국어 문장의 `.` `:` 를 중첩키·
+  네임스페이스로 오해하지 않게 한다(`'확인.'` 이 깨지지 않게).
+- `resources` 에 없는 언어는 `fallbackLng` 가 받는다.
+
 ## 거부된 대안 (다시 제안하지 말 것)
 
 - 토큰을 JS 객체로 → CSS `@theme` 이 단일 출처. Tailwind v4 의 `@config` 는 semantic 계층에

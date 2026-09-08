@@ -11,7 +11,7 @@ import { wait } from '@/utils/wait';
 
 import { useSplashIntro } from './intro-gate';
 
-// app.config의 expo-splash-screen backgroundColor와 같아야 네이티브 → JS 전환에 이음새가 없다.
+// app.config 의 expo-splash-screen backgroundColor 와 **같아야** 이음새가 없다.
 // TODO(앱): 브랜드 배경색·로고로 교체(두 곳을 함께).
 const SPLASH_BACKGROUND_COLOR = '#208AEF';
 const SPLASH_LOGO_SIZE = 76;
@@ -27,8 +27,7 @@ export function SplashScreen() {
     hasNavigatedRef.current = true;
 
     if (deepLinkDispatcher.hasQueue()) {
-      // 게이트가 있는 라우트의 safeFallbackExpoPath 가 있으면 그 위에 게이트 UI 가 뜨도록 먼저 그 화면으로.
-      // 미등록 링크면 홈으로 — 이 분기가 없으면 dispatcher 가 noop 하고 splash 에 갇힌다 (KR 그대로).
+      // 이 분기가 없으면 미등록 링크에서 dispatcher 가 noop 하고 splash 에 갇힌다.
       const safeFallback = deepLinkDispatcher.peekSafeFallback();
       if (safeFallback) {
         router.replace(safeFallback as Href);
@@ -36,12 +35,10 @@ export function SplashScreen() {
         return;
       }
 
-      // 등록 라우트 + fallback 미지정: dispatcher 가 handler.navigate 로 reset/replace 위임.
       deepLinkDispatcher.notifySplashClosed();
       return;
     }
 
-    // 일반 cold: 기본 (tabs) 로.
     router.replace('/(tabs)');
     // dispatcher drain 과 router.replace 충돌 방지
     void wait(SPLASH_HANDOFF_DELAY_MS).then(() => deepLinkDispatcher.notifySplashClosed());
@@ -52,12 +49,10 @@ export function SplashScreen() {
   useEffect(() => {
     if (!isInitialized) return;
 
-    // 권한 스테이지 뒤에 시작한다 — 권한 다이얼로그 전에 토큰을 받으러 가면 iOS 에서 경합한다
-    // (참조 앱 결함 D1 수정). 앱 수명 싱글턴이라 cleanup 은 없다(splash 는 곧 unmount).
+    // 권한 스테이지 뒤에 시작한다 — 다이얼로그 전에 토큰을 받으러 가면 iOS 에서 경합한다.
     startPushTokenSync();
 
-    // OTA 업데이트를 시도한 경우 바로 탭 이동.
-    // 성공 경로는 reload로 앱이 재시작되므로 이 라인은 실패 경로에서만 도달.
+    // 성공 경로는 reload 로 재시작되므로 여기는 실패 경로에서만 도달한다.
     if (isOtaPending) {
       goToTabs();
       return;
@@ -67,13 +62,13 @@ export function SplashScreen() {
       console.warn('[Splash] Failures:', failures);
     }
 
-    // 인트로 게이트(KR 은 영상 재생 종료) 가 끝나면 이동. 반환값이 cleanup — unmount 되면 이동하지 않는다.
+    // 반환값이 cleanup — unmount 되면 이동하지 않는다.
     return intro.start(goToTabs);
-    // failures 배열은 매 업데이트마다 새 참조라 deps 제외. 실제 변경 신호는 length로 판단.
+    // failures 는 매 업데이트마다 새 참조라 deps 제외 — 변경 신호는 length.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isInitialized, isOtaPending, failureCount, goToTabs, intro]);
 
-  // OTA 다운로드 중 — 흰 배경 + 인디케이터. 성공하면 reload로 이 화면째로 사라진다.
+  // OTA 다운로드 중. 성공하면 reload 로 이 화면째 사라진다.
   if (isOtaPending) {
     return (
       <View className="flex-1 items-center justify-center bg-white">

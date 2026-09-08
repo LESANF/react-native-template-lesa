@@ -1,15 +1,6 @@
 /**
- * env.ts — defineEnv 기계. 템플릿 소유 파일이며 프로젝트에서 수정할 일이 없습니다.
- *
- * 값을 바꾸려면 env-candidates.ts 를 편집하세요.
- *
- * 동작: env-candidates.ts 의 트리를 재귀 순회하며,
- * { development, preview, production } 모양의 leaf 를 현재 환경 값으로 치환.
- * - 환경 키가 일부만 있는 record → 경로를 표시하며 throw (조용한 버그 차단)
- * - 잘못된 EXPO_PUBLIC_APP_ENV 값 → throw, 미설정 → 'development'
- *
- * process.env 읽기는 아래 EXPO_PUBLIC_APP_ENV 한 곳뿐입니다.
- * (정적 멤버 접근 — Metro 가 클라이언트 번들에 인라인하는 조건)
+ * defineEnv 기계. **값은 여기가 아니라 `env-candidates.ts` 에서 바꾼다.**
+ * `process.env` 읽기는 아래 한 곳뿐이다 — 정적 멤버 접근이어야 Metro 가 번들에 인라인한다.
  */
 import { values } from './env-candidates';
 
@@ -73,14 +64,12 @@ function resolveNode(node: unknown, appEnv: AppEnv, path: string): unknown {
   return out;
 }
 
-/** 테스트용 — 환경을 명시해서 트리를 해석한다. */
 export function defineEnvWith<T>(tree: T, appEnv: AppEnv): ResolveTree<T>;
 export function defineEnvWith(tree: unknown, appEnv: AppEnv): unknown;
 export function defineEnvWith(tree: unknown, appEnv: AppEnv): unknown {
   return resolveNode(tree, appEnv, 'Env');
 }
 
-/** 공개 표면 — 현재 APP_ENV 를 자동 적용한다. */
 export function defineEnv<T>(tree: T): ResolveTree<T> {
   return defineEnvWith(tree, APP_ENV);
 }
