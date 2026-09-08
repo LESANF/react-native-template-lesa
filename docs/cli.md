@@ -1,6 +1,6 @@
 # create-lesa-app — 프로젝트 생성 CLI
 
-`npm create lesa-app <dir>` 로 이 템플릿에서 새 프로젝트를 만든다.
+이 템플릿에서 새 프로젝트를 만든다(실행 방법은 맨 아래 "실행 방법").
 CLI 코드는 이 레포가 아니라 `future/ascii-cli-test`(→ `create-lesa-app`)에 있고,
 **치환 대상은 이 문서가 단일 출처다** — 템플릿 필드가 바뀌면 여기와 CLI 를 같이 고친다.
 
@@ -8,53 +8,62 @@ CLI 코드는 이 레포가 아니라 `future/ascii-cli-test`(→ `create-lesa-a
 
 ```
 create-lesa-app/                     (`future/ascii-cli-test` 를 살림. 지금은 npm 미발행)
-  lesa-appkit-intro.tsx              .asciimtn 파서 + ink 렌더 (아직 배선 안 함)
   src/derive.ts                      slug → 전 필드 파생 (순수 함수, 테스트 대상)
+  src/flow.ts                        프롬프트 스텝 머신 (순수 함수 — TTY 없이 테스트한다)
   src/apply.ts                       env-candidates.ts 치환 · .env 생성
   src/copy.ts                        `git ls-files` 로 추적 파일만 복사 (배포 방식이 바뀌면 이 파일만 교체)
   src/create.ts                      오케스트레이션 + 실패 시 cleanup (UI 없이 테스트 가능)
-  src/index.tsx                      진입점 — 인자 파싱 + ink render
+  src/index.tsx                      진입점 — 인자 파싱 + 인트로 + ink render
   src/ui.tsx                         프롬프트(ink). preview.js 의 팔레트·StepRail 재사용
-  assets/lesa-appkit.asciimtn        인트로 애니메이션
+  src/intro.tsx                      ASCII 워드마크 — 1회 재생 후 마지막 프레임에 정지
+  src/flow.test.mjs                  스텝 머신·파생 회귀 테스트 (`pnpm test`)
+  src/assets/intro.json              구운 인트로 프레임 (56KB)
+  scripts/bake-intro.mjs             .asciimtn(822KB) → intro.json (`pnpm bake-intro`)
+  assets/lesa-appkit.asciimtn        인트로 원본 (ascii-motion 프로젝트 파일)
 ```
 
 ## 질문 플로우
 
 ```
-[인트로 ASCII 애니메이션]
+[인트로 ASCII 워드마크 — 1회 재생 후 배너로 정지]
 
-? 앱 이름을 어떻게 쓰시나요?
-    › 한글    (예: 워크아웃)
-      영문    (예: workout)
+◆ 01 NAME  ──  ○ 02 SLUG  ──  ○ 03 TEAM  ──  ○ 04 READY
 
-── 한글 ──────────────────────────
-? 앱 이름 (한글)        워크아웃
-? slug (영문, 소문자)   workout
-
-── 영문 ──────────────────────────
-? 앱 이름 (영문)        workout        ← slug 로도 쓴다
-
+? App name         워크아웃        ← 언어 무관
+    ├─ ASCII 면    slug 로 재사용하고 02 를 건너뛴다
+    └─ 비ASCII 면  ? Slug          workout
 ? Apple Team ID  (선택, Enter 로 건너뛰기)
+
+04 READY 에서 파생 결과(scheme·bundleId·package·version)를 보여주고 Enter 로 생성한다.
 ```
 
-**질문 2~3개.** 한글에서 ASCII 를 자동 변환하지 않는다 — 로마자 변환은 손실이 크고
-(`워크아웃` → `weokeuaus`), 이 값이 Xcode 프로젝트명·스킴·`PRODUCT_NAME` 이 된다.
+**질문 2~3개.** 언어를 고르게 하지 않는다 — 이름이 `^[a-z][a-z0-9-]*$` 를 통과하면 그게
+곧 slug 이고, 아니면 slug 을 한 번 더 묻는다(선택 질문 하나가 줄고 분기가 값에서 나온다).
+한글에서 ASCII 를 자동 변환하지 않는다 — 로마자 변환은 손실이 크고 (`워크아웃` →
+`weokeuaus`), 이 값이 Xcode 프로젝트명·스킴·`PRODUCT_NAME` 이 된다.
+
+**사용자에게 보이는 문구는 영어다.** 코드 주석·이 문서는 한국어를 유지한다.
 
 ## 파생 규칙
 
 `slug` 하나에서 전부 나온다. production 은 접미사가 없다(템플릿 자리표시와 같은 컨벤션).
 
-| 필드                         | development                | preview              | production   |
-| ---------------------------- | -------------------------- | -------------------- | ------------ |
-| `identity.name`              | `<slug>` (전 환경 공통)    |                      |              |
-| `identity.displayName`       | 한글 입력값, 영문이면 `''` |                      |              |
-| `identity.slug`              | `<slug>`                   |                      |              |
-| `identity.scheme`            | `<slug>-dev`               | `<slug>-preview`     | `<slug>`     |
-| `identity.bundleId`          | `com.<slug>.development`   | `com.<slug>.preview` | `com.<slug>` |
-| `identity.package`           | bundleId 와 동일           |                      |              |
-| `version.app`                | `0.0.1`                    | `0.0.1`              | `0.0.1`      |
-| `version.iosBuildNumber`     | `1`                        | `1`                  | `1`          |
-| `version.androidVersionCode` | `1`                        | `1`                  | `1`          |
+| 필드                         | development                | preview               | production    |
+| ---------------------------- | -------------------------- | --------------------- | ------------- |
+| `identity.name`              | `<slug>` (전 환경 공통)    |                       |               |
+| `identity.displayName`       | 한글 입력값, 영문이면 `''` |                       |               |
+| `identity.slug`              | `<slug>`                   |                       |               |
+| `identity.scheme`            | `<slug>-dev`               | `<slug>-preview`      | `<slug>`      |
+| `identity.bundleId`          | `com.<slug*>.development`  | `com.<slug*>.preview` | `com.<slug*>` |
+| `identity.package`           | bundleId 와 동일           |                       |               |
+| `version.app`                | `0.0.1`                    | `0.0.1`               | `0.0.1`       |
+| `version.iosBuildNumber`     | `1`                        | `1`                   | `1`           |
+| `version.androidVersionCode` | `1`                        | `1`                   | `1`           |
+
+`<slug*>` = **하이픈을 제거한 slug**. `android.package` 는 "문자·숫자·밑줄만, 점으로 구분"
+이라 하이픈을 못 쓴다(SDK 57 app config 문서 확인). iOS bundleId 는 허용하지만 둘을 같게
+두려고 같은 값을 쓴다 — `gym-log` → `com.gymlog.development`. `scheme` 은 패턴이
+`^[a-z][a-z0-9+.-]*$` 라 하이픈을 그대로 둔다(`gym-log-dev`).
 
 `slug` 검증: `^[a-z][a-z0-9-]*$`. 대문자·공백·한글은 거부하고 다시 묻는다.
 Xcode 프로젝트명은 `sanitizedName()` 이 non-word 를 지우므로 ASCII 가 아니면 `app` 이 된다
@@ -109,7 +118,16 @@ CLI 가 `.env` 를 미리 만들어 그 줄만 채운다.
   `.git` 은 복사하지 않는다.
 - **npm 에 발행하지 않는다(지금).** 로컬에서 `pnpm link` 또는 `npx .` 으로 쓴다.
   패키지명 `create-lesa-app` 은 선점만 해둔 상태(npm 로그인 `lesanf` 확인).
+- **언어 선택 질문을 두지 않는다(2026-09-08).** 이름이 slug 패턴을 통과하는지로 분기한다.
+  선택 질문은 사용자가 답을 알아야 하지만, 이 분기는 입력값에서 나온다.
 - **한글 이름은 두 번 묻는다.** 자동 로마자 변환 금지(위 "질문 플로우").
+- **스텝 전이는 `flow.ts` 순수 함수.** `useInput` 안에 있으면 TTY 없이는 한 줄도 검증할 수
+  없다 — 실제로 slug 스텝이 정말 뜨는지 확인이 불가능했다. UI 는 그리기만 한다.
+- **인트로는 1회 재생 후 정지.** 글리프는 10프레임 모두 같고 색만 흐른다. 루프로 두면
+  프롬프트 위에서 계속 리렌더된다. 정지 후에는 매 렌더 출력이 같아 비용이 없다.
+- **인트로 프레임을 미리 굽는다.** 822KB JSON 을 런타임에 파싱하고 셀마다 `<Text>` 를 만들면
+  ink 노드가 1020 개다. 행별 색 런으로 접어 56KB · 프레임당 ~262 노드
+  (`scripts/bake-intro.mjs`, 재실행으로 재생성 가능).
 - **`slug` 하나가 단일 입력.** scheme·bundleId·package 를 따로 묻지 않는다 — 개별 조정은
   생성 후 `env-candidates.ts` 한 줄이다.
 - **버전은 묻지 않는다.** 전부 `0.0.1` / `1`.
@@ -130,13 +148,16 @@ CLI 가 `.env` 를 미리 만들어 그 줄만 채운다.
   (`자체 OTA 서버`: 자체 서버), 로컬 절대 경로를 담고 있다. 시크릿은 없지만 사내
   프로덕션 앱의 약점은 공개할 성질이 아니다. 공개하려면 `docs/` 를 먼저 일반화해야 한다.
 - private npm 패키지($7/월) → 지금은 로컬 복사로 충분하다.
+- **한글/영문 선택 질문 → 거부(2026-09-08).** 값에서 판별할 수 있는 것을 사람에게 묻는다.
+- 인트로 애니메이션 루프 재생 → 프롬프트 위에서 매 프레임 리렌더된다.
+- `.asciimtn` 을 런타임에 파싱 → 822KB · ink 노드 1020 개.
 
 ## 채우는 곳 (CLI 쪽 TODO)
 
 | 어디                          | 무엇                                                                      |
 | ----------------------------- | ------------------------------------------------------------------------- |
 | 템플릿 폴더 경로              | 지금은 인자나 상대 경로로 받는다. 배포 방식이 정해지면 `copy.ts` 를 교체  |
-| `assets/lesa-appkit.asciimtn` | 822KB. 로컬 복사 방식에선 문제없지만 npm 발행 시 자를지 결정 필요         |
+| `assets/lesa-appkit.asciimtn` | 822KB 원본. 발행 시엔 `src/assets/intro.json`(56KB)만 있으면 되므로 제외  |
 | 배포 방식                     | 템플릿 완성 후 결정 — public + tarball(docs 일반화 선행) 또는 private npm |
 
 ## 검증 상태 (2026-09-07 구현·검증)
@@ -158,11 +179,30 @@ CLI 가 `.env` 를 미리 만들어 그 줄만 채운다.
 | 인자 검증                | 대상·템플릿 경로 누락 시 사용법 출력                                                                                                            |
 | `tsc --noEmit`           | 통과(`@types/node` + tsconfig 추가)                                                                                                             |
 
+**2026-09-08 추가 검증** (`pnpm test` + pty 로 실제 CLI 를 구동):
+
+| 무엇               | 결과                                                                                                                                  |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------- |
+| 스텝 머신 7군      | ASCII 이름은 slug 스킵 · 비ASCII 는 slug 필수 · 빈값/공백 거부 · 잘못된 slug 6종 재질문 · 이름을 비ASCII 로 고치면 slug 재질문 · trim |
+| 인트로 렌더        | pty 로 워드마크 출력 확인, 1회 재생 후 정지                                                                                           |
+| 전 구간 구동(한글) | `워크아웃`+`workout`+TeamID → 216파일 커밋 · `displayName='워크아웃'` · `.env` Team ID                                                |
+| 전 구간 구동(영문) | `gym-log` → slug 스텝 건너뜀 · Team ID 생략 시 "Xcode automatic signing"                                                              |
+| 파일 수 일치       | 생성 216 = 템플릿 `git ls-files` 216                                                                                                  |
+
+**고친 결함(같은 구동에서 발견):**
+
+- **하이픈 slug 이 잘못된 Android package 를 만들었다.** `gym-log` → `com.gym-log.development`.
+  `android.package` 는 하이픈을 못 쓴다(문서 확인). 리버스 도메인에서만 하이픈을 제거한다.
+- **줄바꿈이 섞인 붙여넣기가 값에 `\r` 로 들어갔다.** ink 는 `input === '\r'` 일 때만
+  `key.return` 을 세우므로 `'workout\r'` 한 덩어리는 전부 텍스트가 된다. 제어문자를 걷어내고
+  줄바꿈이 있었으면 Enter 로 본다.
+- READY 요약의 라벨 열 폭이 11 이라 `displayName워크아웃` 으로 붙었다 → 13.
+
 **미검증 — 사용자 몫:**
 
-- **대화형 UI 조작.** `useInput` 이 raw mode 를 요구해 TTY 가 아닌 환경에서는 렌더 자체가
-  안 된다. 실제 화면·키 입력(↑↓/jk·Enter·Esc·백스페이스)은 터미널에서 확인해야 한다.
-- 인트로 애니메이션(`lesa-appkit-intro.tsx`)은 아직 배선하지 않았다.
+- **실제 키 입력.** pty 로 구동했으나 실기 터미널에서의 IME(한글 조립)·백스페이스·Esc 는
+  확인해야 한다. 특히 **터미널 한글 IME 조립 중간 상태**는 ink 가 조합 완료 문자만 받는지
+  미확인이다.
 - 생성된 프로젝트의 실기 빌드·실행.
 
 **실행 방법 (지금):**

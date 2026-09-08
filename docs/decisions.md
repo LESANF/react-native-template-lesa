@@ -26,6 +26,8 @@ Each section records: the decision, the reasoning, and what is deferred.
 | 2026-09-07 | 어트리뷰션 SDK — 선택, 뗐다 붙였다                             | [boot.md](boot.md)       |
 | 2026-09-07 | 푸시 표시 정책 — KR 방식(백그라운드/종료는 OS)                 | [push.md](push.md)       |
 | 2026-09-07 | CLI `create-lesa-app` — slug 하나에서 전 필드 파생             | [cli.md](cli.md)         |
+| 2026-09-08 | CLI — 언어 선택 폐기, 이름이 slug 패턴이면 재사용              | [cli.md](cli.md)         |
+| 2026-09-08 | Android package 는 하이픈 불가 — 리버스 도메인에서만 제거      | [cli.md](cli.md)         |
 
 ## Data Layer — current template (updated 2026-08-24)
 
