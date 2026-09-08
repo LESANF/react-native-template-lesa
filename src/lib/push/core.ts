@@ -1,8 +1,6 @@
 /**
- * 푸시 공통 코어 — 활성화 스위치 · 채널/표시 설정 · payload → 딥링크 합류.
- *
- * headless(entry) 경로와 React 경로가 **같은 함수**를 쓴다. 그래서 여기는
- * React·스토어를 절대 import 하지 않는다(background.ts 가 이 모듈만 보고 동작해야 한다).
+ * 푸시 공통 코어. headless(entry) 와 React 가 같은 함수를 쓰므로
+ * **React·스토어를 import 하면 안 된다** — `docs/push.md`.
  */
 
 import { getApps } from '@react-native-firebase/app';
@@ -15,14 +13,9 @@ import { deepLinkDispatcher } from '@/lib/deep-link/dispatcher';
 
 import type { EntrySource } from '@/lib/deep-link/types';
 
-/**
- * "주입 = 활성화". firebase/ 설정 파일이 없으면 app.config 가 RNFB 플러그인을 넣지 않고,
- * 그러면 네이티브가 FirebaseApp 을 초기화하지 않아 `getApps()` 가 빈 배열이다.
- * 이 값이 false 인 동안 FCM API 를 부르면 안 된다(iOS nil receiver / Android provider 없음).
- */
+/** false 인 동안 FCM API 를 부르면 안 된다 — iOS nil receiver · Android provider 없음. */
 export const isPushConfigured = getApps().length > 0;
 
-/** isPushConfigured 가 true 일 때만 호출한다. */
 export function getPushMessaging() {
   return getMessaging();
 }
@@ -30,13 +23,8 @@ export function getPushMessaging() {
 let ensureChannelPromise: Promise<void> | null = null;
 
 /**
- * Android 알림 채널 생성. 최초 1회만 실제로 수행하고 이후엔 같은 promise 를 돌려준다.
- *
- * 참조 앱은 채널을 React 마운트 뒤에 만들어서, 앱이 꺼진 채 도착한 **첫 푸시**가 fallback 채널로
- * 떨어졌다(결함 D3). 여기서는 entry 모듈 스코프에서 시작하고, 포그라운드 표시 직전에 한 번 더
- * `await` 한다 — 메모이즈라 비용은 0이다.
- *
- * 절대 reject 하지 않는다. 여기서 throw 하면 알림 자체가 사라진다.
+ * 채널 생성(메모이즈). **entry 모듈 스코프에서 시작해야** 첫 푸시가 fallback 채널로 안 떨어진다.
+ * 절대 reject 하지 않는다 — 여기서 throw 하면 알림 자체가 사라진다.
  */
 export function ensurePushChannel(): Promise<void> {
   ensureChannelPromise ??= (async () => {
@@ -58,12 +46,7 @@ export function ensurePushChannel(): Promise<void> {
   return ensureChannelPromise;
 }
 
-/**
- * 모든 탭 이벤트의 단일 출구 — 딥링크 dispatcher 가 큐·중복 제거·콜드 홀드를 그대로 담당한다.
- *
- * payload → url 추출은 `lib/deep-link/extractors` 가 한다(딥링크 계약이라 그쪽이 소유).
- * 호출부는 `extractFromNotifeeDetail` / `extractFromRemoteMessage` 결과를 그대로 넘긴다.
- */
+/** 모든 탭 이벤트의 단일 출구. url 추출은 `lib/deep-link/extractors` 가 소유한다. */
 export function enqueuePushTap(url: string | null, entrySource: EntrySource): void {
   if (!url) return;
 
