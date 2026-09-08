@@ -13,7 +13,8 @@ create-lesa-app/                     (`~/Desktop/Repo/create-lesa-app`. 지금�
   src/apply.ts                       env-candidates.ts 치환 · .env 생성
   src/copy.ts                        `git ls-files` 로 추적 파일만 복사 (배포 방식이 바뀌면 이 파일만 교체)
   src/create.ts                      오케스트레이션 + 실패 시 cleanup (UI 없이 테스트 가능)
-  src/index.tsx                      진입점 — 인자 파싱 + 인트로 + ink render
+  bin/create-lesa-app.mjs            tsx 로더 등록 — node 는 `.tsx` 를 직접 못 돌린다
+  src/index.tsx                      진입점 — 인자 파싱 + 템플릿 탐색 + ink render
   src/ui.tsx                         프롬프트(ink). preview.js 의 팔레트·StepRail 재사용
   src/intro.tsx                      ASCII 워드마크 — 1회 재생 후 마지막 프레임에 정지
   src/flow.test.mjs                  스텝 머신·파생 회귀 테스트 (`pnpm test`)
@@ -133,6 +134,11 @@ CLI 가 `.env` 를 미리 만들어 그 줄만 채운다.
 - **버전은 묻지 않는다.** 전부 `0.0.1` / `1`.
 - **`derive.ts` 는 순수 함수로 분리한다.** 파생 규칙이 유일하게 논리다운 부분이고 테스트가
   값싸다(입력 → 필드 표).
+- **`bin` 은 tsx 로더를 등록하는 래퍼다(2026-09-08).** node 는 `.tsx` 를 직접 실행할 수
+  없어(`ERR_UNKNOWN_FILE_EXTENSION`) `bin` 이 `src/index.tsx` 를 가리키면 바로 죽는다.
+  빌드 단계를 두는 대신 4줄 래퍼를 둔다 — 그래서 `tsx` 가 dependency 다.
+- **템플릿 경로는 형제 폴더가 기본값이다.** `env-candidates.ts`·`app.config.ts` 가 있으면
+  템플릿으로 본다. 매번 `--template` 을 넘기게 하면 실제로 아무도 안 쓴다.
 
 ## 거부된 대안 (다시 제안하지 말 것)
 
@@ -154,6 +160,8 @@ CLI 가 `.env` 를 미리 만들어 그 줄만 채운다.
 - private npm 패키지($7/월) → 지금은 로컬 복사로 충분하다.
 - **한글/영문 선택 질문 → 거부(2026-09-08).** 값에서 판별할 수 있는 것을 사람에게 묻는다.
 - 인트로 애니메이션 루프 재생 → 프롬프트 위에서 매 프레임 리렌더된다.
+- `bin` 을 `.tsx` 로 직접 지정 → node 가 확장자를 몰라 죽는다(실측).
+- 빌드 산출물(dist) 도입 → 로더 등록 4줄로 충분하다.
 - `.asciimtn` 을 런타임에 파싱 → 822KB · ink 노드 1020 개.
 
 ## 채우는 곳 (CLI 쪽 TODO)
@@ -203,20 +211,36 @@ CLI 가 `.env` 를 미리 만들어 그 줄만 채운다.
   줄바꿈이 있었으면 Enter 로 본다.
 - READY 요약의 라벨 열 폭이 11 이라 `displayName워크아웃` 으로 붙었다 → 13.
 
+**2026-09-08 연결 검증:**
+
+| 무엇                 | 결과                                                                     |
+| -------------------- | ------------------------------------------------------------------------ |
+| `bin` 실행           | 래퍼 없이는 `ERR_UNKNOWN_FILE_EXTENSION` — 래퍼 추가 후 정상             |
+| `npm link`           | nvm bin 이 이미 PATH 에 있어 셸 프로필 수정 없이 등록                    |
+| 임의 cwd · 인자 없음 | `create-lesa-app 워크아웃앱` → 형제 템플릿 자동 탐색 → 216파일 초기 커밋 |
+| 한글 디렉터리명      | `워크아웃앱` 으로 생성됨(디렉터리명은 `name` 과 무관)                    |
+| tarball 독립 실행    | 원본 `.asciimtn` 없이 워드마크 렌더 + 생성 완료 (풀어서 구동)            |
+
 **미검증 — 사용자 몫:**
 
-- **실제 키 입력.** pty 로 구동했으나 실기 터미널에서의 IME(한글 조립)·백스페이스·Esc 는
-  확인해야 한다. 특히 **터미널 한글 IME 조립 중간 상태**는 ink 가 조합 완료 문자만 받는지
-  미확인이다.
+- **터미널 한글 IME 조립 중간 상태.** pty 로는 조합 완료 문자만 보낼 수 있어 ink 가 조립
+  중간 상태를 어떻게 받는지 재현할 수 없다. 실기에서 직접 쳐봐야 한다.
 - 생성된 프로젝트의 실기 빌드·실행.
 
 **실행 방법 (지금):**
 
 ```bash
 cd ~/Desktop/Repo/create-lesa-app
-pnpm start ../my-new-app --template ../lesa-expo-template
-# 또는 LESA_TEMPLATE_DIR=../lesa-expo-template pnpm start ../my-new-app
+pnpm install && npm link      # 최초 1회 — PATH 에 create-lesa-app 등록
+
+create-lesa-app my-new-app    # 아무 디렉터리에서
 ```
+
+템플릿은 `--template <path>` → `LESA_TEMPLATE_DIR` → **형제 `../lesa-expo-template`**
+순으로 찾는다. 두 레포가 형제면 인자가 필요없다.
+
+`npm link` 는 nvm 의 현재 node 버전에 묶인다 — node 를 갈아타면 다시 걸어야 한다.
+연결 없이 쓰려면 레포 안에서 `pnpm start ../my-new-app`.
 
 스크립트 이름은 `start` 다 — `create` 로 두면 **pnpm 내장 `pnpm create`**(npm 에서
 `create-*` 패키지를 받아 실행)와 충돌해서 인자를 패키지 이름으로 해석한다(실측 확인).
