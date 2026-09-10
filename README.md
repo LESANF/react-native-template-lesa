@@ -8,11 +8,20 @@
   나만의 의견이 담긴 <b>Expo SDK 57</b> 스타터 — pnpm · CNG-first · 검증된 패턴만.
 </p>
 
+<p align="center">
+  <b>⚗️ 전부 실험적입니다. 저(LESA)를 위해 만들었습니다.</b>
+</p>
+
 ---
 
-> 🚧 개발 중. 실무에서 반복해서 쓰던 패턴을 모은 개인 템플릿입니다.
+> [!WARNING]
+> **이 템플릿은 제 것입니다.** 제 취향·제 업무 흐름에 맞춰 만들었고, 모든 선택이
+> 실험적입니다. 안정성도 하위 호환도 지원도 약속하지 않고, 예고 없이 구조가 바뀝니다.
 >
-> 현재 상태와 남은 작업은 [`docs/template-completion.md`](./docs/template-completion.md)를 기준으로 관리합니다.
+> 읽고 참고하시는 건 환영합니다. 다만 **그대로 프로덕션에 쓰지 말고 직접 검증하세요.**
+> 각 결정의 근거와 거부한 대안은 `docs/` 에 남겨뒀으니 그걸 보고 판단하시면 됩니다.
+
+> 🚧 개발 중. 현재 상태와 남은 작업은 [`docs/template-completion.md`](./docs/template-completion.md) 기준으로 관리합니다.
 
 ## What's inside
 
@@ -24,7 +33,7 @@
 - **앱 셸** — providers 역할 분리(감싸기/띄우기) + **Suspensive** ErrorBoundary
 - **데이터 레이어** — Axios + TanStack Query + 명시적 auth + MMKV token
 - **부팅 파이프라인** — splash 뒤 프리로더(강제 업데이트 · OTA(hot-updater) · 권한 슬롯) + 콜드 딥링크 큐 + 프리페치 ([`docs/boot.md`](./docs/boot.md))
-- **푸시 알림** — FCM(RNFB 26) + notify-kit FCM Mode, 알림 탭 → 딥링크 큐, 토큰 동기화 어댑터, 알림 권한. `firebase/`에 설정 파일을 넣으면 활성 ([`docs/push.md`](./docs/push.md))
+- **푸시 알림** — FCM(RNFB 26) + notify-kit. 백그라운드·종료는 OS 가 표시하고 탭은 RNFB 로 받는다. 알림 탭 → 딥링크 큐, 토큰 동기화 어댑터, 알림 권한. `firebase/`에 설정 파일을 넣으면 활성 ([`docs/push.md`](./docs/push.md))
 - **단방향 import** ESLint (폴더 지우면 그걸로 끝)
 
 ## Quick start
