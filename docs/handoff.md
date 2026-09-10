@@ -51,8 +51,8 @@
 
 ## 3. 벤치마크 레퍼런스 (로컬 경로)
 
-- **jp (프로덕션 앱, 최우선 참고)**: `(로컬 경로)/참조 앱/참조 앱 JP/참조 앱 JP` — **CodeGraph 인덱싱됨**(codegraph_* 툴 사용 가능). 단, jp 것은 **앱 특화/개선 여지** 많음. "그대로 가져오지 말고 개선해서."
-- **obytes 클론**: `(로컬 경로)/react-native-template-obytes` — 스캐폴딩/규율 벤치마크.
+- **jp (프로덕션 앱, 최우선 참고)**: `(로컬 경로 — 사용자 환경)` — **CodeGraph 인덱싱됨**(codegraph_* 툴 사용 가능). 단, jp 것은 **앱 특화/개선 여지** 많음. "그대로 가져오지 말고 개선해서."
+- **obytes 클론**: `(로컬 경로 — 사용자 환경)` — 스캐폴딩/규율 벤치마크.
 - 사용 원칙: jp/obytes에서 **읽고 검증한 뒤** 우리 토큰/규칙으로 다시 짠다. (예: jp pressable은 pull-to-refresh 결합이라 안 가져옴 / jp image는 자사 CDN 종속이라 CDN 부분 제외)
 
 ---
@@ -221,5 +221,5 @@ assets/json/               dot-loading-white.json (jp에서 cp — Button 로딩
 ## 10. 포인터
 
 - **세부 결정 1차 출처**: 섹션 문서(`AGENTS.md` 표). `decisions.md` 는 날짜 색인.
-- **사용자 글로벌 메모리**: `(사용자 로컬)/projects/-Users-lesa-Desktop-Repo-lesa-expo-template/memory/` → `MEMORY.md`(인덱스) · `verify-before-commit` · `use-expo-mcp` · `deterministic-generation` · `native-tabs-folder-needs-layout`.
+- **사용자 글로벌 메모리**: `(사용자 로컬 메모리)` → `MEMORY.md`(인덱스) · `verify-before-commit` · `use-expo-mcp` · `deterministic-generation` · `native-tabs-folder-needs-layout`.
 - **사용자 커뮤니케이션**: 한국어. 느리게, 하나씩. 과한 토론·미리 만들기(YAGNI 위반) 싫어함. 리스트 뽑아 검증받고 진행. 틀리면 "추측 말고 검증" 요구.

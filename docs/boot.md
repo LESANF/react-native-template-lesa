@@ -1,7 +1,7 @@
 # 부팅 파이프라인 설계 노트 (splash · preloader · OTA · 딥링크 · 프리페치)
 
 > 앱이 켜져서 첫 화면이 뜨기까지의 뼈대를 **왜 이렇게 짰는지** 기록한다. 되돌리거나 "개선"하기 전에 여기부터 읽어라.
-> 근거: 참조 앱 KR · 참조 앱 JP의 실운영 코드(2026-09-03 파일 단위 분석). 두 앱은 동일 계보라 이 문서가 그 공통분모다.
+> 근거: 참조 앱 두 개의 실운영 코드(2026-09-03 파일 단위 분석). 두 앱은 동일 계보라 이 문서가 그 공통분모다.
 
 ## 두 층
 
@@ -72,7 +72,7 @@ hot-updater.config.ts · scripts/ota-deploy.mjs CLI 전용(번들 밖). 배포 �
 
 ## 확정 결정
 
-- **OTA = hot-updater 0.36(자체 서버), expo-updates 아님.** KR/JP 모두 hot-updater + 자체 서버(자체 OTA 서버: 자체 서버). `updateStrategy: 'fingerprint'`, 채널 `production` 고정 — 환경 분리는 서버 URL·버킷. 프리로더는 엔진을 모르고 `OtaAdapter`만 본다 → 엔진 교체는 `lib/ota/` 파일 하나.
+- **OTA = hot-updater 0.36(자체 서버), expo-updates 아님.** KR/JP 모두 hot-updater + 자체 서버. `updateStrategy: 'fingerprint'`, 채널 `production` 고정 — 환경 분리는 서버 URL·버킷. 프리로더는 엔진을 모르고 `OtaAdapter`만 본다 → 엔진 교체는 `lib/ota/` 파일 하나.
 - **`Env.urls.ota`가 비면 OTA 전부 비활성.** init도 체크도 안 한다("주입=활성화"). 템플릿엔 서버가 없으니 기본이 비활성이 맞다.
 - **사용자 동의형 OTA.** 조용히 다음 부팅에 적용(expo-updates 기본)이 아니라 팝업 → 지금 업데이트 → reload. 두 앱 UX. 체크 실패는 failures에도 안 남기고 조용히 넘어간다 — OTA는 부팅을 막을 이유가 없다.
 - **프리로더는 KR 그대로.** 2026-09-03 사용자 지시("가볍지 않은 시스템, 그대로 이식")로 템플릿 재구현(선언형 스테이지·스테이지 타임아웃·OtaAdapter·콜백 주입 옵션)을 걷어내고 KR 파일을 옮겼다. 허용 변경은 Env 접근·auth `status`·강제 업데이트 API 스텁·popup.confirm 팝업·OTA URL 빈 값 가드뿐. KR 과 같은 알려진 성질: 스테이지 타임아웃 없음(서버 행이면 splash 대기), hideAsync 는 initializer finally + 두 팝업 유틸이 호출.
@@ -134,7 +134,7 @@ hot-updater.config.ts · scripts/ota-deploy.mjs CLI 전용(번들 밖). 배포 �
 - `HotUpdater.wrap()` HOC → 부팅 파이프라인 밖에서 앱을 게이트한다. 우리 실패 정책·팝업·splash 소유권과 맞지 않음. 두 앱도 `init()` + 수동 체크.
 - 프리로더 스테이지 전체 타임아웃 → 사용자 선택 구간까지 끊어 강제 업데이트 블록을 무력화. 입력 없는 구간만.
 - `+native-intent`에서 enqueue → RN Linking과 중복 적재. 리다이렉트만.
-- 딥링크 **구체 게이트 구현**(auth 게이트·pending-intent·AuthDeferredRunner) 이식 → 참조 앱 정책. 게이트 인프라와 safeFallback 메커니즘은 안전 탈출 경로라 남긴다(2026-09-04 — 한 번 제거했다가 복원).
+- 딥링크 **구체 게이트 구현**(auth 게이트·pending-intent·AuthDeferredRunner) 이식 → 앱 정책. 게이트 인프라와 safeFallback 메커니즘은 안전 탈출 경로라 남긴다(2026-09-04 — 한 번 제거했다가 복원).
 - 딥링크 라우트 테이블을 constants에 → navigate 함수가 lib/hooks를 역참조. `lib/deep-link/matcher.ts`에 둔다.
 - zx로 배포 스크립트 → devDep 하나 늘리기 싫어 `node:child_process`.
 - `dotenv`로 CLI에 .env 로드 → Node 내장 `process.loadEnvFile`(20.12+)로 충분. `scripts/load-build-env.cjs`.
@@ -161,7 +161,7 @@ hot-updater.config.ts · scripts/ota-deploy.mjs CLI 전용(번들 밖). 배포 �
 
 - OTA 배포: `pnpm ota:deploy:ios:production` (= prebuild 클린 → `hot-updater fingerprint create` → `deploy -c production -m "<msg> [<sha>]"`). preview는 `:preview`. `EXPO_PUBLIC_APP_ENV` 미지정 배포는 스크립트가 거부.
 - 네이티브가 바뀌면(의존성·플러그인) fingerprint가 바뀌어 기존 OTA 대상에서 자동 제외된다 — 스토어 배포가 필요하다는 신호.
-- 서버: `자체 OTA 서버`(자체 서버, `createHotUpdater` from `@hot-updater/server`) 참고. 그 README의 운영 체크리스트(HTTPS·볼륨·CLI 인증·백업)는 미완이니 그대로 믿지 말 것.
+- 서버: `@hot-updater/server` 의 `createHotUpdater` 로 세운다. 운영 체크리스트(HTTPS·볼륨·CLI 인증·백업)를 직접 확인할 것.
 
 ## 검증 상태 (2026-09-03)
 
