@@ -26,7 +26,7 @@ KR `lib/preloader` verbatim 이식(대조 검증: `boot.md`).
 **전역 오버레이** — `popup.confirm()` Promise 표면 · dev 네트워크 로거 FAB.
 
 **툴링** — pnpm hoisted 링커 · prettier · 표시명 분리(`displayName`) · EAS 는 파일 존재로
-갈리는 opt-in · 테스트 인프라 미포함. SDK 57 패치 정렬(expo 57.0.21 · expo-router 57.0.20 ·
+갈리는 opt-in · 테스트 인프라(jest-expo + RNTL, 테스트 파일은 없음). SDK 57 패치 정렬(expo 57.0.21 · expo-router 57.0.20 ·
 expo-build-properties 57.0.17 · expo-glass-effect 57.0.2).
 
 **생성 CLI** — 형제 레포 `../create-lesa-app`. 질문 3개(앱 이름 → 필요 시 slug → Apple

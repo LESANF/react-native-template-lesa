@@ -106,7 +106,7 @@
 - [x] `data-layer.md` "스토어 읽기 규칙 … auth-store 헤더 주석에도 있음" — MMKV 복귀 시 헤더 주석 복원으로 다시 참
 - [x] `data-layer.md` "검증 상태" 절 → 2026-08-26 재실행 결과로 교체
 - [x] `decisions.md` 데이터 레이어 절 — 세션 출구 한 줄 추가
-- [x] `handoff.md` §7–8 정합 — #15 get-error-message→api-error, #16 인터셉터 라우팅→세션 출구·구역 가드, #19 Jest+RNTL→테스트 인프라 미포함 결정, reset 호출처 갱신
+- [x] `handoff.md` §7–8 정합 — #15 get-error-message→api-error, #16 인터셉터 라우팅→세션 출구·구역 가드, #19 Jest+RNTL→인프라만 포함(2026-09-10 번복, 파일은 없음 — config.md "테스트"), reset 호출처 갱신
 - [x] 순간 상태(커밋 수, suite 수, 임시 경로) — grep 결과 없음, 해당 없음
 - [x] 잔재 삭제: `src/hooks/.gitkeep` `src/utils/.gitkeep`
 - [x] README 검증 명령·폴더 구조 재확인 — 데이터 레이어 한 줄만 MMKV token으로 정정

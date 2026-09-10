@@ -335,6 +335,41 @@ dev 번들이 들어가고**, `:186` 의 Release 분기도 건너뛴다. `XcodeB
 
 `1.0.0` 은 clean clone 검증(완료 정의 #1)과 CLI(C5)가 끝난 뒤에 단다. 그 전까지 0.0.x.
 
+## 테스트 — 인프라만, 파일은 없다
+
+`jest-expo` + `@testing-library/react-native` 가 설정돼 있고 테스트 파일은 없다.
+`pnpm test` 는 `--passWithNoTests` 라 0개여도 성공한다. `check-all` 에 포함된다.
+
+```
+jest.config.js   preset · 경로 별칭 · transformIgnorePatterns
+jest-setup.ts    네이티브 모듈 목(reanimated · worklets · MMKV · expo-localization)
+src/types/jest.d.ts   `/// <reference types="jest" />`
+```
+
+**첫 테스트를 쓸 때 알아야 하는 것 세 가지:**
+
+1. **`jest` 객체는 import 한다.** `@types/jest` 30 은 `describe`·`it`·`expect` 만 전역으로
+   선언하고 `jest` 는 `@jest/globals` 로 옮겼다. 런타임에는 전역이라 돌지만 `tsc` 가 막는다.
+
+   ```ts
+   import { jest } from '@jest/globals';
+   ```
+
+2. **`render` 는 await 한다.** RNTL 14 부터 async 다.
+
+   ```tsx
+   await render(<Text>안녕</Text>);
+   expect(screen.getByText('안녕')).toBeTruthy();
+   ```
+
+3. **"Unexpected token 'export'" 가 나면** 그 패키지를 `transformIgnorePatterns` 에 더한다.
+   RN 생태계는 ESM 소스를 그대로 배포한다. `expo-router` 를 쓰려면 `standard-navigation` 도
+   필요했다(실측).
+
+`src/types/jest.d.ts` 가 필요한 이유: pnpm 격리 구조에서 tsc 의 `@types` 자동 탐색이
+`@types/jest` 를 못 집는다. `tsconfig` 의 `types` 배열을 쓰면 다른 `@types` 자동 포함이
+막히므로 reference 지시자로 푼다.
+
 ## 거부된 대안 (다시 제안하지 말 것)
 
 - `dotenv` → Node 내장 `process.loadEnvFile`(20.12+). `scripts/load-build-env.cjs`.
