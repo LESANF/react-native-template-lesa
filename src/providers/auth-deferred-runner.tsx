@@ -7,12 +7,8 @@ import { pendingDeepLinkIntent } from '@/lib/deep-link/pending-intent';
 import { useAuthStore } from '@/stores/auth-store';
 
 /**
- * 미인증 딥링크의 deferred 진입 (KR `features/auth/components/auth-deferred-runner.tsx` 이식).
- *
- * 트리거: 로그인됨 && 로그인 화면을 벗어남(segments[0] !== AUTH_ROUTE_GROUP).
- * 실행 시점: InteractionManager.runAfterInteractions — 모달 닫힘 애니메이션과의 race 방지.
- *
- * RootLayout 에 1회 mount 한다(DeepLinkRunner 바로 뒤).
+ * 미인증 딥링크의 deferred 진입. RootLayout 에 1회 mount.
+ * `runAfterInteractions` 로 미루는 이유: 모달 닫힘 애니메이션과의 race.
  */
 export function AuthDeferredRunner() {
   const isSignedIn = useAuthStore(state => state.status === 'signedIn');

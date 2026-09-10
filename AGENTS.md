@@ -20,6 +20,19 @@ Read the exact versioned docs at https://docs.expo.dev/versions/v57.0.0/ before 
 - [docs/template-completion.md](docs/template-completion.md) — 진행 상황과 남은 작업
 - [docs/handoff.md](docs/handoff.md) — 세션 인수인계
 
+# CodeGraph — 있으면 먼저 쓴다
+
+이 프로젝트는 tree-sitter 로 전 심볼·호출 관계를 인덱싱한 CodeGraph 를 쓴다. **구조 질문
+(무엇이 무엇을 부르나 · 바꾸면 뭐가 깨지나 · X 는 어디 있나)은 grep 대신 `codegraph_*` 로
+푼다.** 문자열 내용을 찾을 때만 grep 이 맞다.
+
+```bash
+codegraph init -i        # 최초 1회. `.codegraph/` 는 로컬 산출물이라 gitignore 돼 있다
+```
+
+`.codegraph/` 가 없으면 MCP 가 "not initialized" 를 돌려준다 — 그때 위 명령을 안내하고,
+사용자가 원하지 않으면 grep 으로 진행한다.
+
 # 반드시 지킬 것
 
 - **거부된 대안을 다시 제안하지 마라.** 각 섹션 문서에 절이 있다.

@@ -1,7 +1,6 @@
 /**
- * 푸시 headless — `index.js` 가 `expo-router/entry` 앞에서 import 한다.
- * 앱이 죽은 채 OS 가 JS 를 깨우므로 React·화면을 import 하면 안 된다(스토어는 허용).
- * 표시는 OS 가 하고 여기는 데이터 부수효과만 맡는다 — `docs/push.md`.
+ * 푸시 headless. 앱이 죽은 채 OS 가 깨우므로 **React·화면을 import 하면 안 된다**(스토어는 허용).
+ * 표시는 OS 가 하고 여기는 데이터 부수효과만 — `docs/push.md`.
  */
 
 import { setBackgroundMessageHandler } from '@react-native-firebase/messaging';

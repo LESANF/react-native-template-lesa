@@ -1,10 +1,4 @@
-/**
- * 네이티브 모듈 목. 테스트를 추가하다 "네이티브 모듈이 없다"는 오류가 나면 여기에 더한다.
- *
- * `jest` 를 import 하는 이유: @types/jest 30 은 `describe`·`it` 만 전역으로 선언하고
- * `jest` 객체는 `@jest/globals` 로 옮겼다. 런타임에는 전역이라 import 없이도 돌지만
- * `tsc` 가 "Cannot use namespace 'jest' as a value" 로 막는다.
- */
+/** 네이티브 모듈 목. 모듈이 없다는 오류가 나면 여기에 더한다 — `docs/config.md` "테스트". */
 import { jest } from '@jest/globals';
 
 jest.mock('react-native-worklets', () => ({ __esModule: true, default: {} }));
