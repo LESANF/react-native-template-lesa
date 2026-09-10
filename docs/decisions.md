@@ -6,29 +6,29 @@ Each section records: the decision, the reasoning, and what is deferred.
 각 결정의 **본문은 섹션 문서로 옮겼다** — 여기는 "언제·무엇을 정했는지"의 색인이다.
 섹션을 수정하기 전에 해당 문서를 읽어라(`AGENTS.md` 가 폴더→문서를 매핑한다).
 
-| 날짜       | 결정                                                           | 본문                     |
-| ---------- | -------------------------------------------------------------- | ------------------------ |
-| 2026-06-10 | 환경 설정 — `defineEnv`, 루트 flat 파일, 시크릿 정책           | [config.md](config.md)   |
-| 2026-06-10 | 스타일링 1차 — 2026-06-16 에 Uniwind 로 대체됨(폐기)           | —                        |
-| 2026-06-11 | 폴더 구조·라우팅 — zone, 단방향 import, `app/` 규칙, 에러 처리 | [routing.md](routing.md) |
-| 2026-06-11 | 배럴 정책 · 컴포넌트 승격(Rule of Three)                       | [ui.md](ui.md)           |
-| 2026-06-16 | 스타일링 — Uniwind + 3계층 토큰, CSS `@theme` 단일 출처        | [ui.md](ui.md)           |
-| 2026-06-17 | 앱 셸 — `providers/` 역할 분리, `(tabs)` 규약, 모달 전략       | [routing.md](routing.md) |
-| 2026-06-17 | 스타트업 2층 — 동기 모듈 로드 / 비동기 프리로더                | [boot.md](boot.md)       |
-| 2026-08-24 | 데이터 레이어 — 아래 절 + [data-layer.md](data-layer.md)       | 아래                     |
-| 2026-09-03 | Config plugins — KR/JP `app.config` 이식 매핑표                | [config.md](config.md)   |
-| 2026-09-03 | 푸시 스택 — RNFB 26 · notify-kit · 권한                        | [push.md](push.md)       |
-| 2026-09-04 | 딥링크 — KR 메커니즘 이식, 안전 탈출 계보                      | [boot.md](boot.md)       |
-| 2026-09-07 | 표시명 — `name` 은 ASCII, 홈 화면은 `displayName`              | [config.md](config.md)   |
-| 2026-09-07 | EAS — 열어만 둔다(파일 존재로 갈림)                            | [config.md](config.md)   |
-| 2026-09-07 | prebuild clean · iOS configuration 대소문자                    | [config.md](config.md)   |
-| 2026-09-07 | anchor — `unstable_settings` 는 Stack prop 과 같은 값          | [routing.md](routing.md) |
-| 2026-09-07 | 어트리뷰션 SDK — 선택, 뗐다 붙였다                             | [boot.md](boot.md)       |
-| 2026-09-07 | 푸시 표시 정책 — KR 방식(백그라운드/종료는 OS)                 | [push.md](push.md)       |
-| 2026-09-07 | CLI `create-lesa-app` — slug 하나에서 전 필드 파생             | [cli.md](cli.md)         |
-| 2026-09-08 | CLI — 언어 선택 폐기, 이름이 slug 패턴이면 재사용              | [cli.md](cli.md)         |
-| 2026-09-08 | Android package 는 하이픈 불가 — 리버스 도메인에서만 제거      | [cli.md](cli.md)         |
-| 2026-09-10 | safe area — 네이티브 SafeAreaView 대신 `SafeArea`(View 스타일) | [ui.md](ui.md)           |
+| 날짜       | 결정                                                            | 본문                     |
+| ---------- | --------------------------------------------------------------- | ------------------------ |
+| 2026-06-10 | 환경 설정 — `defineEnv`, 루트 flat 파일, 시크릿 정책            | [config.md](config.md)   |
+| 2026-06-10 | 스타일링 1차 — 2026-06-16 에 Uniwind 로 대체됨(폐기)            | —                        |
+| 2026-06-11 | 폴더 구조·라우팅 — zone, 단방향 import, `app/` 규칙, 에러 처리  | [routing.md](routing.md) |
+| 2026-06-11 | 배럴 정책 · 컴포넌트 승격(Rule of Three)                        | [ui.md](ui.md)           |
+| 2026-06-16 | 스타일링 — Uniwind + 3계층 토큰, CSS `@theme` 단일 출처         | [ui.md](ui.md)           |
+| 2026-06-17 | 앱 셸 — `providers/` 역할 분리, `(tabs)` 규약, 모달 전략        | [routing.md](routing.md) |
+| 2026-06-17 | 스타트업 2층 — 동기 모듈 로드 / 비동기 프리로더                 | [boot.md](boot.md)       |
+| 2026-08-24 | 데이터 레이어 — 아래 절 + [data-layer.md](data-layer.md)        | 아래                     |
+| 2026-09-03 | Config plugins — KR/JP `app.config` 이식 매핑표                 | [config.md](config.md)   |
+| 2026-09-03 | 푸시 스택 — RNFB 26 · notify-kit · 권한                         | [push.md](push.md)       |
+| 2026-09-04 | 딥링크 — KR 메커니즘 이식, 안전 탈출 계보                       | [boot.md](boot.md)       |
+| 2026-09-07 | 표시명 — `name` 은 ASCII, 홈 화면은 `displayName`               | [config.md](config.md)   |
+| 2026-09-07 | EAS — 열어만 둔다(파일 존재로 갈림)                             | [config.md](config.md)   |
+| 2026-09-07 | prebuild clean · iOS configuration 대소문자                     | [config.md](config.md)   |
+| 2026-09-07 | anchor — `unstable_settings` 는 Stack prop 과 같은 값           | [routing.md](routing.md) |
+| 2026-09-07 | 어트리뷰션 SDK — 선택, 뗐다 붙였다                              | [boot.md](boot.md)       |
+| 2026-09-07 | 푸시 표시 정책 — KR 방식(백그라운드/종료는 OS)                  | [push.md](push.md)       |
+| 2026-09-07 | CLI `create-lesa-app` — slug 하나에서 전 필드 파생              | [cli.md](cli.md)         |
+| 2026-09-08 | CLI — 언어 선택 폐기, 이름이 slug 패턴이면 재사용               | [cli.md](cli.md)         |
+| 2026-09-08 | Android package 는 하이픈 불가 — 리버스 도메인에서만 제거       | [cli.md](cli.md)         |
+| 2026-09-10 | safe area — 네이티브 SafeAreaView 대신 `InsetView`(View 스타일) | [ui.md](ui.md)           |
 
 ## Data Layer — current template (updated 2026-08-24)
 

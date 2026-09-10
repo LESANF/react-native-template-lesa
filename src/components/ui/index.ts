@@ -23,13 +23,13 @@ export type {
 } from './dimmed';
 export { ErrorFallback } from './error-fallback';
 export { Image } from './image';
+export { InsetView } from './inset-view';
+export type { InsetViewProps } from './inset-view';
 export { Input } from './input';
 export { NetLogFab } from './net-log-fab';
 export { GlobalPopup, popup } from './popup';
 export type { PopupChoice, PopupOptions } from './popup';
 export { Pressable } from './pressable';
-export { SafeArea } from './safe-area';
-export type { SafeAreaProps } from './safe-area';
 export { ScreenSystemBars } from './screen-system-bars';
 export type { ScreenSystemBarsProps } from './screen-system-bars';
 export { Text } from './text';

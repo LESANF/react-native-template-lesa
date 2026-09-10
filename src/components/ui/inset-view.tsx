@@ -8,7 +8,7 @@ const ALL_EDGES = ['top', 'right', 'bottom', 'left'] as const;
 
 type EdgeInsetValues = Partial<Record<Edge, number>>;
 
-export type SafeAreaProps = ViewProps & {
+export type InsetViewProps = ViewProps & {
   /** 적용할 변. 배열이나 `{ top: 'additive' }` 레코드 둘 다 받는다. 기본은 네 변 전부. */
   readonly edges?: Edges;
   /** 여백을 padding 이 아니라 margin 으로 줄 때. */
@@ -28,20 +28,19 @@ function toEdgeRecord(edges: Edges): EdgeModes {
 }
 
 /**
- * safe area 를 **일반 View 의 스타일로** 적용한다. 네이티브 `SafeAreaView` 는 화면이
- * 애니메이션하는 동안 영역을 다시 재서 탭 전환·빠른 재시작에서 덜컹거린다 — 사유는
- * `docs/ui.md` "safe area".
+ * safe area inset 을 **일반 View 의 스타일로** 적용한다. 네이티브 `SafeAreaView` 는 화면이
+ * 애니메이션하는 동안 영역을 다시 재서 탭 전환에서 덜컹거린다 — 사유는 `docs/ui.md`.
  *
  * 탭 안의 화면은 `edges={['top']}` 만 쓴다. 하단 inset 은 탭바가 이미 먹는다.
  */
-export function SafeArea({
+export function InsetView({
   className,
   edges = ALL_EDGES,
   minInsets,
   mode = 'padding',
   style,
   ...props
-}: SafeAreaProps) {
+}: InsetViewProps) {
   const insets = useSafeAreaInsets();
   const edgeModes = toEdgeRecord(edges);
   const prefix = mode === 'margin' ? 'margin' : 'padding';

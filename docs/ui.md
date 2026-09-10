@@ -7,7 +7,7 @@
 ```
 components/ui/          배럴 진입점(index.ts) — 화면은 여기서만 import 한다
   button · text · input · image · pressable · toast · popup · dimmed
-  button-dock · safe-area · error-fallback · screen-system-bars · net-log-fab(dev)
+  button-dock · inset-view · error-fallback · screen-system-bars · net-log-fab(dev)
 components/icons/       코드형 SVG(탭 아이콘 등). ui 배럴에 넣지 않는다
 styles/tokens/          colors.css(primitive) · semantic.css · typography.css — CSS @theme 이 단일 출처
 styles/utilities/       유틸리티 계층
@@ -179,15 +179,16 @@ resources: { ko: ..., en: { translation: en } }
   네임스페이스로 오해하지 않게 한다(`'확인.'` 이 깨지지 않게).
 - `resources` 에 없는 언어는 `fallbackLng` 가 받는다.
 
-## safe area — `SafeArea` 컴포넌트를 쓴다
+## safe area — `InsetView` 를 쓴다
 
-`components/ui` 의 `SafeArea` 는 inset 을 **일반 `View` 의 스타일로** 적용한다.
+`components/ui` 의 `InsetView` 는 inset 을 **일반 `View` 의 스타일로** 적용한다.
 `react-native-safe-area-context` 의 네이티브 `SafeAreaView` 는 쓰지 않는다.
+이름을 `SafeArea` 로 하지 않은 이유: 라이브러리의 `SafeAreaView` 와 혼동된다.
 
 ```tsx
-<SafeArea className="flex-1" edges={['top']}>   // 탭 안의 화면
-<SafeArea edges={{ bottom: 'maximum' }} minInsets={{ bottom: 16 }} />  // 최소 16, inset 이 크면 inset
-<SafeArea edges={['bottom']} mode="margin" />
+<InsetView className="flex-1" edges={['top']}>   // 탭 안의 화면
+<InsetView edges={{ bottom: 'maximum' }} minInsets={{ bottom: 16 }} />  // 최소 16, inset 이 크면 inset
+<InsetView edges={['bottom']} mode="margin" />
 ```
 
 | prop        |                                                                       |
@@ -220,6 +221,7 @@ times"_ 라고 경고한다. 그래서 배럴에서 `SafeAreaView` export 를 �
 
 - 네이티브 `SafeAreaView`(react-native-safe-area-context) → 화면 애니메이션 중 재측정으로
   탭 전환에서 덜컹거린다(위 "safe area"). 배럴 export 도 뺐다 — 훅과 섞이면 깜빡인다.
+- 컴포넌트 이름 `SafeArea` → 라이브러리 `SafeAreaView` 와 혼동된다. `InsetView` 로 확정.
 - `react-native`의 `SafeAreaView` → deprecated, iOS 전용.
 
 - 토큰을 JS 객체로 → CSS `@theme` 이 단일 출처. Tailwind v4 의 `@config` 는 semantic 계층에
