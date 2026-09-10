@@ -1,7 +1,7 @@
 import type { Permission as NativePermission, NotificationOption } from 'react-native-permissions';
 
 /**
- * 확장 되는 권한 아래 타입 추가
+ * 확장되는 권한은 아래 타입에 추가한다
  */
 export type AppPermission = 'notifications';
 

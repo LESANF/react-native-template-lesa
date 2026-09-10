@@ -1,8 +1,6 @@
 #!/usr/bin/env node
-// OTA 번들 배포: prebuild(클린) → fingerprint → hot-updater deploy. KR/JP 앱과 동일 절차.
-//   pnpm ota:deploy:ios:production     (= EXPO_PUBLIC_APP_ENV=production node scripts/ota-deploy.mjs ios)
-//   node scripts/ota-deploy.mjs android -m "핫픽스: 결제 버튼"
-// 환경은 EXPO_PUBLIC_APP_ENV로 명시해야 한다(기본 development로 흘러가는 배포를 막기 위해).
+// OTA 배포: prebuild(클린) → fingerprint → deploy. 사용법은 `docs/boot.md`.
+// EXPO_PUBLIC_APP_ENV 를 명시해야 한다 — 기본값 development 로 흘러가는 배포를 막는다.
 import { spawnSync } from 'node:child_process';
 import { readFileSync, rmSync } from 'node:fs';
 

@@ -30,18 +30,13 @@ module.exports = defineConfig([
     },
   },
 
-  // ── 구조 규칙 ──────────────────────────────────────────────────────
-  // 구조적 이름은 app / features / providers 셋뿐.
-  // 그 외 모든 폴더(현재·미래)는 자동으로 "shared 계층"으로 취급된다.
-  //
-  // error = 구조 사고 (역방향 의존)
-  // warn  = 가시화만 (결합·barrel 가이드 — 빌드를 막지 않음)
+  // 구조적 이름은 app · features · providers 셋뿐. 나머지 폴더는 전부 shared 계층이다.
+  // error = 구조 사고(역방향 의존) / warn = 가시화만.
   {
     files: ['src/**/*.{ts,tsx}'],
     rules: {
-      // shared → features 는 warn. 대개 배치를 다시 보라는 신호다 — 그 스토어·타입이 feature
-      // 안에 있어야 하는 건 아닌지. 정말 shared 가 도메인을 알아야 하면 registry 로 뒤집는다
-      // (`lib/deep-link` 의 spec 테이블이 그 예다).
+      // 대개 배치를 다시 보라는 신호다. 정말 shared 가 도메인을 알아야 하면 registry 로
+      // 뒤집는다 — `lib/deep-link` 의 spec 테이블이 그 예다.
       'import/no-restricted-paths': [
         'warn',
         {
