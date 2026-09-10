@@ -54,6 +54,14 @@ codegraph init -i     # 최초 1회. `.codegraph/` 는 로컬 산출물이라 gi
 둘 다 받는다 — 프롬프트 필드가 `user_input`(Claude) / `prompt`(Codex), `PreToolUse` 출력이
 `hookSpecificOutput`(Claude) / 평문(Codex).
 
+**스킬은 하네스마다 따로 설치된다.** Claude 는 `~/.agents/skills` 를 심링크로 잇지만 Codex
+는 `~/.codex/skills` 에 별도로 복사된다 — 한쪽에만 있는 스킬이 생긴다. 그래서 훅이
+**설치된 것만 권하고, 없으면 원칙을 대신 준다.** 위 표의 스킬 이름은 있을 때의 이야기다.
+
+예를 들어 `animate-expo`(RN 애니메이션 구축)가 없는 하네스에서는 `react-native-animation-patterns`
+만 권하고, 그것도 없으면 "Reanimated 는 UI 스레드에서 돈다"는 원칙만 준다. **웹 전용
+스킬 경고는 어느 쪽이든 유지된다** — 그게 없는 것보다 위험하다.
+
 Codex 는 프로젝트 훅을 **신뢰해야** 실행한다. 처음 열면 `/hooks` 로 확인·승인한다.
 프로젝트를 untrusted 로 두면 `.codex/` 전체(훅·설정·규칙)와 프로젝트 `AGENTS.md` 가 무시된다.
 

@@ -22,19 +22,64 @@ const read = () => new Promise(r => {
   process.stdin.on('end', () => r(s));
 });
 
+/**
+ * 설치된 스킬 이름. 하네스마다 스킬이 따로 설치되므로(Claude 는 `~/.agents/skills` 를
+ * 심링크, Codex 는 `~/.codex/skills` 에 별도 복사) 있는 것만 권한다. 없는 이름을 권하면
+ * 그 지침은 죽은 줄이 된다.
+ */
+const SKILLS = (() => {
+  const home = process.env.HOME ?? '';
+  const roots = ['.agents/skills', '.claude/skills', '.codex/skills'].map(r => path.join(home, r));
+  for (const cache of ['.claude/plugins/cache', '.codex/plugins/cache']) {
+    try {
+      const base = path.join(home, cache);
+      for (const market of readdirSync(base)) {
+        for (const plug of readdirSync(path.join(base, market))) {
+          for (const ver of readdirSync(path.join(base, market, plug))) {
+            roots.push(path.join(base, market, plug, ver, 'skills'));
+          }
+        }
+      }
+    } catch {}
+  }
+  const found = new Set();
+  for (const dir of roots) {
+    try {
+      for (const name of readdirSync(dir)) found.add(name);
+    } catch {}
+  }
+  return found;
+})();
+
+/** 설치된 것만 남긴다. */
+const have = (...names) => names.filter(n => SKILLS.has(n));
+
 /** 프롬프트에 이 패턴이 있으면 그 줄을 낸다. 겹치면 다 낸다. */
 const ROUTES = [
   {
     re: /애니메이|animat|모션|motion|제스처|gesture|스와이프|swipe|(screen|화면|탭|page)\s*transition|트랜지션|햅틱|haptic|reanimated|worklet|withTiming|withSpring|useSharedValue|덜컹|stutter|jank|프레임\s*드[랍롭]/i,
-    say: '애니메이션·제스처 → `animate-expo` 스킬. `animate`·`motion-react`·`css-animations`·`animation-performance` 는 **웹 전용**이라 RN 에 쓰면 안 된다. 원리·프레임 진단은 `react-native-animation-patterns`.',
+    say: () => {
+      const rn = have('animate-expo', 'react-native-animation-patterns');
+      const web = have('animate', 'motion-react', 'css-animations', 'animation-performance');
+      const lines = rn.length
+        ? [`애니메이션·제스처 → ${rn.map(s => `\`${s}\``).join(' · ')} 스킬.`]
+        : ['애니메이션·제스처 → **RN 애니메이션 스킬이 이 하네스에 없다.** Reanimated 는 UI 스레드에서 돌고 `useSharedValue`/`useAnimatedStyle` 로 JS 왕복을 없앤다는 것만 지키고, 확실하지 않으면 expo MCP 로 확인한다.'];
+      if (web.length)
+        lines.push(`⚠ ${web.map(s => `\`${s}\``).join(' · ')} 는 **웹 전용**(CSS·Framer Motion)이다. RN 에 그 조언을 쓰면 안 된다 — \`will-change\`·GPU 레이어 같은 건 없다.`);
+      return lines.join('\n  ');
+    },
   },
   {
     re: /키보드|keyboard|TextInput|소프트\s*키|입력\s*필드|(폼|form)[^.]{0,20}(가림|가려|키보드|스크롤|포커스)/i,
-    say: '키보드 회피 → `rn-keyboard-handling` 스킬 (KeyboardAvoidingView vs avoid-softinput 선택, iOS/Android 차이).',
+    say: () => have('rn-keyboard-handling').length
+      ? '키보드 회피 → `rn-keyboard-handling` 스킬 (KeyboardAvoidingView vs avoid-softinput 선택, iOS/Android 차이).'
+      : '키보드 회피 → 전용 스킬이 이 하네스에 없다. iOS 는 KeyboardAvoidingView, Android 는 `adjustResize` 가 기본이고 바텀시트·포털 안에서는 둘 다 어긋난다 — 실기로 확인한다.',
   },
   {
     re: /\bOTA\b|hot-?updater|번들\s*배포|롤백|rollback|핫픽스|hotfix/i,
-    say: 'OTA → `hot-updater` 스킬. 이 템플릿의 OTA 엔진이다. 흐름은 `docs/boot.md`.',
+    say: () => have('hot-updater').length
+      ? 'OTA → `hot-updater` 스킬. 이 템플릿의 OTA 엔진이다. 흐름은 `docs/boot.md`.'
+      : 'OTA → `hot-updater`(이 템플릿의 엔진). 전용 스킬이 없으니 `docs/boot.md` 와 `scripts/ota-deploy.mjs` 를 읽는다.',
   },
   {
     re: /safe\s*area|인셋|inset|노치|notch|SafeAreaView|하단\s*여백/i,
@@ -54,18 +99,27 @@ const ROUTES = [
   },
   {
     re: /스토어\s*(배포|제출)|app\s*store|testflight|play\s*(store|console)|EAS\s*build|github\s*actions|(CI|워크플로|workflow)\s*(설정|구성|추가|만들|파이프라인)/i,
-    say: '배포·CI → `expo-deployment` · `expo-cicd-workflows` 스킬. 이 템플릿은 EAS 미연결이 기본이다(`docs/config.md`).',
+    say: () => {
+      const s = have('expo-deployment', 'expo-cicd-workflows');
+      return s.length
+        ? `배포·CI → ${s.map(x => '`' + x + '`').join(' · ')} 스킬. 이 템플릿은 EAS 미연결이 기본이다(\`docs/config.md\`).`
+        : '배포·CI → 이 템플릿은 EAS 미연결이 기본이다. 빌드 경로는 로컬 prebuild + run:ios/android — `docs/config.md`.';
+    },
   },
   {
     re: /SDK\s*업그레이드|expo\s*upgrade|버전\s*올리|sdk\s*5[89]/i,
-    say: 'SDK 업그레이드 → `upgrading-expo` 스킬 + **expo MCP** 로 해당 버전 문서 확인.',
+    say: () => have('upgrading-expo').length
+      ? 'SDK 업그레이드 → `upgrading-expo` 스킬 + **expo MCP** 로 해당 버전 문서 확인.'
+      : 'SDK 업그레이드 → `npx expo install --check` 로 시작하고 해당 버전 문서를 **expo MCP** 로 확인한다.',
   },
 ];
 
 const EXPO_RE = /\bexpo\b|expo-router|expo-\w+|EAS\b/i;
 
 function routePrompt(text) {
-  const lines = ROUTES.filter(r => r.re.test(text)).map(r => `- ${r.say}`);
+  const lines = ROUTES.filter(r => r.re.test(text)).map(
+    r => `- ${typeof r.say === 'function' ? r.say() : r.say}`
+  );
   // Expo 를 언급했는데 위에 안 걸렸으면 MCP 만 짚는다.
   if (!lines.length && EXPO_RE.test(text)) {
     lines.push('- Expo 사실은 **expo MCP**(`search_documentation` → `read_documentation`)로 확인한다. 기억으로 답하지 않는다.');
