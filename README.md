@@ -11,6 +11,35 @@
 >
 > 문서·README·코드 모두 앞으로 많이 바뀔 수 있습니다.
 
+<details>
+<summary>AI 에이전트로 이 템플릿을 다룰 때 (Claude Code 기준)</summary>
+
+작업 규칙과 메커니즘은 [`AGENTS.md`](./AGENTS.md) 에 있습니다. Claude Code 는
+[Expo 공식 플러그인](https://docs.expo.dev/agents/claude/) 한 번으로 스킬과 MCP 를 같이
+등록합니다. 아래가 있으면 더 잘 돕니다.
+
+**MCP**
+
+|                                                        |                                                                   |
+| ------------------------------------------------------ | ----------------------------------------------------------------- |
+| [expo](https://docs.expo.dev/mcp/)                     | SDK 57 문서를 직접 읽습니다. 기억으로 답하면 대개 낡은 정보입니다 |
+| [codegraph](https://github.com/colbymchenry/codegraph) | 심볼·호출 관계 인덱스. 구조 질문을 grep 없이 풉니다               |
+| [context7](https://github.com/upstash/context7)        | 서드파티 라이브러리 문서                                          |
+
+**스킬**
+
+|                                                          |                                                                                    |
+| -------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| `react-native-best-practices`                            | Software Mansion. New Architecture 기준                                            |
+| `animate-expo`                                           | Reanimated · Gesture Handler · 햅틱. **웹용 `animate`·`motion-react` 와 다릅니다** |
+| `hot-updater`                                            | 이 템플릿의 OTA 엔진                                                               |
+| `rn-keyboard-handling`                                   | 폼·모달·바텀시트 키보드 회피                                                       |
+| `expo-dev-client` · `expo-deployment` · `upgrading-expo` | dev client · 배포 · SDK 업그레이드                                                 |
+
+없어도 동작합니다. `AGENTS.md` 가 없을 때의 대체 경로도 적어뒀습니다.
+
+</details>
+
 <!-- 아래는 나중에 공개할 때 쓸 내용. 지금은 감춰둔다.
 
 ## What's inside
