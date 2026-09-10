@@ -28,6 +28,7 @@ Each section records: the decision, the reasoning, and what is deferred.
 | 2026-09-07 | CLI `create-lesa-app` — slug 하나에서 전 필드 파생             | [cli.md](cli.md)         |
 | 2026-09-08 | CLI — 언어 선택 폐기, 이름이 slug 패턴이면 재사용              | [cli.md](cli.md)         |
 | 2026-09-08 | Android package 는 하이픈 불가 — 리버스 도메인에서만 제거      | [cli.md](cli.md)         |
+| 2026-09-10 | safe area — 네이티브 SafeAreaView 대신 `SafeArea`(View 스타일) | [ui.md](ui.md)           |
 
 ## Data Layer — current template (updated 2026-08-24)
 

@@ -1,4 +1,3 @@
-import { SafeAreaView as RNSafeAreaView } from 'react-native-safe-area-context';
 import Svg from 'react-native-svg';
 import { withUniwind } from 'uniwind';
 
@@ -29,11 +28,12 @@ export { NetLogFab } from './net-log-fab';
 export { GlobalPopup, popup } from './popup';
 export type { PopupChoice, PopupOptions } from './popup';
 export { Pressable } from './pressable';
+export { SafeArea } from './safe-area';
+export type { SafeAreaProps } from './safe-area';
 export { ScreenSystemBars } from './screen-system-bars';
 export type { ScreenSystemBarsProps } from './screen-system-bars';
 export { Text } from './text';
 export { GlobalToast, toast } from './toast';
 
 // className 이 필요한 외부 primitive 만 감싼다. 무거운 건 올리지 않는다.
-export const SafeAreaView = withUniwind(RNSafeAreaView);
 export const StyledSvg = withUniwind(Svg);

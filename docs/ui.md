@@ -7,7 +7,7 @@
 ```
 components/ui/          배럴 진입점(index.ts) — 화면은 여기서만 import 한다
   button · text · input · image · pressable · toast · popup · dimmed
-  button-dock · error-fallback · screen-system-bars · net-log-fab(dev)
+  button-dock · safe-area · error-fallback · screen-system-bars · net-log-fab(dev)
 components/icons/       코드형 SVG(탭 아이콘 등). ui 배럴에 넣지 않는다
 styles/tokens/          colors.css(primitive) · semantic.css · typography.css — CSS @theme 이 단일 출처
 styles/utilities/       유틸리티 계층
@@ -179,7 +179,48 @@ resources: { ko: ..., en: { translation: en } }
   네임스페이스로 오해하지 않게 한다(`'확인.'` 이 깨지지 않게).
 - `resources` 에 없는 언어는 `fallbackLng` 가 받는다.
 
+## safe area — `SafeArea` 컴포넌트를 쓴다
+
+`components/ui` 의 `SafeArea` 는 inset 을 **일반 `View` 의 스타일로** 적용한다.
+`react-native-safe-area-context` 의 네이티브 `SafeAreaView` 는 쓰지 않는다.
+
+```tsx
+<SafeArea className="flex-1" edges={['top']}>   // 탭 안의 화면
+<SafeArea edges={{ bottom: 'maximum' }} minInsets={{ bottom: 16 }} />  // 최소 16, inset 이 크면 inset
+<SafeArea edges={['bottom']} mode="margin" />
+```
+
+| prop        |                                                                       |
+| ----------- | --------------------------------------------------------------------- |
+| `edges`     | 배열(`['top']`) 또는 레코드(`{ top: 'additive' }`). 기본은 네 변 전부 |
+| `mode`      | `'padding'`(기본) · `'margin'`                                        |
+| `minInsets` | 변별 최소값. `additive` 면 더하고 `maximum` 이면 `Math.max`           |
+
+**탭 안의 화면은 `edges={['top']}` 만 쓴다.** 하단 inset 은 탭바가 이미 먹는다
+(`custom-tabs-layout` 의 `height: TAB_BAR_HEIGHT + insets.bottom`). `bottom` 을 또 주면
+이중 여백이 된다.
+
+### 왜 네이티브 SafeAreaView 를 안 쓰나
+
+React Navigation 문서가 명시한다 — _"If a screen containing safe area is animating, it
+causes jumpy behavior."_ 네이티브 `SafeAreaView` 는 영역을 네이티브 쪽에서 재서 padding 을
+넣는데, 화면이 애니메이션하는 동안 다시 측정되어 탭 전환·빠른 재시작에서 덜컹거린다.
+실측으로 확인한 증상이다.
+
+`react-native-safe-area-context` 자체 문서는 반대로 `SafeAreaView` 를 권장하지만(마운트
+시 깜빡임이 없다는 이유), 그 이점은 **`SafeAreaProvider` 에 `initialWindowMetrics` 를
+넘기면 훅에서도 얻는다** — `providers/app-providers.tsx` 가 이미 그렇게 한다. inset 이
+첫 렌더에 동기로 들어오므로 마운트 깜빡임이 없고, 네이티브 재측정도 없다.
+
+**둘을 섞지 않는다.** 같은 문서가 _"Using both SafeAreaView component and
+useSafeAreaInsets hook together can cause flickering as they may update at different
+times"_ 라고 경고한다. 그래서 배럴에서 `SafeAreaView` export 를 뺐다.
+
 ## 거부된 대안 (다시 제안하지 말 것)
+
+- 네이티브 `SafeAreaView`(react-native-safe-area-context) → 화면 애니메이션 중 재측정으로
+  탭 전환에서 덜컹거린다(위 "safe area"). 배럴 export 도 뺐다 — 훅과 섞이면 깜빡인다.
+- `react-native`의 `SafeAreaView` → deprecated, iOS 전용.
 
 - 토큰을 JS 객체로 → CSS `@theme` 이 단일 출처. Tailwind v4 의 `@config` 는 semantic 계층에
   동작하지 않는다(위 "Single source of truth").
