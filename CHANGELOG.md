@@ -5,7 +5,7 @@
 
 릴리즈 절차는 [docs/config.md](docs/config.md) "릴리즈" 참고.
 
-## 0.0.1 (2026-09-07) — 테스트 배포
+## 0.0.1 (2026-09-10) — 테스트 배포
 
 > 아직 나만 쓰는 단계다. `1.0.0` 은 clean clone 검증과 CLI(C5)가 끝난 뒤에 단다.
 > 이전에 `v0.1.0` 태그를 "템플릿 기반(foundation)"으로 붙였는데, 그때는 버전 체계를
@@ -26,7 +26,12 @@ KR `lib/preloader` verbatim 이식(대조 검증: `boot.md`).
 **전역 오버레이** — `popup.confirm()` Promise 표면 · dev 네트워크 로거 FAB.
 
 **툴링** — pnpm hoisted 링커 · prettier · 표시명 분리(`displayName`) · EAS 는 파일 존재로
-갈리는 opt-in · 테스트 인프라 미포함.
+갈리는 opt-in · 테스트 인프라 미포함. SDK 57 패치 정렬(expo 57.0.21 · expo-router 57.0.20 ·
+expo-build-properties 57.0.17 · expo-glass-effect 57.0.2).
+
+**생성 CLI** — 형제 레포 `../create-lesa-app`. 질문 3개(앱 이름 → 필요 시 slug → Apple
+Team ID)로 `env-candidates.ts` 를 치환하고 216파일을 초기 커밋한다. 복사 대상은 템플릿의
+`git ls-files` — 산출물·로컬 상태를 정의상 제외한다. 계약은 `docs/cli.md` 단일 출처.
 
 ### 고친 것 (참조 앱 대조에서 발견)
 
@@ -38,8 +43,24 @@ KR `lib/preloader` verbatim 이식(대조 검증: `boot.md`).
   splash 가 첫 화면임을 모른다.
 - 딥링크 in-flight 중복 창 · `makeKey` 키 충돌 · `external-web` 쿼리 인코딩 · 탭 이름 무검증.
 - 푸시 토큰 동기화에 KR 의 in-flight 단일화와 fetch 후 auth 재확인 이식.
+- 하이픈이 든 slug 이 잘못된 Android package 를 만들었다(`com.gym-log.…`). `android.package`
+  는 하이픈을 못 쓴다(SDK 57 app config 문서) → 리버스 도메인에서만 제거한다.
+- CLI 가 완료 후 종료되지 않았다 — `exit()` 미호출로 인트로 타이머와 raw mode 가 이벤트
+  루프를 잡고 있었다. 긴 화면에서 인트로 애니메이션 잔해가 쌓이던 것도 함께 고쳤다.
+- 줄바꿈이 섞인 붙여넣기가 입력값에 `\r` 로 들어갔다(ink 는 `input === '\r'` 일 때만
+  `key.return` 을 세운다).
 
 ### 문서
 
 섹션별 6개 문서로 재편(`AGENTS.md` 가 폴더→문서 색인). 각 문서는 파일 지도 · 확정 결정 ·
 거부된 대안 · 채우는 곳 · 검증 상태 순서다.
+
+**코드 주석을 주의사항만 남기고 걷어냈다** — 813줄(20%) → 353줄(7%). 참조 앱은 2~3%다.
+규칙·근거·필드 설명은 `docs/` 로 옮겼고(옮기기 전 `grep` 으로 누락 확인), 코드에는 모르면
+깨지는 것만 남긴다: `app.config` 가 import 하는 파일의 런타임 import 금지, headless 공용
+모듈의 React import 금지, `try/catch` 위치, 폴더 탭의 `_layout.tsx`, splash 배경색 일치 등.
+코드는 한 줄도 바뀌지 않았다.
+
+**예시값에서 회사 앱 이름을 제거했다** — 전수조사 후 `lesa-app` 으로 통일. 비ASCII 가 논점인
+`sanitizedName()` 실측표만 `레사앱`·`レサアプリ` 로 둔다(ASCII 로 바꾸면 표가 결함을 증명하지
+못한다 — 정규식을 직접 돌려 결과가 같은지 확인).

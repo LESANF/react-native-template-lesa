@@ -220,12 +220,18 @@
       clean clone 에 없다. `src/types/css.d.ts` 에 `declare module '*.css'` 를 넣어 해결(expo-env.d.ts 가
       있는 환경에서도 중복 충돌 없음을 양쪽에서 확인). doctor 는 SDK 패치 3개 밀림(별건).
 
-### C5. create-my-stack CLI
+### C5. create-lesa-app CLI — 완료(2026-09-10)
 
-- [ ] A~C4 완료 뒤 시작
-- [ ] app name, slug, scheme, bundle id/package 결정적 치환
-- [ ] template download와 pnpm install, 실패 시 생성 폴더 cleanup
-- [ ] 생성 앱에서 check-all, Expo Doctor, export 검증
+형제 레포 `../create-lesa-app`. 계약은 `docs/cli.md` 단일 출처.
+
+- [x] slug 하나에서 name·displayName·scheme·bundleId·package·version 파생
+- [x] 복사 대상 = 템플릿의 `git ls-files` (산출물·로컬 상태 정의상 제외)
+- [x] 실패 시 생성 폴더 cleanup, 잔여 자리표시 검사(줄번호 출력)
+- [x] 생성 앱에서 `check-all` green · 216파일 초기 커밋
+- [x] 전역 실행(`npm link`) · 템플릿 경로 자동 탐색(형제 폴더)
+- [ ] **사용자 확인**: 터미널 한글 IME 조립 — pty 로는 조합 중간 상태를 재현할 수 없다
+- [ ] 원격 레포 없음 — 13커밋이 로컬 1곳에만 있다
+- [ ] 배포 방식 미결: 로컬 복사 유지 vs npm 발행(`docs/` 참조 앱 익명화 선행)
 
 ## D. 완료 정의 — 이 템플릿이 "끝"인 조건
 
