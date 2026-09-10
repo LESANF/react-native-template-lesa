@@ -39,19 +39,17 @@ module.exports = defineConfig([
   {
     files: ['src/**/*.{ts,tsx}'],
     rules: {
+      // shared → features 는 warn. 대개 배치를 다시 보라는 신호다 — 그 스토어·타입이 feature
+      // 안에 있어야 하는 건 아닌지. 정말 shared 가 도메인을 알아야 하면 registry 로 뒤집는다
+      // (`lib/deep-link` 의 spec 테이블이 그 예다).
       'import/no-restricted-paths': [
-        'error',
+        'warn',
         {
           zones: [
             {
               target: './src/!(app|features|providers)/**',
               from: './src/features',
               message: 'shared 계층은 features를 모릅니다 — 도메인 무관 코드만 둡니다.',
-            },
-            {
-              target: './src/!(app)/**',
-              from: './src/providers',
-              message: 'providers는 루트 조립 전용 — app/_layout 만 소비합니다.',
             },
           ],
         },
@@ -77,6 +75,25 @@ module.exports = defineConfig([
               regex: '^@/api/(?!.*(?:requests|queries|mutations|types)$).+',
               message:
                 'api barrel 금지 — @/api/<concern>/.../(requests|queries|mutations|types) 를 직접 import 하세요.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+
+  // providers 역류는 조립 순서가 깨진 것이라 error 로 막는다. `import/no-restricted-paths` 가
+  // 아니라 다른 규칙 키를 쓰는 이유: 같은 키를 두 블록에 쓰면 나중 것이 앞을 덮어 조용히 사라진다.
+  {
+    files: ['src/!(app)/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              regex: '^@/providers',
+              message: 'providers는 루트 조립 전용 — app/_layout 만 소비합니다.',
             },
           ],
         },

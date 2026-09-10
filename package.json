@@ -37,7 +37,8 @@
     "ota:deploy:ios:production": "cross-env EXPO_PUBLIC_APP_ENV=production node scripts/ota-deploy.mjs ios",
     "ota:deploy:android:production": "cross-env EXPO_PUBLIC_APP_ENV=production node scripts/ota-deploy.mjs android",
     "ota:fingerprint": "hot-updater fingerprint create",
-    "ota:app-version": "hot-updater app-version"
+    "ota:app-version": "hot-updater app-version",
+    "prepare": "husky"
   },
   "dependencies": {
     "@expo/metro-runtime": "~57.0.15",
@@ -91,6 +92,8 @@
     "zustand": "^5.0.14"
   },
   "devDependencies": {
+    "@commitlint/cli": "^21.2.2",
+    "@commitlint/config-conventional": "^21.2.2",
     "@expo/fingerprint": "^0.20.12",
     "@hot-updater/aws": "^0.36.8",
     "@hot-updater/expo": "^0.36.8",
@@ -104,6 +107,8 @@
     "eslint-config-expo": "~57.0.2",
     "eslint-plugin-better-tailwindcss": "^4.6.0",
     "hot-updater": "^0.36.8",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.5.0",
     "prettier": "^3.9.6",
     "prettier-plugin-tailwindcss": "^0.8.1",
     "react-native-svg-transformer": "^1.5.3",

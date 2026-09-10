@@ -1,0 +1,5 @@
+# 락파일이 바뀌었으면 알린다. KR 은 `pnpm-lock.yml` 을 보다가 영원히 매치되지 않았다 —
+# pnpm 의 실제 파일명은 `pnpm-lock.yaml` 이다.
+if git diff --name-only HEAD@{1} HEAD | grep -q '^pnpm-lock\.yaml$'; then
+  echo "📦 pnpm-lock.yaml changed — run 'pnpm install'."
+fi
