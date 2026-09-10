@@ -4,24 +4,14 @@
 
 <h1 align="center">lesa-expo-template</h1>
 
-<p align="center">
-  나만의 의견이 담긴 <b>Expo SDK 57</b> 스타터 — pnpm · CNG-first · 검증된 패턴만.
-</p>
-
-<p align="center">
-  <b>⚗️ 전부 실험적입니다. 저(LESA)를 위해 만들었습니다.</b>
-</p>
-
 ---
 
 > [!WARNING]
-> **이 템플릿은 제 것입니다.** 제 취향·제 업무 흐름에 맞춰 만들었고, 모든 선택이
-> 실험적입니다. 안정성도 하위 호환도 지원도 약속하지 않고, 예고 없이 구조가 바뀝니다.
+> MVP 단계라 너무 실험적입니다. 사용을 권하지 않습니다.
 >
-> 읽고 참고하시는 건 환영합니다. 다만 **그대로 프로덕션에 쓰지 말고 직접 검증하세요.**
-> 각 결정의 근거와 거부한 대안은 `docs/` 에 남겨뒀으니 그걸 보고 판단하시면 됩니다.
+> 문서·README·코드 모두 앞으로 많이 바뀔 수 있습니다.
 
-> 🚧 개발 중. 현재 상태와 남은 작업은 [`docs/template-completion.md`](./docs/template-completion.md) 기준으로 관리합니다.
+<!-- 아래는 나중에 공개할 때 쓸 내용. 지금은 감춰둔다.
 
 ## What's inside
 
@@ -171,3 +161,5 @@ src/
 
 섹션별 문서는 [`AGENTS.md`](./AGENTS.md) 의 표에서 찾는다. 데이터 레이어 규칙은
 [`docs/data-layer.md`](./docs/data-layer.md) 참고.
+
+-->
