@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./assets/images/profile.jpg" alt="lesa-expo-template" width="180" />
+  <img src="./assets/images/icon-rounded.png" alt="lesa-expo-template" width="128" />
 </p>
 
 <h1 align="center">lesa-expo-template</h1>
@@ -72,8 +72,11 @@ production이 `.invalid`로 남아 있으면 **production 부팅이 throw합니�
 
 ### 3. 에셋 — `assets/`
 
-`images/icon.png` · `expo.icon/`(iOS 26) · `images/android-icon-{foreground,background,monochrome}.png` ·
+`images/icon.png`(iOS·풀블리드) · `images/adaptive-icon.png`(Android·여백 있는 버전) ·
 `images/splash-icon.png`
+
+Android adaptive icon 은 108dp 중 중앙 72dp 만 남고 바깥이 런처 마스크에 잘립니다 —
+풀블리드를 그대로 넣으면 안 되고, `adaptiveIcon.backgroundColor` 를 그 파일의 배경색과 맞춥니다.
 
 splash 배경색은 **두 곳을 같이** 바꿉니다 — `app.config.ts`의 `expo-splash-screen` `backgroundColor`와
 `src/features/splash/splash-screen.tsx`. 어긋나면 네이티브→JS splash 이음새가 눈에 보입니다.

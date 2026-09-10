@@ -94,7 +94,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   userInterfaceStyle: 'automatic',
   assetBundlePatterns: ['**/*'],
   ios: {
-    icon: './assets/expo.icon',
+    icon: './assets/images/icon.png',
     supportsTablet: true,
     bundleIdentifier: Env.identity.bundleId,
     buildNumber: Env.version.iosBuildNumber,
@@ -120,10 +120,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   android: {
     adaptiveIcon: {
-      backgroundColor: '#E6F4FE',
-      foregroundImage: './assets/images/android-icon-foreground.png',
-      backgroundImage: './assets/images/android-icon-background.png',
-      monochromeImage: './assets/images/android-icon-monochrome.png',
+      // 런처가 108dp 중 중앙 72dp 만 남기므로 여백 있는 파일을 쓴다 — 풀블리드는 잘린다.
+      backgroundColor: '#FFFBEF',
+      foregroundImage: './assets/images/adaptive-icon.png',
     },
     package: Env.identity.package,
     versionCode: Env.version.androidVersionCode,
