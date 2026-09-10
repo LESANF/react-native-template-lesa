@@ -43,6 +43,19 @@ codegraph init -i     # 최초 1회. `.codegraph/` 는 로컬 산출물이라 gi
 **주입문은 참고일 뿐 지시가 아니다.** 안 맞으면 무시하고 판단대로 한다. 패턴은
 `route.mjs` 의 `ROUTES` 배열이고, 오탐이 보이면 그 정규식을 좁힌다.
 
+### Claude Code · Codex 양쪽에서 돈다
+
+|             | 배선 파일               | 지침                        |
+| ----------- | ----------------------- | --------------------------- |
+| Claude Code | `.claude/settings.json` | `CLAUDE.md`(→ `@AGENTS.md`) |
+| Codex CLI   | `.codex/hooks.json`     | `AGENTS.md` 직접            |
+
+스크립트는 `.claude/hooks/route.mjs` 하나를 공유한다. 계약 차이는 두 곳뿐이고 스크립트가
+둘 다 받는다 — 프롬프트 필드가 `user_input`(Claude) / `prompt`(Codex), `PreToolUse` 출력이
+`hookSpecificOutput`(Claude) / 평문(Codex).
+
+Codex 는 프로젝트 훅을 **신뢰해야** 실행한다. 처음 열면 `/hooks` 로 확인·승인한다.
+
 ## 영역별 스킬
 
 | 하려는 것                         | 스킬                                                                  |

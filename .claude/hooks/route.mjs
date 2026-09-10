@@ -4,11 +4,17 @@
  *   node route.mjs prompt    — UserPromptSubmit (stdin JSON)
  *   node route.mjs state     — SessionStart (현재 켜져 있는 opt-in 스냅샷)
  *   node route.mjs grep      — PreToolUse(Grep). 심볼 검색이면 codegraph 를 권한다
+ *
+ * Claude Code · Codex CLI 양쪽에서 돈다. 계약 차이는 두 곳뿐이다 —
+ * 프롬프트 필드가 `user_input`(Claude) / `prompt`(Codex), PreToolUse 출력이
+ * `hookSpecificOutput`(Claude) / 평문(Codex). 둘 다 받아 넘긴다.
  */
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 
-const ROOT = process.env.CLAUDE_PROJECT_DIR ?? process.cwd();
+const ROOT = process.env.CLAUDE_PROJECT_DIR ?? process.env.CODEX_PROJECT_DIR ?? process.cwd();
+/** Claude Code 만 PreToolUse 에서 JSON 계약을 요구한다. */
+const IS_CLAUDE = Boolean(process.env.CLAUDE_PROJECT_DIR);
 const read = () => new Promise(r => {
   let s = '';
   process.stdin.setEncoding('utf8');
@@ -121,15 +127,14 @@ if (mode === 'grep') {
     pattern = JSON.parse(raw)?.tool_input?.pattern;
   } catch {}
   if (isSymbolLookup(pattern)) {
-    // PreToolUse 는 hookSpecificOutput.additionalContext 로 넣는다. permissionDecision 은
-    // 주지 않는다 — 막지 않고 알리기만 한다.
+    const say = `심볼 \`${pattern}\` 을 찾는 중이라면 \`codegraph_explore\` 가 정의·호출자·영향 범위를 한 번에 준다(AGENTS.md ①). 문자열 내용을 찾는 거면 grep 이 맞다.`;
+    // permissionDecision 은 주지 않는다 — 막지 않고 알리기만 한다.
     process.stdout.write(
-      JSON.stringify({
-        hookSpecificOutput: {
-          hookEventName: 'PreToolUse',
-          additionalContext: `심볼 \`${pattern}\` 을 찾는 중이라면 \`codegraph_explore\` 가 정의·호출자·영향 범위를 한 번에 준다(AGENTS.md ①). 문자열 내용을 찾는 거면 grep 이 맞다.`,
-        },
-      })
+      IS_CLAUDE
+        ? JSON.stringify({
+            hookSpecificOutput: { hookEventName: 'PreToolUse', additionalContext: say },
+          })
+        : say
     );
   }
   process.exit(0);
