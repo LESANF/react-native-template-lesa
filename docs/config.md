@@ -331,31 +331,55 @@ dev 번들이 들어가고**, `:186` 의 Release 분기도 건너뛴다. `XcodeB
 `0.x` 다 — **PoC 이고 API·구조 안정성을 약속하지 않는다.** 그래서 `0.x` 안에서는
 breaking change 를 minor 로 낸다(semver 가 `0.x` 에 허용하는 것이다).
 
-| 무엇이 바뀌었나                                                 | 올리는 자리   |
-| --------------------------------------------------------------- | ------------- |
-| 구조·계약 변경(폴더 이동 · `env-candidates` 필드 · 배럴 export) | minor `0.2.0` |
-| 버그 수정 · 의존성 패치 · 문서                                  | patch `0.1.1` |
+| 무엇이 바뀌었나                                                 | 올리는 자리 |
+| --------------------------------------------------------------- | ----------- |
+| 구조·계약 변경(폴더 이동 · `env-candidates` 필드 · 배럴 export) | `0.1.0`     |
+| 버그 수정 · 의존성 패치 · 문서                                  | `0.0.2`     |
 
 `1.0.0` 은 **실제 앱 하나를 이 템플릿으로 끝까지 만들어 스토어에 올린 뒤**에 단다.
 그때까지는 무엇이 부족한지 알 수 없다.
 
+### 브랜치 모델
+
+`master` 가 **실 배포**다. 버전 브랜치가 develop 역할을 한다 — 피쳐를 거기에 모으고,
+그 브랜치를 `master` 로 머지하는 순간이 릴리즈다.
+
+```
+feature/xxx ──PR──▶ 0.0.2 ──PR──▶ master ──tag──▶ v0.0.2
+```
+
+머지는 항상 **merge commit**(`gh pr merge --merge`)이다. squash 는 커밋 단위 이력과
+`Co-Authored-By` 트레일러를 하나로 뭉갠다.
+
+브랜치 이름에는 `v` 를 붙이지 않는다. 태그가 `v0.0.2` 라서 브랜치도 같은 이름이면
+`git checkout 0.0.2` 가 "refname is ambiguous" 로 갈린다.
+
 ### 절차
 
 ```bash
-# 1. CHANGELOG 의 [Unreleased] 를 새 버전 절로 바꾼다 (Added·Changed·Fixed·Docs)
-# 2. 버전을 올린다
+# 1. 피쳐는 버전 브랜치로 모은다
+git switch -c feature/xxx 0.0.2
+gh pr create --base 0.0.2 && gh pr merge --merge --delete-branch
+
+# 2. 릴리즈할 준비가 되면 — 버전 브랜치의 마지막 커밋에서
+#    CHANGELOG 의 [Unreleased] 를 새 버전 절로 바꾸고(Added·Changed·Fixed·Docs)
 pnpm version 0.0.2 --no-git-tag-version   # package.json 만 바꾼다
-
-# 3. 검증
 pnpm check-all
+git commit -am "chore(release): 0.0.2" && git push
 
-# 4. 커밋 · 태그 · 푸시
-git add -A && git commit -m "chore(release): 0.0.2"
-git tag -a v0.0.2 -m "v0.0.2 — <한 줄 요약>"
-git push --follow-tags origin master
+# 3. 버전 브랜치를 master 로 — 이게 배포다
+gh pr create --base master --head 0.0.2 --title "release: 0.0.2"
+gh pr merge --merge --delete-branch
+
+# 4. master 에서 태그를 단다. 태그는 배포된 커밋에 붙어야 한다
+git switch master && git pull
+git tag -a v0.0.2 -m "v0.0.2 — <한 줄 요약>" && git push --follow-tags
 
 # 5. GitHub 릴리즈 — 0.x 는 반드시 --prerelease
 gh release create v0.0.2 --title "v0.0.2" --prerelease --notes-file <(sed -n '/## \[0.0.2\]/,/## \[0.0.1/p' CHANGELOG.md)
+
+# 6. 다음 버전 브랜치를 딴다
+git switch -c 0.0.3 master && git push -u origin 0.0.3
 ```
 
 ### CLI 와의 관계
