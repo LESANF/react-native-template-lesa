@@ -344,18 +344,18 @@ breaking change 를 minor 로 낸다(semver 가 `0.x` 에 허용하는 것이다
 ```bash
 # 1. CHANGELOG 의 [Unreleased] 를 새 버전 절로 바꾼다 (Added·Changed·Fixed·Docs)
 # 2. 버전을 올린다
-pnpm version 0.2.0 --no-git-tag-version   # package.json 만 바꾼다
+pnpm version 0.0.2 --no-git-tag-version   # package.json 만 바꾼다
 
 # 3. 검증
 pnpm check-all
 
 # 4. 커밋 · 태그 · 푸시
-git add -A && git commit -m "chore(release): 0.2.0"
-git tag -a v0.2.0 -m "v0.2.0 — <한 줄 요약>"
+git add -A && git commit -m "chore(release): 0.0.2"
+git tag -a v0.0.2 -m "v0.0.2 — <한 줄 요약>"
 git push --follow-tags origin master
 
 # 5. GitHub 릴리즈 — 0.x 는 반드시 --prerelease
-gh release create v0.2.0 --title "v0.2.0" --prerelease --notes-file <(sed -n '/## \[0.2.0\]/,/## \[0.1/p' CHANGELOG.md)
+gh release create v0.0.2 --title "v0.0.2" --prerelease --notes-file <(sed -n '/## \[0.0.2\]/,/## \[0.0.1/p' CHANGELOG.md)
 ```
 
 ### CLI 와의 관계

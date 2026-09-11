@@ -9,9 +9,9 @@
 
 ## [Unreleased]
 
-## [0.1.0] — 2026-09-11
+## [0.0.1] — 2026-09-11
 
-첫 공개 릴리즈. **PoC** 다 — `0.x` 는 API·구조 안정성을 약속하지 않고 GitHub 에서
+첫 공개 릴리즈. **PoC** 다 — `0.0.x` 는 API·구조 안정성을 약속하지 않고 GitHub 에서
 pre-release 로 표시한다. `1.0.0` 은 실제 앱 하나를 이 템플릿으로 끝까지 만든 뒤에 단다.
 
 ### Added
@@ -72,8 +72,8 @@ Team ID)로 `env-candidates.ts` 를 치환하고 216파일을 초기 커밋한�
 
 ---
 
-[unreleased]: https://github.com/LESANF/react-native-template-lesa/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/LESANF/react-native-template-lesa/releases/tag/v0.1.0
+[unreleased]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.1...HEAD
+[0.0.1]: https://github.com/LESANF/react-native-template-lesa/releases/tag/v0.0.1
 
 `foundation-2026-06` 태그는 버전 체계를 정하기 전의 6월 스냅샷이다. semver 밖 이름이라
 릴리즈로 잡히지 않는다.
