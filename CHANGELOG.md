@@ -1,18 +1,20 @@
 # Changelog
 
-버전은 `package.json` 과 `env-candidates.ts` `version.app` 두 곳에 있다.
-전자는 템플릿 자체 버전, 후자는 **생성된 앱의** 버전이다(받는 쪽이 바꾼다).
+[Keep a Changelog](https://keepachangelog.com/ko/1.1.0/) · [Semantic Versioning](https://semver.org/lang/ko/)
 
-릴리즈 절차는 [docs/config.md](docs/config.md) "릴리즈" 참고.
+버전이 두 개다. **`package.json`** 은 템플릿 자체 버전이고, **`env-candidates.ts` 의
+`version.app`** 은 생성된 앱의 버전이다(받는 쪽이 관리한다).
 
-## 0.0.1 (2026-09-10) — 테스트 배포
+릴리즈 절차는 [docs/config.md](docs/config.md) "릴리즈".
 
-> **0.0.x = PoC.** API·구조 안정성을 약속하지 않는다. 릴리즈는 GitHub 에서 pre-release
-> 로 표시한다. `1.0.0` 은 실제 앱 하나를 이 템플릿으로 끝까지 만들어 본 뒤에 단다.
->
-> 6월에 붙였던 `v0.1.0`(foundation)은 버전 체계를 정하기 전 스냅샷인데 semver 로
-> `v0.0.1` 보다 높아 최신이 거꾸로 보였다 → `foundation-2026-06` 으로 옮겼다(2026-09-11).
-> 버전 태그는 `v0.0.1` 하나뿐이다.
+## [Unreleased]
+
+## [0.1.0] — 2026-09-11
+
+첫 공개 릴리즈. **PoC** 다 — `0.x` 는 API·구조 안정성을 약속하지 않고 GitHub 에서
+pre-release 로 표시한다. `1.0.0` 은 실제 앱 하나를 이 템플릿으로 끝까지 만든 뒤에 단다.
+
+### Added
 
 **부팅 파이프라인** — splash 뒤 프리로더(강제 업데이트 · OTA · 권한 슬롯) + 프리페치.
 참조 앱의 `lib/preloader` verbatim 이식(대조 검증: `boot.md`).
@@ -36,7 +38,7 @@ expo-build-properties 57.0.17 · expo-glass-effect 57.0.2).
 Team ID)로 `env-candidates.ts` 를 치환하고 216파일을 초기 커밋한다. 복사 대상은 템플릿의
 `git ls-files` — 산출물·로컬 상태를 정의상 제외한다. 계약은 `docs/cli.md` 단일 출처.
 
-### 고친 것 (참조 앱 대조에서 발견)
+### Fixed
 
 - `ios:release` 가 `--configuration release`(소문자)라 release 빌드에 dev 번들이 들어갔다.
   `runIosAsync.js` 가 `=== 'Release'` 정확 비교를 한다.
@@ -53,7 +55,7 @@ Team ID)로 `env-candidates.ts` 를 치환하고 216파일을 초기 커밋한�
 - 줄바꿈이 섞인 붙여넣기가 입력값에 `\r` 로 들어갔다(ink 는 `input === '\r'` 일 때만
   `key.return` 을 세운다).
 
-### 문서
+### Docs
 
 섹션별 6개 문서로 재편(`AGENTS.md` 가 폴더→문서 색인). 각 문서는 파일 지도 · 확정 결정 ·
 거부된 대안 · 채우는 곳 · 검증 상태 순서다.
@@ -67,3 +69,11 @@ Team ID)로 `env-candidates.ts` 를 치환하고 216파일을 초기 커밋한�
 **예시값에서 회사 앱 이름을 제거했다** — 전수조사 후 `lesa-app` 으로 통일. 비ASCII 가 논점인
 `sanitizedName()` 실측표만 `레사앱`·`レサアプリ` 로 둔다(ASCII 로 바꾸면 표가 결함을 증명하지
 못한다 — 정규식을 직접 돌려 결과가 같은지 확인).
+
+---
+
+[unreleased]: https://github.com/LESANF/react-native-template-lesa/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/LESANF/react-native-template-lesa/releases/tag/v0.1.0
+
+`foundation-2026-06` 태그는 버전 체계를 정하기 전의 6월 스냅샷이다. semver 밖 이름이라
+릴리즈로 잡히지 않는다.

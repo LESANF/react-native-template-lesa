@@ -326,14 +326,50 @@ dev 번들이 들어가고**, `:186` 의 Release 분기도 건너뛴다. `XcodeB
 | `package.json` `version`          | 템플릿 자체 버전     | 템플릿 메인테이너 |
 | `env-candidates.ts` `version.app` | **생성된 앱의** 버전 | 받는 쪽           |
 
-절차:
+### 버전을 올리는 기준
 
-1. `CHANGELOG.md` 맨 위에 새 절을 쓴다(무엇이 바뀌었는지 · 고친 버그).
-2. `package.json` `version` 을 올린다.
-3. `pnpm run check-all` green 확인.
-4. 커밋 → `git tag -a v<버전> -m "<한 줄 요약>"` → `git push --follow-tags`.
+`0.x` 다 — **PoC 이고 API·구조 안정성을 약속하지 않는다.** 그래서 `0.x` 안에서는
+breaking change 를 minor 로 낸다(semver 가 `0.x` 에 허용하는 것이다).
 
-`1.0.0` 은 clean clone 검증(완료 정의 #1)과 CLI(C5)가 끝난 뒤에 단다. 그 전까지 0.0.x.
+| 무엇이 바뀌었나                                                 | 올리는 자리   |
+| --------------------------------------------------------------- | ------------- |
+| 구조·계약 변경(폴더 이동 · `env-candidates` 필드 · 배럴 export) | minor `0.2.0` |
+| 버그 수정 · 의존성 패치 · 문서                                  | patch `0.1.1` |
+
+`1.0.0` 은 **실제 앱 하나를 이 템플릿으로 끝까지 만들어 스토어에 올린 뒤**에 단다.
+그때까지는 무엇이 부족한지 알 수 없다.
+
+### 절차
+
+```bash
+# 1. CHANGELOG 의 [Unreleased] 를 새 버전 절로 바꾼다 (Added·Changed·Fixed·Docs)
+# 2. 버전을 올린다
+pnpm version 0.2.0 --no-git-tag-version   # package.json 만 바꾼다
+
+# 3. 검증
+pnpm check-all
+
+# 4. 커밋 · 태그 · 푸시
+git add -A && git commit -m "chore(release): 0.2.0"
+git tag -a v0.2.0 -m "v0.2.0 — <한 줄 요약>"
+git push --follow-tags origin master
+
+# 5. GitHub 릴리즈 — 0.x 는 반드시 --prerelease
+gh release create v0.2.0 --title "v0.2.0" --prerelease --notes-file <(sed -n '/## \[0.2.0\]/,/## \[0.1/p' CHANGELOG.md)
+```
+
+### CLI 와의 관계
+
+`create-lesa-app` 은 **자기 버전과 별개로** 템플릿 태그를 고정해 받는다
+(`src/fetch-template.ts` 의 `TEMPLATE_REF`). 그래서 템플릿을 릴리즈하면 CLI 쪽도
+그 값을 올려 다시 발행해야 새 템플릿이 나간다.
+
+|               |                                                               |
+| ------------- | ------------------------------------------------------------- |
+| 템플릿만 바뀜 | 템플릿 릴리즈 → CLI 의 `TEMPLATE_REF` 올림 → CLI patch 릴리즈 |
+| CLI 만 바뀜   | CLI 릴리즈만                                                  |
+
+두 레포의 버전을 맞추려 하지 않는다 — 따로 움직인다.
 
 ## 테스트 — 인프라만, 파일은 없다
 
