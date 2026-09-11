@@ -7,18 +7,21 @@
 
 ## 0.0.1 (2026-09-10) — 테스트 배포
 
-> 아직 나만 쓰는 단계다. `1.0.0` 은 clean clone 검증과 CLI(C5)가 끝난 뒤에 단다.
-> 이전에 `v0.1.0` 태그를 "템플릿 기반(foundation)"으로 붙였는데, 그때는 버전 체계를
-> 정하기 전이었다. 여기서부터 0.0.x 로 다시 센다.
+> **0.0.x = PoC.** API·구조 안정성을 약속하지 않는다. 릴리즈는 GitHub 에서 pre-release
+> 로 표시한다. `1.0.0` 은 실제 앱 하나를 이 템플릿으로 끝까지 만들어 본 뒤에 단다.
+>
+> 6월에 붙였던 `v0.1.0`(foundation)은 버전 체계를 정하기 전 스냅샷인데 semver 로
+> `v0.0.1` 보다 높아 최신이 거꾸로 보였다 → `foundation-2026-06` 으로 옮겼다(2026-09-11).
+> 버전 태그는 `v0.0.1` 하나뿐이다.
 
 **부팅 파이프라인** — splash 뒤 프리로더(강제 업데이트 · OTA · 권한 슬롯) + 프리페치.
-KR `lib/preloader` verbatim 이식(대조 검증: `boot.md`).
+참조 앱의 `lib/preloader` verbatim 이식(대조 검증: `boot.md`).
 
-**딥링크** — 파서 · 매처 · 큐 · 게이트 인프라 · 안전 탈출 계보(KR). 어트리뷰션 SDK 는
+**딥링크** — 파서 · 매처 · 큐 · 게이트 인프라 · 안전 탈출 계보(참조 앱). 어트리뷰션 SDK 는
 `lib/deep-link/attribution.ts` 하나로 붙이고 뗀다.
 
 **푸시** — FCM(RNFB 26.3.3) + notify-kit. 백그라운드/종료는 OS 가 표시하고 탭은 RNFB 로
-오는 KR 정책. 포그라운드 표시는 `SHOW_FOREGROUND_NOTIFICATION` 스위치.
+오는 참조 앱 정책. 포그라운드 표시는 `SHOW_FOREGROUND_NOTIFICATION` 스위치.
 활성화는 `firebase/` 파일 존재로 갈린다.
 
 **OTA** — hot-updater(자체 서버). `Env.urls.ota` 가 비면 비활성.
@@ -42,7 +45,7 @@ Team ID)로 `env-candidates.ts` 를 치환하고 216파일을 초기 커밋한�
 - 루트 `unstable_settings.anchor` 복원 — 없으면 expo-router 가 자식 정렬·딥링크 랭킹에서
   splash 가 첫 화면임을 모른다.
 - 딥링크 in-flight 중복 창 · `makeKey` 키 충돌 · `external-web` 쿼리 인코딩 · 탭 이름 무검증.
-- 푸시 토큰 동기화에 KR 의 in-flight 단일화와 fetch 후 auth 재확인 이식.
+- 푸시 토큰 동기화에 참조 앱의 in-flight 단일화와 fetch 후 auth 재확인 이식.
 - 하이픈이 든 slug 이 잘못된 Android package 를 만들었다(`com.gym-log.…`). `android.package`
   는 하이픈을 못 쓴다(SDK 57 app config 문서) → 리버스 도메인에서만 제거한다.
 - CLI 가 완료 후 종료되지 않았다 — `exit()` 미호출로 인트로 타이머와 raw mode 가 이벤트
