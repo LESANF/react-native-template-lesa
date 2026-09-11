@@ -90,7 +90,7 @@ const ROUTES = [
     say: '네이티브 설정 → `ios/`·`android/` 는 산출물이다. `plugins/` 의 config plugin 으로 한다. Expo 동작은 **expo MCP** 로 확인 — `docs/config.md`.',
   },
   {
-    re: /푸시|push\b|FCM|알림|notification|notifee/i,
+    re: /푸시|FCM|notifee|APNs|알림|(push|remote)\s*(notification|message|token)|notification\s*(배지|탭|권한|채널)/i,
     say: '푸시 → `docs/push.md`. 활성화는 `firebase/` 파일 존재로 갈린다. 헤드리스 체인에 React 를 import 하면 안 된다.',
   },
   {
