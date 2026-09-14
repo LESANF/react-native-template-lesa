@@ -11,6 +11,19 @@
 
 ### Fixed
 
+- 딥링크 파라미터가 인코딩된 경우 라우팅이 어긋났다. 파서가 세그먼트를 나눠 디코딩한 뒤
+  **다시 이어서 재분할**하는 바람에 인코딩된 슬래시(`menu-4/a%2Fb`)가 세그먼트 개수를
+  바꿨고, expo 경로에는 디코딩된 값이 재인코딩 없이 들어갔다(`/(tabs)/menu-4/a b`).
+  이제 세그먼트 배열이 원본이고 경로에 넣을 때 다시 인코딩한다 — 공백·슬래시·한글 id
+- reanimated 목 누락(`FadeIn`·`FadeOut`·`runOnJS`·`useDerivedValue`·`useAnimatedReaction`)
+
+### Added
+
+- api client 테스트 9개 — 공개 요청에 토큰이 새지 않는지, 401 refresh 재시도가 새 토큰을
+  쓰는지, 재시도가 무한이 되지 않는지, **refresh 미구성(템플릿 기본)에서 401 을 그대로
+  올리는지**. axios adapter 를 주입해 실제 인터셉터를 통과시킨다
+- 딥링크 parser·matcher 테스트 16개 — 푸시 탭이 화면으로 가는 경로
+
 - **providers 역류 error 가 `features/` 에서 발동하지 않았다.** flat config 는 같은 rule
   키를 쓰는 블록 중 마지막 것만 적용하는데, cross-feature 블록이 같은
   `no-restricted-imports` 를 다시 써서 providers 규칙을 통째로 덮었다 — 그 규칙이 가장

@@ -73,9 +73,11 @@ export type DynamicRouteSpec = {
 export const DYNAMIC_ROUTES_SPEC = {
   menu4Detail: {
     appPattern: 'menu-4/:id',
+    // 파라미터는 디코딩된 값이다 — 경로에 넣을 때 다시 인코딩한다(공백·슬래시·한글).
     toExpoPath: ({ id }, query) => {
       const search = new URLSearchParams(query).toString();
-      return search ? `/(tabs)/menu-4/${id}?${search}` : `/(tabs)/menu-4/${id}`;
+      const path = `/(tabs)/menu-4/${encodeURIComponent(id)}`;
+      return search ? `${path}?${search}` : path;
     },
   },
 } as const satisfies Record<string, DynamicRouteSpec>;
