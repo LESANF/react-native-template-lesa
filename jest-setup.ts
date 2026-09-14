@@ -16,6 +16,12 @@ jest.mock('react-native-reanimated', () => {
     withRepeat: jest.fn(v => v),
     withSequence: jest.fn((...v: unknown[]) => v[0]),
     cancelAnimation: jest.fn(),
+    // 템플릿이 실제로 쓰는 것들 — 빠뜨리면 화면 테스트에서 undefined 로 터진다.
+    useDerivedValue: jest.fn((fn: () => unknown) => ({ value: fn() })),
+    useAnimatedReaction: jest.fn(),
+    runOnJS: jest.fn((fn: unknown) => fn),
+    FadeIn: { duration: () => ({}) },
+    FadeOut: { duration: () => ({}) },
     Easing: { linear: jest.fn(), ease: jest.fn(), bezier: jest.fn(), inOut: jest.fn(fn => fn) },
     Layout: {},
   };

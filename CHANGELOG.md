@@ -9,6 +9,16 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Android release 서명 주입이 앵커를 못 찾으면 **throw 한다.** 그냥 두면 두 가지로
+  조용히 망가졌다 — signingConfigs 주입만 실패하면 Gradle 이 없는
+  `signingConfigs.release` 를 찾고, buildTypes 치환만 실패하면 **debug 키로 서명된
+  릴리즈가 그대로 나간다.** `signingConfigs` 와 `buildTypes` 사이에 주석 한 줄만 끼어도
+  앵커가 깨지는 것을 실측했다. 테스트 7개 추가
+- reanimated 목에 템플릿이 실제로 쓰는 `FadeIn`·`FadeOut`·`runOnJS`·`useDerivedValue`·
+  `useAnimatedReaction` 이 빠져 있었다 — 화면 테스트를 쓰는 순간 undefined 로 터진다
+
 ### Added
 
 - 테스트 24개 — `env.ts` 환경 접기(7) · 딥링크 디스패처 큐·중복 제거(9) · 토큰 갱신

@@ -32,9 +32,25 @@ const RELEASE_SIGNING_CONFIG = `
             keyPassword System.getenv("ANDROID_UPLOAD_KEY_PASSWORD") ?: ""
         }`;
 
-/** 멱등 주입 — prebuild 가 mod 를 다시 돌려도 결과가 같아야 한다. */
+export class AndroidSigningPatchError extends Error {}
+
+/**
+ * 멱등 주입 — prebuild 가 mod 를 다시 돌려도 결과가 같아야 한다.
+ *
+ * 앵커가 안 맞으면 **throw 한다.** 그냥 두면 두 가지로 조용히 망가진다 —
+ * signingConfigs 주입만 실패하면 Gradle 이 없는 `signingConfigs.release` 를 찾고,
+ * buildTypes 치환만 실패하면 **debug 키로 서명된 릴리즈가 그대로 나간다.**
+ * AGP 템플릿은 SDK 마다 바뀌므로 여기서 깨지는 것이 정상 동작이다.
+ */
 export function patchAppBuildGradle(contents: string): string {
   if (contents.includes('ANDROID_UPLOAD_KEYSTORE_PATH')) return contents;
+
+  if (!SIGNING_CONFIGS_BLOCK_REGEX.test(contents)) {
+    throw new AndroidSigningPatchError(
+      'app/build.gradle 에서 signingConfigs 블록을 찾지 못했다 — AGP 템플릿이 바뀌었다. ' +
+        'plugins/with-android-plugin.ts 의 SIGNING_CONFIGS_BLOCK_REGEX 를 고친다.'
+    );
+  }
 
   let next = contents.replace(
     SIGNING_CONFIGS_BLOCK_REGEX,
@@ -54,6 +70,20 @@ export function patchAppBuildGradle(contents: string): string {
       '$1            signingConfig signingConfigs.release\n'
     );
   }
+
+  // 삽입까지 실패하면 release 가 debug 키를 쓴 채 남는다 — 그대로 스토어에 올라간다.
+  if (
+    !/\bbuildTypes\s*\{[\s\S]*?\brelease\s*\{[\s\S]*?\bsigningConfig\s+signingConfigs\.release\b/.test(
+      next
+    )
+  ) {
+    throw new AndroidSigningPatchError(
+      'buildTypes.release 에 signingConfigs.release 를 걸지 못했다 — 그대로 두면 ' +
+        'debug 키로 서명된 릴리즈가 나간다. plugins/with-android-plugin.ts 의 ' +
+        'BUILD_TYPES_* 정규식을 고친다.'
+    );
+  }
+
   return next;
 }
 
