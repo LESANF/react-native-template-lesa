@@ -204,6 +204,7 @@ OS Linking · 푸시 탭 · 인앱 · 어트리뷰션 SDK — 진입이 어디�
   Conventional Commits, 공개 레포라 영어로 쓴다.
 - **`master` 에 직접 푸시하지 않는다.** `feature/xxx` → PR → 버전 브랜치(`0.0.2`) →
   PR → `master`. **master 로 머지되는 것이 실 배포**이고, 태그는 그 뒤에 master 에서 단다.
+  버전 브랜치는 릴리즈 후에도 **남긴다**(그 버전 패치용). `feature/*` 는 머지되면 지운다.
   머지는 항상 **merge commit**(`gh pr merge --merge`) — squash 는 커밋 단위 이력과
   `Co-Authored-By` 트레일러를 하나로 뭉갠다. 브랜치 이름에는 태그(`v0.0.2`)와 겹치지
   않게 `v` 를 붙이지 않는다. 전체 순서는 `docs/config.md` "릴리즈".
