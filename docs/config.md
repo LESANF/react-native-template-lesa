@@ -354,6 +354,15 @@ feature/xxx ──PR──▶ 0.0.2 ──PR──▶ master ──tag──▶ 
 브랜치 이름에는 `v` 를 붙이지 않는다. 태그가 `v0.0.2` 라서 브랜치도 같은 이름이면
 `git checkout 0.0.2` 가 "refname is ambiguous" 로 갈린다.
 
+### 버전 브랜치를 남긴다
+
+릴리즈 후에도 버전 브랜치를 지우지 않는다. 그 버전에 패치를 내야 할 때 — 0.0.2 를 쓰는
+쪽이 0.0.3 으로 못 올라오는 상황 — 그 브랜치에서 바로 작업한다. React 의 `18.x`,
+Node 의 `v20.x` 와 같은 유지 브랜치다.
+
+`feature/*` 는 반대다. 머지되면 지운다(`gh pr merge --merge --delete-branch`) — 수명이
+PR 하나짜리라 남기면 죽은 브랜치만 쌓인다.
+
 ### 절차
 
 ```bash
@@ -369,7 +378,7 @@ git commit -am "chore(release): 0.0.2" && git push
 
 # 3. 버전 브랜치를 master 로 — 이게 배포다
 gh pr create --base master --head 0.0.2 --title "release: 0.0.2"
-gh pr merge --merge --delete-branch
+gh pr merge --merge          # 버전 브랜치는 지우지 않는다(아래 "버전 브랜치를 남긴다")
 
 # 4. master 에서 태그를 단다. 태그는 배포된 커밋에 붙어야 한다
 git switch master && git pull
