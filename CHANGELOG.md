@@ -11,6 +11,10 @@
 
 ### Fixed
 
+- **푸시 코드를 테스트할 수 없었다.** `jest-setup.ts` 에 RNFB·notify-kit 목이 없어서
+  `lib/push/*` 를 import 하는 순간 `Native module NativeRNFBTurboApp is not registered`
+  로 죽었다. `getApps()` 는 빈 배열이라 기본 상태는 푸시 미구성이다
+
 - **크래시 리포터가 부팅을 죽일 수 있었다.** 앱이 넣은 `onStageError`·`onProgress` 가
   throw 하면 `runPreloader` 가 reject 돼 splash 가 끝나지 않고 앱이 아예 뜨지 않았다.
   이 콜백들은 이미 뭔가 잘못됐을 때 불린다 — 이제 격리하고, 실패는 콜백보다 먼저
@@ -23,6 +27,10 @@
 - reanimated 목 누락(`FadeIn`·`FadeOut`·`runOnJS`·`useDerivedValue`·`useAnimatedReaction`)
 
 ### Added
+
+- 푸시 탭 체인 테스트 15개 — payload 추출 8, 전 구간 7. 알림을 눌러도 아무 일이 없는
+  경로이고, 백그라운드·앱 종료 상태라 로그도 못 본다. RNFB 와 notifee 가 같은 알림을
+  양쪽에서 줄 때 한 번만 이동하는지 포함(D6)
 
 - 프리로더 테스트 19개 — 부팅 오케스트레이션 7, 강제 업데이트 12. 버전 비교가 틀리면
   전 사용자가 스토어로 막히거나 아무도 막히지 않는다
