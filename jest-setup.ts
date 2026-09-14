@@ -34,7 +34,6 @@ const mmkvInstance = () => ({
 });
 
 jest.mock('react-native-mmkv', () => ({
-  MMKV: jest.fn(mmkvInstance),
   createMMKV: jest.fn(mmkvInstance),
   useMMKVString: jest.fn(() => [undefined, jest.fn()]),
   useMMKVNumber: jest.fn(() => [undefined, jest.fn()]),

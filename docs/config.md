@@ -404,16 +404,27 @@ git switch -c 0.0.3 master && git push -u origin 0.0.3
 
 두 레포의 버전을 맞추려 하지 않는다 — 따로 움직인다.
 
-## 테스트 — 인프라만, 파일은 없다
+## 테스트
 
-`jest-expo` + `@testing-library/react-native` 가 설정돼 있고 테스트 파일은 없다.
-`pnpm test` 는 `--passWithNoTests` 라 0개여도 성공한다. `check-all` 에 포함된다.
+`jest-expo` + `@testing-library/react-native`. `check-all` 에 포함되고 PR 에서 CI 가 돌린다
+(`.github/workflows/ci.yml`).
 
 ```
 jest.config.js   preset · 경로 별칭 · transformIgnorePatterns
 jest-setup.ts    네이티브 모듈 목(reanimated · worklets · MMKV · expo-localization)
 src/types/jest.d.ts   `/// <reference types="jest" />`
 ```
+
+템플릿이 들고 있는 테스트는 **조용히 틀리는 세 곳**뿐이다. 화면 테스트는 앱이 채운다.
+
+| 파일                                   | 무엇을 지키나                                                            |
+| -------------------------------------- | ------------------------------------------------------------------------ |
+| `env.test.ts`                          | 환경 leaf 접기. 키가 하나 빠지면 undefined 가 아니라 throw 해야 한다     |
+| `src/lib/deep-link/dispatcher.test.ts` | cold 홀드와 TTL 중복 제거. 틀리면 화면이 두 번 열리거나 splash 에 갇힌다 |
+| `src/lib/auth/index.test.ts`           | refresh single-flight, 갱신 중 로그아웃 시 응답 폐기                     |
+
+딥링크 테스트는 URL 을 `Env.identity.scheme` 에서 만든다 — 하드코딩하면 CLI 가 식별자를
+치환한 뒤 깨진다.
 
 **첫 테스트를 쓸 때 알아야 하는 것 세 가지:**
 
@@ -435,9 +446,18 @@ src/types/jest.d.ts   `/// <reference types="jest" />`
    RN 생태계는 ESM 소스를 그대로 배포한다. `expo-router` 를 쓰려면 `standard-navigation` 도
    필요했다(실측).
 
+4. **모듈 레벨 상태를 쓰는 모듈은 `jest.resetModules()` 후 `require` 로 다시 읽는다.**
+   `import` 는 한 번만 평가되므로 큐·플래그가 테스트 간에 샌다. 단 그러면 클래스 동일성이
+   깨진다 — `ApiError` 같은 것은 **같은 레지스트리에서** 꺼내 써야 한다. 남의 Error 를 주면
+   `toApiError` 가 `UNKNOWN_ERROR` 로 바꾸면서 `status` 를 잃고, 그 status 로 판단하는
+   로직이 통째로 무력해진다(실측).
+
 `src/types/jest.d.ts` 가 필요한 이유: pnpm 격리 구조에서 tsc 의 `@types` 자동 탐색이
 `@types/jest` 를 못 집는다. `tsconfig` 의 `types` 배열을 쓰면 다른 `@types` 자동 포함이
 막히므로 reference 지시자로 푼다.
+
+**목은 실제 API 와 맞아야 한다.** MMKV v4 는 `remove` 이고 `delete` 가 아니다 — 이름이
+어긋난 목은 테스트가 생길 때까지 아무 소리도 내지 않는다.
 
 ## 거부된 대안 (다시 제안하지 말 것)
 
