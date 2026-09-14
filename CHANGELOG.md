@@ -11,6 +11,14 @@
 
 ### Fixed
 
+- **providers 역류 error 가 `features/` 에서 발동하지 않았다.** flat config 는 같은 rule
+  키를 쓰는 블록 중 마지막 것만 적용하는데, cross-feature 블록이 같은
+  `no-restricted-imports` 를 다시 써서 providers 규칙을 통째로 덮었다 — 그 규칙이 가장
+  중요한 곳이 features 다. error(providers)는 `import/no-restricted-paths`,
+  warn(나머지)은 `no-restricted-imports` 로 키를 갈라 고정했다. 실제로 eslint 를 돌리는
+  회귀 테스트 5개 추가(수정 전 코드에서 3개 실패하는 것을 확인)
+- providers 끼리 절대경로로 조립하는 것도 error 로 잡았다 — provider 합성은 정상이다
+
 - Android release 서명 주입이 앵커를 못 찾으면 **throw 한다.** 그냥 두면 두 가지로
   조용히 망가졌다 — signingConfigs 주입만 실패하면 Gradle 이 없는
   `signingConfigs.release` 를 찾고, buildTypes 치환만 실패하면 **debug 키로 서명된
