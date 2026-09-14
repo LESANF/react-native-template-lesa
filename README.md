@@ -11,173 +11,165 @@
   <a href="./LICENSE"><img src="https://img.shields.io/github/license/LESANF/react-native-template-lesa?style=flat-square" alt="license" /></a>
 </p>
 
+<p align="center">
+  <a href="./README.md">English</a> · <a href="./README.ko.md">한국어</a>
+</p>
+
 ---
 
 > [!WARNING]
-> MVP 단계라 너무 실험적입니다. 사용을 권하지 않습니다.
+> This is an MVP and it is very experimental. Using it is not recommended.
 >
-> 문서·README·코드 모두 앞으로 많이 바뀔 수 있습니다.
+> The docs, this README and the code itself can all change substantially.
 
-<details>
-<summary>AI 에이전트로 이 템플릿을 다룰 때 (Claude Code 기준)</summary>
-
-작업 규칙과 메커니즘은 [`AGENTS.md`](./AGENTS.md) 에 있습니다. Claude Code 는
-[Expo 공식 플러그인](https://docs.expo.dev/agents/claude/) 한 번으로 스킬과 MCP 를 같이
-등록합니다. 아래가 있으면 더 잘 돕니다.
-
-**MCP**
-
-|                                                        |                                                                   |
-| ------------------------------------------------------ | ----------------------------------------------------------------- |
-| [expo](https://docs.expo.dev/mcp/)                     | SDK 57 문서를 직접 읽습니다. 기억으로 답하면 대개 낡은 정보입니다 |
-| [codegraph](https://github.com/colbymchenry/codegraph) | 심볼·호출 관계 인덱스. 구조 질문을 grep 없이 풉니다               |
-| [context7](https://github.com/upstash/context7)        | 서드파티 라이브러리 문서                                          |
-
-**스킬**
-
-|                                                          |                                                                                    |
-| -------------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| `react-native-best-practices`                            | Software Mansion. New Architecture 기준                                            |
-| `animate-expo`                                           | Reanimated · Gesture Handler · 햅틱. **웹용 `animate`·`motion-react` 와 다릅니다** |
-| `hot-updater`                                            | 이 템플릿의 OTA 엔진                                                               |
-| `rn-keyboard-handling`                                   | 폼·모달·바텀시트 키보드 회피                                                       |
-| `expo-dev-client` · `expo-deployment` · `upgrading-expo` | dev client · 배포 · SDK 업그레이드                                                 |
-
-없어도 동작합니다. `AGENTS.md` 가 없을 때의 대체 경로도 적어뒀습니다.
-
-</details>
-
-<!-- 아래는 나중에 공개할 때 쓸 내용. 지금은 감춰둔다.
-
-## What's inside
-
-- **Expo SDK 57** · pnpm · CNG-first (no committed `ios`/`android`)
-- **expo-router** 파일 기반 라우팅 + **NativeTabs** (iOS 26 liquid glass)
-- **Uniwind**(무료) + 3계층 디자인 토큰(primitive→semantic→utility) + **다크모드**(`@variant` + MMKV)
-- **i18n** (i18next, 단일언어는 그대로 통과)
-- **환경 전환** — `defineEnv` (env-candidates → env.ts), 시크릿은 `.env` 분리
-- **앱 셸** — providers 역할 분리(감싸기/띄우기) + **Suspensive** ErrorBoundary
-- **데이터 레이어** — Axios + TanStack Query + 명시적 auth + MMKV token
-- **부팅 파이프라인** — splash 뒤 프리로더(강제 업데이트 · OTA(hot-updater) · 권한 슬롯) + 콜드 딥링크 큐 + 프리페치 ([`docs/boot.md`](./docs/boot.md))
-- **푸시 알림** — FCM(RNFB 26) + notify-kit. 백그라운드·종료는 OS 가 표시하고 탭은 RNFB 로 받는다. 알림 탭 → 딥링크 큐, 토큰 동기화 어댑터, 알림 권한. `firebase/`에 설정 파일을 넣으면 활성 ([`docs/push.md`](./docs/push.md))
-- **단방향 import** ESLint (폴더 지우면 그걸로 끝)
+An opinionated Expo SDK 57 template: routing, boot sequence, push, OTA and deep
+links are already wired — and shipped **switched off**. Filling in a file or
+dropping in a config turns each one on.
 
 ## Quick start
 
 ```bash
-pnpm install    # .env 가 없으면 .env.example 에서 자동 생성 (빌드 시크릿 전용)
-pnpm ios        # 또는: pnpm android  — dev client 빌드 + 실행
-pnpm start      # dev 서버 (dev client)
+npx create-lesa-app my-app
+cd my-app && pnpm install
+pnpm ios:development     # or: pnpm android:development
 ```
 
-> NativeTabs 등 네이티브 모듈을 쓰므로 Expo Go가 아닌 **dev client**가 필요합니다.
+The CLI asks for an app name, a slug when the name is not lowercase ASCII, and
+an optional Apple Team ID, then derives every identifier from the slug and makes
+the first commit. Cloning this repo directly works too, but then you fill in
+`env-candidates.ts` by hand.
+
+> Native modules (NativeTabs among them) mean a **dev client** — Expo Go will
+> not run this.
+
+## What's inside
+
+|                                  |                                                                    |
+| -------------------------------- | ------------------------------------------------------------------ |
+| Expo SDK 57 · RN 0.86 · React 19 | CNG-first — `ios/` and `android/` are build artifacts, not source  |
+| expo-router 57                   | file-based routing, NativeTabs with iOS 26 liquid glass            |
+| Uniwind 1.11                     | 3-layer design tokens (primitive → semantic → utility) + dark mode |
+| TanStack Query 5 · Axios         | explicit auth, MMKV token storage                                  |
+| Zustand 5                        | client state — auth and overlays                                   |
+| Reanimated 4.5                   | `InsetView` for safe areas, so tab transitions do not jump         |
+| hot-updater                      | OTA that is not EAS Update                                         |
+| FCM + notify-kit                 | background and killed-state taps routed into one deep-link queue   |
+| i18next                          | single-locale projects pass straight through                       |
+| ESLint                           | one-way imports, enforced — deleting a folder is the whole removal |
+
+## Injection is activation
+
+Nothing is behind a feature flag. A file or a value **existing** is what turns a
+feature on, so there is no state where a flag is on and its key is missing.
+
+| Fill in                                                                        | Turns on                                                                             |
+| ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------ |
+| `firebase/GoogleService-Info.<env>.plist` **and** `google-services.<env>.json` | Push. One without the other throws                                                   |
+| `urls.ota` in `env-candidates.ts` + a bucket in `hot-updater.config.ts`        | OTA. Empty means the preloader skips that stage                                      |
+| `DEEP_LINK_HTTPS_HOSTS` in `src/constants/deep-link.ts`                        | Universal links — iOS `associatedDomains` and Android `intentFilters` derive from it |
+| `lib/deep-link/attribution.ts`                                                 | An attribution SDK. Empty is a no-op                                                 |
+| `APP_BUILD_ONLY_APPLE_TEAM_ID` in `.env`                                       | iOS device signing. Empty means Xcode automatic signing                              |
+| `eas.json`, or two lines in `app.config.ts`                                    | EAS Build/Submit. Absent means the local build path                                  |
 
 ## Make it yours
 
-새 앱으로 바꾸는 데 필요한 건 **`env-candidates.ts` 한 파일 + 에셋 몇 개**입니다.
-`app.config.ts`와 네이티브 설정은 거기서 파생됩니다.
+`create-lesa-app` fills in the identity for you. This is what it touches, and
+what is left for you.
 
 ### 1. Identity — `env-candidates.ts`
 
-| 필드                   | 지금 값                      | 바꿀 것                                                                                                               |
-| ---------------------- | ---------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| `identity.name`        | `write-your-app-name`        | 앱 이름. **ASCII로 유지** — prebuild가 이 값에서 iOS Xcode 프로젝트·스킴·`PRODUCT_NAME`을 파생합니다                  |
-| `identity.displayName` | `''` (비어 있음)             | 홈 화면에 보일 이름. **한글·일본어 이름은 `name`이 아니라 여기에.** 비우면 `name`을 그대로 씁니다                     |
-| `identity.slug`        | `write-your-app-slug`        | Expo 프로젝트 식별자. 비우면 `name` 을 slugify 해서 씁니다(`@expo/config`) — EAS 를 붙이기 전까지는 사실상 라벨입니다 |
-| `identity.scheme`      | `write-your-scheme-dev` 외 2 | 딥링크 스킴 3환경. 소문자로 시작하고 `[a-z0-9+.-]`만                                                                  |
-| `identity.bundleId`    | `write.your.bundlename.*`    | iOS 번들 ID 3환경                                                                                                     |
-| `identity.package`     | `write.your.bundlename.*`    | Android 패키지 3환경                                                                                                  |
+One file. `app.config.ts` and every native setting derive from it.
 
-> `name`에 한글을 넣으면 iOS 프로젝트 이름이 `app`이 됩니다 — sanitizer가 non-word 문자를
-> 전부 지우기 때문입니다. 실측표와 사유는 [`docs/config.md`](./docs/config.md) "표시명" 절.
+| Field                                    | What it is                                                                                       |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `identity.name`                          | **Keep it ASCII.** prebuild derives the iOS Xcode project, scheme and `PRODUCT_NAME` from this   |
+| `identity.displayName`                   | The home-screen name. Non-ASCII names belong **here**, not in `name`. Empty falls back to `name` |
+| `identity.slug`                          | Expo project identifier                                                                          |
+| `identity.scheme`                        | Deep-link scheme, per environment                                                                |
+| `identity.bundleId` · `identity.package` | iOS bundle id and Android package, per environment                                               |
+
+> A Korean or Japanese `name` makes the iOS project come out as `app` — Expo's
+> sanitizer strips every non-word character. Measurements and the reasoning are
+> in [`docs/config.md`](./docs/config.md).
 
 ### 2. API URL — `urls.api`
 
-production이 `.invalid`로 남아 있으면 **production 부팅이 throw합니다**(`env.ts`가 막습니다).
-교체를 잊고 배포하는 사고를 막으려고 의도한 동작입니다. development·preview는 jsonplaceholder 데모입니다.
+Production ships as `.invalid` and **throws on a production boot** until you
+replace it. That is deliberate: it stops an unconfigured production build from
+going out quietly. Development and preview point at a jsonplaceholder demo.
 
-### 3. 에셋 — `assets/`
+### 3. Assets — `assets/images/`
 
-`images/icon.png`(iOS·풀블리드) · `images/adaptive-icon.png`(Android·여백 있는 버전) ·
-`images/splash-icon.png`
+`icon.png` (iOS, full-bleed) · `adaptive-icon.png` (Android, with padding) ·
+`splash-icon.png`.
 
-Android adaptive icon 은 108dp 중 중앙 72dp 만 남고 바깥이 런처 마스크에 잘립니다 —
-풀블리드를 그대로 넣으면 안 되고, `adaptiveIcon.backgroundColor` 를 그 파일의 배경색과 맞춥니다.
+Android's adaptive icon keeps the middle 72dp of 108dp and the launcher mask
+crops the rest, so a full-bleed image does not belong there — and
+`adaptiveIcon.backgroundColor` should match that file's background.
 
-splash 배경색은 **두 곳을 같이** 바꿉니다 — `app.config.ts`의 `expo-splash-screen` `backgroundColor`와
-`src/features/splash/splash-screen.tsx`. 어긋나면 네이티브→JS splash 이음새가 눈에 보입니다.
+The splash background lives in **two places** — `expo-splash-screen`'s
+`backgroundColor` in `app.config.ts` and
+`src/features/splash/splash-screen.tsx`. If they disagree, the seam between the
+native and JS splash is visible.
 
-### 4. 채우면 켜지는 것들 (빈 값 = 비활성)
+Other spots a project fills in: `grep -rn "TODO(앱)" src`, plus the tables in
+[`data-layer.md`](./docs/data-layer.md) · [`boot.md`](./docs/boot.md) ·
+[`push.md`](./docs/push.md).
 
-| 채울 곳                                                                  | 켜지는 것                                                                       |
-| ------------------------------------------------------------------------ | ------------------------------------------------------------------------------- |
-| `urls.ota` + `hot-updater.config.ts` 버킷                                | OTA ([`docs/boot.md`](./docs/boot.md))                                          |
-| `firebase/GoogleService-Info.<env>.plist` + `google-services.<env>.json` | 푸시 ([`docs/push.md`](./docs/push.md))                                         |
-| `src/constants/deep-link.ts`의 `DEEP_LINK_HTTPS_HOSTS`                   | 유니버설 링크 — iOS `associatedDomains`와 Android `intentFilters`가 여기서 파생 |
-| `.env`의 `APP_BUILD_ONLY_APPLE_TEAM_ID`                                  | iOS 디바이스 빌드 서명 (비우면 Xcode 자동 서명)                                 |
-| Gradle 환경변수 `ANDROID_UPLOAD_*`                                       | Android release 서명                                                            |
-| `eas.json` (+ `app.config.ts`의 `owner`·`extra.eas.projectId`)           | EAS Build/Submit. 없으면 로컬 빌드 경로(§5)                                     |
+## Build and release
 
-그 밖에 프로젝트가 채우는 지점은 `grep -rn "TODO(앱)" src`와
-[`data-layer.md`](./docs/data-layer.md) · [`boot.md`](./docs/boot.md) · [`push.md`](./docs/push.md)의 표에 있습니다.
-
-### 5. 빌드와 배포 — 기본은 로컬, EAS는 이음새만
-
-**기본은 로컬 프리빌드 + 로컬 네이티브 빌드**입니다. 템플릿에 `eas.json`을 넣지 않았으니 EAS는
-꺼진 상태이고, 붙이려면 `eas init`을 돌리거나 `app.config.ts`의 주석 두 줄
-(`owner`·`extra.eas.projectId`)을 채웁니다 — **파일 존재로 갈립니다.**
-사유는 [`docs/config.md`](./docs/config.md) "EAS" 절.
+Local prebuild and local native builds are the default. No `eas.json` ships, so
+EAS is off until you run `eas init` or fill in the two commented lines in
+`app.config.ts` — [`docs/config.md`](./docs/config.md) explains why.
 
 ```bash
-pnpm prebuild:production      # expo prebuild (네이티브 폴더 재생성이 기본, STRICT 검증)
+pnpm prebuild:production      # STRICT validation; regenerating native is the default
 pnpm ios:release              # expo run:ios --configuration Release
 pnpm android:release          # expo run:android --variant release
 ```
 
-> `prebuild`는 네이티브 폴더를 **지우고 다시 만드는 것이 기본**입니다(`--clean`은 SDK 57에서
-> no-op). 증분 적용은 `pnpm prebuild --no-clean`, 한 플랫폼만은 `-p ios`입니다.
-> `:release` 스크립트는 `EXPO_PUBLIC_APP_ENV=development`라 **네트워크 로거가 포함**됩니다 —
-> 스토어 빌드가 아니라 로컬 release 스모크 테스트용입니다.
+> `prebuild` **deletes and regenerates** the native folders by default
+> (`--clean` is a no-op on SDK 57). `pnpm prebuild --no-clean` applies
+> incrementally, `-p ios` limits it to one platform.
+>
+> The `:release` scripts run with `EXPO_PUBLIC_APP_ENV=development`, so the
+> network logger is included — they are local release smoke tests, not store
+> builds.
 
-- **Android release 서명** — `plugins/with-android-plugin.ts`가 production 프리빌드에서만
-  `signingConfigs.release`를 주입합니다. 값은 `.env`가 아니라 **Gradle 실행 시점의 환경 변수**
-  `ANDROID_UPLOAD_KEYSTORE_PATH`(기본 `<repo>/upload.jks`) · `..._KEYSTORE_PASSWORD` ·
-  `..._KEY_ALIAS` · `..._KEY_PASSWORD`에서 읽습니다.
-- **iOS 서명** — `.env`의 `APP_BUILD_ONLY_APPLE_TEAM_ID`를 채우면 `appleTeamId`가 들어가고,
-  비우면 Xcode 자동 서명입니다. 스토어 업로드는 Xcode(또는 직접 붙인 fastlane)로 합니다.
-- **OTA** — hot-updater 자체 서버라 EAS Update와 무관합니다 (`pnpm ota:deploy:*`,
-  [`docs/boot.md`](./docs/boot.md)).
+- **Android signing** — `plugins/with-android-plugin.ts` injects
+  `signingConfigs.release` on production prebuilds only. The values come from
+  Gradle-time environment variables (`ANDROID_UPLOAD_KEYSTORE_PATH` and
+  friends), not from `.env`.
+- **iOS signing** — `APP_BUILD_ONLY_APPLE_TEAM_ID` in `.env`, or Xcode
+  automatic signing when it is empty. Store uploads go through Xcode.
+- **OTA** — hot-updater runs against your own server and has nothing to do with
+  EAS Update (`pnpm ota:deploy:*`, [`docs/boot.md`](./docs/boot.md)).
 
-### 6. `.env` · app config · CNG 규칙
+## `.env`, app config and CNG
 
-- **`.env`는 빌드 타임 시크릿 전용**(`APP_BUILD_ONLY_*`). `app.config.ts`의 `requireInStrict()`만
-  읽고 `EXPO_PUBLIC_` 접두사가 없으니 클라이언트 번들에 들어가지 않습니다. `pnpm install`의
-  postinstall이 `.env.example`에서 자동 생성하며 **커밋되지 않습니다**.
-- **런타임 공개 값은 `.env`가 아니라 `env-candidates.ts`.** 환경 전환은 package.json 스크립트가
-  `EXPO_PUBLIC_APP_ENV`로 주입합니다. 이 프로젝트는 `EXPO_PUBLIC_*` 변수를 직접 쓰지 않습니다.
-- **`prebuild:*` · `ios:*` · `android:*` 스크립트는 `STRICT_ENV_VALIDATION=1`로 돕니다** —
-  시크릿이 비어 있으면 그 시점에 throw하고, 마스킹된 요약을 출력합니다.
-- **CNG — 네이티브 파일을 직접 고치면 안 됩니다.** `ios/`·`android/`는 산출물이라 커밋하지
-  않고, `pnpm prebuild`가 `rm -rf` 후 재생성하므로 손으로 고친 것은 **다음 프리빌드에 날아갑니다.**
-  네이티브를 바꿔야 하면 경로가 두 개입니다:
-
-  | 무엇이 필요한가                                                                                          | 경로                                                                                                                         |
-  | -------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-  | 생성되는 네이티브 **설정**을 바꾸는 것 — manifest 속성, Info.plist 키, Podfile, Gradle 블록, 리소스 파일 | **config plugin** (`plugins/`). 이 템플릿의 `with-android-plugin`(폴더블·release 서명·표시명)·`with-ios-plugin`이 예시입니다 |
-  | 네이티브 **코드**가 필요한 것 — Swift/Kotlin API를 JS로 노출                                             | **Expo Module**. `pnpm create expo-module --local` → `modules/<name>/{android,ios,src}` 생성 후 autolink (npm 배포 불필요)   |
-
-  로컬 모듈의 `modules/<name>/ios`·`android`는 **커밋해야 합니다** — `.gitignore`가 루트만
-  무시하는 `/ios`·`/android` 패턴이라 걸리지 않습니다. 모듈을 추가하면
-  `npx pod-install`을 다시 돌리고, 절대경로 import를 쓰려면 `tsconfig.json`의 `paths`에
-  별칭을 하나 추가하세요(기본 `@/*`는 `./src/*`만 가리킵니다).
-
-- `.env.example`의 **마지막 줄은 `=` 없는 주석으로 유지**하세요 — Expo CLI가 쓰는 Node
-  `util.parseEnv`가 파일 끝 주석에 `=`가 있으면 그것을 변수로 읽습니다.
+- **`.env` holds build-time secrets only** (`APP_BUILD_ONLY_*`). Only
+  `requireInStrict()` in `app.config.ts` reads them, and without an
+  `EXPO_PUBLIC_` prefix they never reach the client bundle. `pnpm install`
+  creates it from `.env.example`; it is not committed.
+- **Runtime public values live in `env-candidates.ts`, not `.env`.** The
+  package.json scripts inject `EXPO_PUBLIC_APP_ENV`; nothing reads
+  `EXPO_PUBLIC_*` directly.
+- `prebuild:*` · `ios:*` · `android:*` run with `STRICT_ENV_VALIDATION=1`, so a
+  missing secret throws right there with a masked summary.
+- **Never edit the native folders.** `ios/` and `android/` are artifacts; the
+  next prebuild removes them. Native changes go through a **config plugin**
+  (`plugins/`) for generated configuration, or a **local Expo Module**
+  (`pnpm create expo-module --local`) when you need Swift or Kotlin. A local
+  module's `ios`/`android` folders **do** get committed — `.gitignore` only
+  ignores the root-level ones.
+- Keep the **last line of `.env.example` a comment without `=`** — Node's
+  `util.parseEnv`, which the Expo CLI uses, reads a trailing comment containing
+  `=` as a variable.
 
 ## Verify
 
 ```bash
-CI=true pnpm run check-all
+CI=true pnpm run check-all     # lint → type-check → test
 pnpm doctor
 ```
 
@@ -185,17 +177,66 @@ pnpm doctor
 
 ```
 src/
-  app/          라우팅 전용 (한 줄 재export → features)
-  features/     화면 실체 (라우트와 1:1)
-  providers/    루트 조립 (app-providers 감싸기 / global-overlays 띄우기)
-  components/ui 디자인시스템 (배럴 진입점)
-  styles/       토큰 3계층
-  api/          도메인별 requests·queries·mutations·types
-  lib/          인프라 (api·auth·preloader·ota·deep-link·push·i18n·storage·theme)
-  stores/       클라이언트 상태 (auth·overlay)
+  app/          routing only — one-line re-exports into features
+  features/     the actual screens, 1:1 with routes
+  providers/    root assembly (app-providers wraps / global-overlays mounts)
+  components/   ui (the barrel) · icons · navigation
+  styles/       the three token layers
+  api/          per-domain requests, queries, mutations, types
+  lib/          infrastructure — api · auth · preloader · deep-link · push ·
+                i18n · navigation · storage · theme
+  stores/       client state — auth · overlay
+  constants/ hooks/ types/ utils/
 ```
 
-섹션별 문서는 [`AGENTS.md`](./AGENTS.md) 의 표에서 찾는다. 데이터 레이어 규칙은
-[`docs/data-layer.md`](./docs/data-layer.md) 참고.
+Imports run one way: `app` → `features` → shared. Going backwards is a lint
+error for `providers` and a warning elsewhere, which is what makes deleting a
+folder the entire removal.
 
--->
+## Working on this with an AI agent
+
+The rules and mechanisms live in [`AGENTS.md`](./AGENTS.md), and a hook in
+`.claude/hooks/route.mjs` surfaces the relevant one as you work — the same
+script serves Claude Code and Codex. Claude Code registers the skills and MCP
+servers in one step through the [official Expo plugin](https://docs.expo.dev/agents/claude/).
+
+<details>
+<summary>MCP servers and skills that help</summary>
+
+**MCP**
+
+|                                                        |                                                                                  |
+| ------------------------------------------------------ | -------------------------------------------------------------------------------- |
+| [expo](https://docs.expo.dev/mcp/)                     | Reads the SDK 57 docs directly. Answering from memory usually means an older SDK |
+| [codegraph](https://github.com/colbymchenry/codegraph) | Symbol and call-graph index — structural questions without grep                  |
+| [context7](https://github.com/upstash/context7)        | Third-party library docs                                                         |
+
+**Skills**
+
+|                                                          |                                                                                         |
+| -------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| `react-native-best-practices`                            | Software Mansion, New Architecture                                                      |
+| `animate-expo`                                           | Reanimated · Gesture Handler · haptics. **Not the web-only `animate` / `motion-react`** |
+| `hot-updater`                                            | The OTA engine this template uses                                                       |
+| `rn-keyboard-handling`                                   | Keyboard avoidance for forms, modals, sheets                                            |
+| `expo-dev-client` · `expo-deployment` · `upgrading-expo` | dev client · store releases · SDK upgrades                                              |
+
+None of these are required. `AGENTS.md` records the fallback for each.
+
+</details>
+
+## Docs
+
+|                                              |                                             |
+| -------------------------------------------- | ------------------------------------------- |
+| [`docs/config.md`](./docs/config.md)         | env, app config, plugins, release procedure |
+| [`docs/boot.md`](./docs/boot.md)             | splash, preloader, OTA, deep links          |
+| [`docs/push.md`](./docs/push.md)             | FCM, the headless chain, taps               |
+| [`docs/routing.md`](./docs/routing.md)       | routes, tabs, modals, overlays              |
+| [`docs/ui.md`](./docs/ui.md)                 | tokens, dark mode, `InsetView`              |
+| [`docs/data-layer.md`](./docs/data-layer.md) | api, auth, query                            |
+| [`docs/decisions.md`](./docs/decisions.md)   | what was decided, and when                  |
+
+## License
+
+MIT — see [LICENSE](./LICENSE).
