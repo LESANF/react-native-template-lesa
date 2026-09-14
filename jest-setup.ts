@@ -21,12 +21,14 @@ jest.mock('react-native-reanimated', () => {
   };
 });
 
+// v4 는 `remove` 다(`delete` 아님) — 이름이 어긋나면 storage 를 쓰는 테스트가 전부 터진다.
 const mmkvInstance = () => ({
   set: jest.fn(),
   getString: jest.fn(),
   getNumber: jest.fn(),
   getBoolean: jest.fn(),
-  delete: jest.fn(),
+  remove: jest.fn(),
+  contains: jest.fn(() => false),
   clearAll: jest.fn(),
   getAllKeys: jest.fn(() => []),
 });
