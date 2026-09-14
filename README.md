@@ -4,6 +4,13 @@
 
 <h1 align="center">lesa-expo-template</h1>
 
+<p align="center">
+  <a href="https://github.com/LESANF/react-native-template-lesa/releases"><img src="https://img.shields.io/github/v/release/LESANF/react-native-template-lesa?include_prereleases&style=flat-square" alt="release" /></a>
+  <a href="https://www.npmjs.com/package/create-lesa-app"><img src="https://img.shields.io/npm/dm/create-lesa-app?style=flat-square&color=CB3837&label=created%20with%20cla" alt="downloads" /></a>
+  <a href="https://github.com/LESANF/react-native-template-lesa/stargazers"><img src="https://img.shields.io/github/stars/LESANF/react-native-template-lesa?style=flat-square" alt="stars" /></a>
+  <a href="./LICENSE"><img src="https://img.shields.io/github/license/LESANF/react-native-template-lesa?style=flat-square" alt="license" /></a>
+</p>
+
 ---
 
 > [!WARNING]
