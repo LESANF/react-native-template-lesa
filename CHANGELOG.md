@@ -19,6 +19,11 @@
 
 ### Changed
 
+- SDK 57 패치를 최신에 맞췄다 — expo 57.0.21 → 57.0.22 외 15개. **네이티브에 영향이
+  있으므로 재빌드가 필요하다**
+- `expo.install.exclude` 에 `jest`·`@types/jest` 를 넣었다. Expo 는 jest 29 를 기대하지만
+  이 템플릿은 30 을 쓴다 — `expo install --fix` 가 매번 되돌리려 드는 것을 막는다
+
 - 브랜치 모델을 정했다 — `feature/xxx` → 버전 브랜치(`0.0.2`) → `master`.
   master 로 머지되는 것이 실 배포이고 태그는 그 뒤에 master 에서 단다. 머지는 항상
   merge commit(squash 는 커밋 단위 이력과 `Co-Authored-By` 트레일러를 뭉갠다).
