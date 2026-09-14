@@ -411,7 +411,7 @@ git switch -c 0.0.3 master && git push -u origin 0.0.3
 
 ```
 jest.config.js   preset · 경로 별칭 · transformIgnorePatterns
-jest-setup.ts    네이티브 모듈 목(reanimated · worklets · MMKV · expo-localization)
+jest-setup.ts    네이티브 모듈 목(reanimated · worklets · MMKV · expo-localization · RNFB · notify-kit)
 src/types/jest.d.ts   `/// <reference types="jest" />`
 ```
 
