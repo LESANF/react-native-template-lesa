@@ -9,6 +9,32 @@
 
 ## [Unreleased]
 
+### Added
+
+- MIT 라이선스. public 레포인데 라이선스가 없어서 아무 권리도 주지 못하고 있었다
+- README 를 공개 — 그동안 본문이 HTML 주석 안에 있었다. 영어를 기본으로 두고 한국어는
+  `README.ko.md` 에 둔다(`docs/` 는 한국어 유지). `npx create-lesa-app` 으로 시작하도록
+  다시 썼고, "주입 = 활성화" 표를 넣었다
+- 릴리즈·다운로드·스타·라이선스 배지
+
+### Changed
+
+- 브랜치 모델을 정했다 — `feature/xxx` → 버전 브랜치(`0.0.2`) → `master`.
+  master 로 머지되는 것이 실 배포이고 태그는 그 뒤에 master 에서 단다. 머지는 항상
+  merge commit(squash 는 커밋 단위 이력과 `Co-Authored-By` 트레일러를 뭉갠다).
+  `AGENTS.md` ④ 와 `docs/config.md` "릴리즈"
+- 커밋 메시지를 영어로 쓴다(공개 레포)
+
+### Fixed
+
+- `docs/config.md` 의 버전 표가 `minor 0.2.0` / `patch 0.1.1` 로 남아 있었다 —
+  0.0.1 재시작 때 놓쳤다
+- `docs/template-completion.md` 의 "커밋 전" 표기가 전부 거짓이었다(마지막 감사 07-28).
+  전부 커밋돼 `v0.0.1` 로 나갔다 — 릴리즈 상태 절을 추가하고 `[~]` 를 "커밋됨, 기기에서
+  미검증" 으로 재정의했다
+- README 구조 절이 실제 트리와 달랐다 — `constants` `hooks` `types` `utils` 누락,
+  존재하지 않는 `lib/ota` 표기
+
 ## [0.0.1] — 2026-09-11
 
 첫 공개 릴리즈. **PoC** 다 — `0.0.x` 는 API·구조 안정성을 약속하지 않고 GitHub 에서
