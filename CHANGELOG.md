@@ -9,6 +9,16 @@
 
 ## [Unreleased]
 
+### Added
+
+- 테스트 24개 — `env.ts` 환경 접기(7) · 딥링크 디스패처 큐·중복 제거(9) · 토큰 갱신
+  single-flight(8). 조용히 틀리면 화면이 두 번 열리거나 세션이 끊기는 세 곳이다
+
+### Fixed
+
+- `jest-setup.ts` 의 MMKV 목이 `delete` 를 내놓고 있었다. v4 는 `remove` 라서
+  저장소를 건드리는 테스트가 전부 `storage.remove is not a function` 으로 터졌다
+
 ## [0.0.2] — 2026-09-14
 
 ### Added
