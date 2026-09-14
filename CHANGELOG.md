@@ -9,6 +9,8 @@
 
 ## [Unreleased]
 
+## [0.0.2] — 2026-09-14
+
 ### Added
 
 - MIT 라이선스. public 레포인데 라이선스가 없어서 아무 권리도 주지 못하고 있었다
@@ -103,5 +105,6 @@ Team ID)로 `env-candidates.ts` 를 치환하고 216파일을 초기 커밋한�
 
 ---
 
-[unreleased]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.1...HEAD
+[unreleased]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.2...HEAD
+[0.0.2]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.1...v0.0.2
 [0.0.1]: https://github.com/LESANF/react-native-template-lesa/releases/tag/v0.0.1
