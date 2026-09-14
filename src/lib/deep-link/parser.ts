@@ -40,31 +40,36 @@ export function parseDeepLink(input: string | null | undefined): ParsedDeepLink 
 
   // 앱 스킴은 특수 스킴이 아니라 첫 세그먼트가 host 로 잘린다 (myapp://menu-4/42 → host='menu-4').
   if (APP_SCHEMES.includes(scheme)) {
-    const path = normalizePath(`${url.host}/${url.pathname}`);
-    if (!path) return null;
-    return buildParsed('app-scheme', path, query, input);
+    const segments = normalizeSegments(`${url.host}/${url.pathname}`);
+    if (segments.length === 0) return null;
+    return buildParsed('app-scheme', segments, query, input);
   }
 
   if (scheme === 'https' && WEB_HOSTS.includes(url.host)) {
-    const rawPath = normalizePath(url.pathname);
+    const rawPath = normalizeSegments(url.pathname).join('/');
     if (!rawPath) return null;
+    // alias 는 경로 전체를 다시 쓰므로 여기서는 재분할이 맞다.
     const { path, query: rewrittenQuery } = applyWebNormalization(rawPath, query);
-    return buildParsed('web-link', path, rewrittenQuery, input);
+    return buildParsed('web-link', path.split('/').filter(Boolean), rewrittenQuery, input);
   }
 
-  return buildParsed('unknown', '', query, input);
+  return buildParsed('unknown', [], query, input);
 }
 
+/**
+ * `segments` 를 다시 쪼개지 않는다. 디코딩된 세그먼트에 슬래시가 들어 있으면
+ * (`menu-4/a%2Fb` → id `a/b`) 재분할이 세그먼트 개수를 바꿔 라우트가 어긋난다.
+ */
 function buildParsed(
   transport: LinkTransport,
-  path: string,
+  segments: string[],
   query: Record<string, string>,
   raw: string
 ): ParsedDeepLink {
   return {
     transport,
-    path,
-    segments: path ? path.split('/') : [],
+    path: segments.join('/'),
+    segments,
     query,
     raw,
   };
@@ -91,8 +96,8 @@ function applyWebNormalization(
   return { path: rawPath, query: rawQuery };
 }
 
-function normalizePath(raw: string): string {
-  return raw.split('/').filter(Boolean).map(safeDecode).join('/');
+function normalizeSegments(raw: string): string[] {
+  return raw.split('/').filter(Boolean).map(safeDecode);
 }
 
 function safeDecode(segment: string): string {
