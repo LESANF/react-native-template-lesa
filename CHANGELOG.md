@@ -9,6 +9,14 @@
 
 ## [Unreleased]
 
+## [0.0.5] — 2026-09-15
+
+### Fixed
+
+- `adaptive-icon.png` 을 아이콘 파이프라인의 **여백 있는 foreground 산출물**로 교체했다.
+  풀블리드를 1024 로 줄여 넣었더니 Android 런처 마스크(108dp 중 가운데 72dp)에 가장자리가
+  잘렸다. `icon.png` 은 풀블리드가 맞고 그대로다(파이프라인 산출물과 바이트 동일 확인)
+
 ## [0.0.4] — 2026-09-15
 
 ### Fixed
@@ -186,7 +194,8 @@ Team ID)로 `env-candidates.ts` 를 치환하고 216파일을 초기 커밋한�
 
 ---
 
-[unreleased]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.4...HEAD
+[unreleased]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.5...HEAD
+[0.0.5]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.4...v0.0.5
 [0.0.4]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.3...v0.0.4
 [0.0.3]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.2...v0.0.3
 [0.0.2]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.1...v0.0.2
