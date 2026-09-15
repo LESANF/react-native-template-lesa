@@ -9,6 +9,16 @@
 
 ## [Unreleased]
 
+### Docs
+
+- 검증 기준을 명시했다 — **npm 최신이 아니라 Expo 다.** `pnpm doctor` + `expo install --check`
+  가 통과하면 맞는 상태다. RN·React 는 `bundledNativeModules.json` 이 정하므로 npm 에 더
+  높은 버전이 있어도 올리지 않는다(SDK 57 = RN 0.86.3). `AGENTS.md` ④ · `docs/config.md`
+- Xcode 27 을 기록했다. Apple 이 `Simulator.app` 을 `DeviceHub.app` 으로 대체했고
+  `@expo/cli` 에 fallback 이 들어가 있다(expo/expo#46757) — 템플릿이 할 일은 없다.
+  `xcrun simctl` 은 그대로 동작하므로 딥링크·푸시 검증 명령은 유효하다
+- `template-completion.md` 의 "커밋 전" 헤더 2개와, 뒤집힌 테스트 결정을 실제 상태로 맞췄다
+
 ### Fixed
 
 - **크래시 리포터가 부팅을 죽일 수 있었다.** 앱이 넣은 `onStageError`·`onProgress` 가
