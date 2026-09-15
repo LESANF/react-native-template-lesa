@@ -11,10 +11,6 @@
 
 ### Fixed
 
-- **푸시 코드를 테스트할 수 없었다.** `jest-setup.ts` 에 RNFB·notify-kit 목이 없어서
-  `lib/push/*` 를 import 하는 순간 `Native module NativeRNFBTurboApp is not registered`
-  로 죽었다. `getApps()` 는 빈 배열이라 기본 상태는 푸시 미구성이다
-
 - **크래시 리포터가 부팅을 죽일 수 있었다.** 앱이 넣은 `onStageError`·`onProgress` 가
   throw 하면 `runPreloader` 가 reject 돼 splash 가 끝나지 않고 앱이 아예 뜨지 않았다.
   이 콜백들은 이미 뭔가 잘못됐을 때 불린다 — 이제 격리하고, 실패는 콜백보다 먼저
@@ -24,21 +20,15 @@
   **다시 이어서 재분할**하는 바람에 인코딩된 슬래시(`menu-4/a%2Fb`)가 세그먼트 개수를
   바꿨고, expo 경로에는 디코딩된 값이 재인코딩 없이 들어갔다(`/(tabs)/menu-4/a b`).
   이제 세그먼트 배열이 원본이고 경로에 넣을 때 다시 인코딩한다 — 공백·슬래시·한글 id
-- reanimated 목 누락(`FadeIn`·`FadeOut`·`runOnJS`·`useDerivedValue`·`useAnimatedReaction`)
 
 ### Added
 
-- 푸시 탭 체인 테스트 15개 — payload 추출 8, 전 구간 7. 알림을 눌러도 아무 일이 없는
-  경로이고, 백그라운드·앱 종료 상태라 로그도 못 본다. RNFB 와 notifee 가 같은 알림을
-  양쪽에서 줄 때 한 번만 이동하는지 포함(D6)
+- 푸시 payload → url 추출 테스트 8개. 계약 키가 어긋나면 알림이 조용히 아무 일도 안 한다
 
 - 프리로더 테스트 19개 — 부팅 오케스트레이션 7, 강제 업데이트 12. 버전 비교가 틀리면
   전 사용자가 스토어로 막히거나 아무도 막히지 않는다
 
-- api client 테스트 9개 — 공개 요청에 토큰이 새지 않는지, 401 refresh 재시도가 새 토큰을
-  쓰는지, 재시도가 무한이 되지 않는지, **refresh 미구성(템플릿 기본)에서 401 을 그대로
-  올리는지**. axios adapter 를 주입해 실제 인터셉터를 통과시킨다
-- 딥링크 parser·matcher 테스트 16개 — 푸시 탭이 화면으로 가는 경로
+- 딥링크 parser 테스트 9개 — 인코딩된 세그먼트가 라우트 모양을 바꾸지 않는지
 
 - **providers 역류 error 가 `features/` 에서 발동하지 않았다.** flat config 는 같은 rule
   키를 쓰는 블록 중 마지막 것만 적용하는데, cross-feature 블록이 같은
@@ -58,13 +48,10 @@
 
 ### Added
 
-- 테스트 24개 — `env.ts` 환경 접기(7) · 딥링크 디스패처 큐·중복 제거(9) · 토큰 갱신
-  single-flight(8). 조용히 틀리면 화면이 두 번 열리거나 세션이 끊기는 세 곳이다
+- 테스트 — `env.ts` 환경 접기 · 딥링크 디스패처 큐·중복 제거 · eslint 경계 규칙 ·
+  Android 서명 주입 · 프리로더. **네이티브 모듈 목 없이 도는 것만** 둔다
 
 ### Fixed
-
-- `jest-setup.ts` 의 MMKV 목이 `delete` 를 내놓고 있었다. v4 는 `remove` 라서
-  저장소를 건드리는 테스트가 전부 `storage.remove is not a function` 으로 터졌다
 
 ## [0.0.2] — 2026-09-14
 
@@ -77,6 +64,11 @@
 - 릴리즈·다운로드·스타·라이선스 배지
 
 ### Changed
+
+- **jest 에서 네이티브 모듈 목을 걷어냈다.** MMKV·RNFB·notifee·reanimated 를 목으로
+  세우면 목을 실제 API 와 맞추는 일이 본업이 된다 — 이름 하나 어긋나면(v4 는 `delete` 가
+  아니라 `remove`) 아무 소리도 안 난다. 템플릿 테스트는 목 없이 도는 순수 로직만 다루고,
+  화면·스토어 테스트는 필요한 앱이 자기 방식대로 세운다. `jest-setup.ts` 삭제
 
 - SDK 57 패치를 최신에 맞췄다 — expo 57.0.21 → 57.0.22 외 15개. **네이티브에 영향이
   있으므로 재빌드가 필요하다**

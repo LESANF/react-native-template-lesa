@@ -404,29 +404,41 @@ git switch -c 0.0.3 master && git push -u origin 0.0.3
 
 두 레포의 버전을 맞추려 하지 않는다 — 따로 움직인다.
 
-## 테스트
+## 테스트 — 쓰고 싶으면 쓰는 것
 
-`jest-expo` + `@testing-library/react-native`. `check-all` 에 포함되고 PR 에서 CI 가 돌린다
-(`.github/workflows/ci.yml`).
+`jest-expo` 설정이 있고 `check-all` 에 포함된다. **네이티브 모듈 목은 두지 않는다.**
+MMKV·RNFB·notifee 를 목으로 세우기 시작하면 목을 실제 API 와 맞추는 일이 본업이 되고,
+이름 하나 어긋나면(v4 는 `delete` 가 아니라 `remove` 다) 테스트가 생길 때까지 아무 소리도
+나지 않는다. 그 값을 템플릿이 대신 내지 않는다.
+
+그래서 템플릿 테스트는 **목 없이 도는 순수 로직**만 다룬다.
 
 ```
-jest.config.js   preset · 경로 별칭 · transformIgnorePatterns
-jest-setup.ts    네이티브 모듈 목(reanimated · worklets · MMKV · expo-localization · RNFB · notify-kit)
-src/types/jest.d.ts   `/// <reference types="jest" />`
+jest.config.js        preset · 경로 별칭 · transformIgnorePatterns
+src/types/jest.d.ts   `/// <reference types="jest" />` · `node`
 ```
 
-템플릿이 들고 있는 테스트는 **조용히 틀리는 세 곳**뿐이다. 화면 테스트는 앱이 채운다.
+| 파일                                      | 무엇을 지키나                                                            |
+| ----------------------------------------- | ------------------------------------------------------------------------ |
+| `env.test.ts`                             | 환경 leaf 접기. 키가 하나 빠지면 undefined 가 아니라 throw 해야 한다     |
+| `eslint.config.test.ts`                   | import 경계가 실제로 발동하는지(eslint 를 직접 돌린다)                   |
+| `plugins/with-android-plugin.test.ts`     | release 서명 주입. 앵커가 어긋나면 debug 키로 서명된 빌드가 나간다       |
+| `src/lib/deep-link/parser.test.ts`        | 딥링크 파싱. 인코딩된 세그먼트가 라우트 모양을 바꾸지 않아야 한다        |
+| `src/lib/deep-link/extractors.test.ts`    | 푸시 payload → url 계약. 키가 어긋나면 알림이 조용히 아무 일도 안 한다   |
+| `src/lib/deep-link/dispatcher.test.ts`    | cold 홀드와 TTL 중복 제거. 틀리면 화면이 두 번 열리거나 splash 에 갇힌다 |
+| `src/lib/preloader/core.test.ts`          | 스테이지 격리. 앱 콜백이 throw 해도 부팅이 죽지 않아야 한다              |
+| `src/lib/preloader/forced-update.test.ts` | 버전 비교. 틀리면 전 사용자가 막히거나 아무도 안 막힌다                  |
 
-| 파일                                   | 무엇을 지키나                                                            |
-| -------------------------------------- | ------------------------------------------------------------------------ |
-| `env.test.ts`                          | 환경 leaf 접기. 키가 하나 빠지면 undefined 가 아니라 throw 해야 한다     |
-| `src/lib/deep-link/dispatcher.test.ts` | cold 홀드와 TTL 중복 제거. 틀리면 화면이 두 번 열리거나 splash 에 갇힌다 |
-| `src/lib/auth/index.test.ts`           | refresh single-flight, 갱신 중 로그아웃 시 응답 폐기                     |
+뒤 세 개는 **자기 바로 아래 모듈만** 목한다(스테이지 함수·matcher·정책 요청). 공용 설정에
+쌓이는 목이 아니라 그 파일 안에서 끝난다.
 
 딥링크 테스트는 URL 을 `Env.identity.scheme` 에서 만든다 — 하드코딩하면 CLI 가 식별자를
 치환한 뒤 깨진다.
 
-**첫 테스트를 쓸 때 알아야 하는 것 세 가지:**
+**화면·스토어 테스트가 필요하면 앱이 자기 방식대로 세운다.** MMKV·RNFB·reanimated 를
+건드리는 순간 목이 필요하고, 그 형태는 앱마다 다르다.
+
+**첫 테스트를 쓸 때 알아야 하는 것:**
 
 1. **`jest` 객체는 import 한다.** `@types/jest` 30 은 `describe`·`it`·`expect` 만 전역으로
    선언하고 `jest` 는 `@jest/globals` 로 옮겼다. 런타임에는 전역이라 돌지만 `tsc` 가 막는다.
@@ -437,27 +449,17 @@ src/types/jest.d.ts   `/// <reference types="jest" />`
 
 2. **`render` 는 await 한다.** RNTL 14 부터 async 다.
 
-   ```tsx
-   await render(<Text>안녕</Text>);
-   expect(screen.getByText('안녕')).toBeTruthy();
-   ```
-
 3. **"Unexpected token 'export'" 가 나면** 그 패키지를 `transformIgnorePatterns` 에 더한다.
    RN 생태계는 ESM 소스를 그대로 배포한다. `expo-router` 를 쓰려면 `standard-navigation` 도
    필요했다(실측).
 
 4. **모듈 레벨 상태를 쓰는 모듈은 `jest.resetModules()` 후 `require` 로 다시 읽는다.**
    `import` 는 한 번만 평가되므로 큐·플래그가 테스트 간에 샌다. 단 그러면 클래스 동일성이
-   깨진다 — `ApiError` 같은 것은 **같은 레지스트리에서** 꺼내 써야 한다. 남의 Error 를 주면
-   `toApiError` 가 `UNKNOWN_ERROR` 로 바꾸면서 `status` 를 잃고, 그 status 로 판단하는
-   로직이 통째로 무력해진다(실측).
+   깨진다 — 같은 레지스트리에서 꺼내 써야 `instanceof` 와 필드가 유지된다(실측).
 
 `src/types/jest.d.ts` 가 필요한 이유: pnpm 격리 구조에서 tsc 의 `@types` 자동 탐색이
 `@types/jest` 를 못 집는다. `tsconfig` 의 `types` 배열을 쓰면 다른 `@types` 자동 포함이
 막히므로 reference 지시자로 푼다.
-
-**목은 실제 API 와 맞아야 한다.** MMKV v4 는 `remove` 이고 `delete` 가 아니다 — 이름이
-어긋난 목은 테스트가 생길 때까지 아무 소리도 내지 않는다.
 
 ## 거부된 대안 (다시 제안하지 말 것)
 
