@@ -135,7 +135,7 @@ Team ID)로 `env-candidates.ts` 를 치환하고 216파일을 초기 커밋한�
   splash 가 첫 화면임을 모른다.
 - 딥링크 in-flight 중복 창 · `makeKey` 키 충돌 · `external-web` 쿼리 인코딩 · 탭 이름 무검증.
 - 푸시 토큰 동기화에 참조 앱의 in-flight 단일화와 fetch 후 auth 재확인 이식.
-- 하이픈이 든 slug 이 잘못된 Android package 를 만들었다(`com.gym-log.…`). `android.package`
+- 하이픈이 든 slug 이 잘못된 Android package 를 만들었다(`com.my-app.…`). `android.package`
   는 하이픈을 못 쓴다(SDK 57 app config 문서) → 리버스 도메인에서만 제거한다.
 - CLI 가 완료 후 종료되지 않았다 — `exit()` 미호출로 인트로 타이머와 raw mode 가 이벤트
   루프를 잡고 있었다. 긴 화면에서 인트로 애니메이션 잔해가 쌓이던 것도 함께 고쳤다.
