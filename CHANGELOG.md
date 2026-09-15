@@ -9,6 +9,8 @@
 
 ## [Unreleased]
 
+## [0.0.3] — 2026-09-15
+
 ### Docs
 
 - 검증 기준을 명시했다 — **npm 최신이 아니라 Expo 다.** `pnpm doctor` + `expo install --check`
@@ -169,6 +171,7 @@ Team ID)로 `env-candidates.ts` 를 치환하고 216파일을 초기 커밋한�
 
 ---
 
-[unreleased]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.2...HEAD
+[unreleased]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.3...HEAD
+[0.0.3]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.2...v0.0.3
 [0.0.2]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.1...v0.0.2
 [0.0.1]: https://github.com/LESANF/react-native-template-lesa/releases/tag/v0.0.1
