@@ -9,6 +9,19 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- **iOS 27 SDK 에서 앱이 실행되지 않았다.** Apple 이 UIScene 생명주기를 필수로 만들었고,
+  SDK 57 템플릿은 `AppDelegate` 가 window 를 만들어서 **빌드는 되고 실행에서 죽었다**
+  (`UIScene life cycle is required for apps built with this SDK`). `patches/expo@57.0.22.patch`
+  가 런타임 클래스 3개를, `plugins/with-ios-scene.ts` 가 Info.plist scene manifest ·
+  AppDelegate 수정 · `SceneDelegate` 선언을 맡는다. 출처는 upstream
+  [expo/expo#50026](https://github.com/expo/expo/pull/50026)(SDK 57 타깃, 미머지) 원본 파일
+  그대로다. 제거 조건은 `patches/README.md`
+- 앱 아이콘 배지가 어긋나 있었다. `app-icon-badge` 오버레이가 1024×1024 고정인데 아이콘이
+  1254px 이라 배너가 폭의 81.7% 만 덮고 하단이 아니라 y 67~82% 에 앉아 아이콘 본체를
+  가렸다. `icon.png`·`adaptive-icon.png` 를 1024×1024 로 맞췄다
+
 ## [0.0.3] — 2026-09-15
 
 ### Docs
