@@ -18,14 +18,15 @@
 전부 커밋돼 `v0.0.1` 로 릴리즈됐다(`create-lesa-app@0.0.1` npm 발행). 남은 것은
 커밋이 아니라 **사람 확인**이다.
 
-| 확인할 것                                      | 어떻게                                             |
-| ---------------------------------------------- | -------------------------------------------------- |
-| 부팅·splash 이음새, 딥링크 콜드/웜             | C2 의 "시뮬(사용자)" 줄                            |
-| 푸시 3경로(fg·bg·종료)                         | C2b 의 "시뮬(사용자)" 줄                           |
-| 탭 5개 — 라벨 잘림 · iOS26 색 · 하단 inset     | B1                                                 |
-| API 예제 — query·mutation·에러 표시            | B3                                                 |
-| **`InsetView` 가 탭 전환 덜컹거림을 없앴는지** | 탭을 빠르게 왕복. 사유는 `ui.md`                   |
-| Android 네이티브 재빌드                        | `expo-build-properties` 가 SDK 57.0.21 로 바뀌었다 |
+| 확인할 것                                      | 어떻게                                                                                                                                            |
+| ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 부팅·splash 이음새, 딥링크 콜드/웜             | C2 의 "시뮬(사용자)" 줄                                                                                                                           |
+| 푸시 3경로(fg·bg·종료)                         | C2b 의 "시뮬(사용자)" 줄                                                                                                                          |
+| 탭 5개 — 라벨 잘림 · iOS26 색 · 하단 inset     | B1                                                                                                                                                |
+| API 예제 — query·mutation·에러 표시            | B3                                                                                                                                                |
+| **`InsetView` 가 탭 전환 덜컹거림을 없앴는지** | 탭을 빠르게 왕복. 사유는 `ui.md`                                                                                                                  |
+| Android 네이티브 재빌드                        | `expo-build-properties` 가 SDK 57.0.21 로 바뀌었다                                                                                                |
+| **Xcode 27 에서 `pnpm ios:development`**       | Simulator.app 이 DeviceHub.app 으로 대체됐다. `@expo/cli` 57.0.24 에 fallback 이 있고 `devices://` 스킴 등록까지 확인했지만 실제 실행은 안 해봤다 |
 
 릴리즈·브랜치 절차는 `config.md` "릴리즈" 에 있다.
 
@@ -164,7 +165,7 @@
 - [x] home `console.log` → toast, Picsum 외부 의존 → 로컬 `react-logo.png`
 - [x] README "SDK 55" 문구 2곳 → 57
 
-### C2. 부팅과 splash — 구현 완료, **시뮬 검증 대기** (커밋 전, `docs/boot.md`)
+### C2. 부팅과 splash — 커밋·릴리즈됨, **기기 검증 대기** (`docs/boot.md`)
 
 - [x] theme, query listener, auth hydration 동기 초기화 (① 층)
 - [x] **결정**: OTA 기본 제공 = **hot-updater**(KR/JP 표준, 자체 서버). expo-updates 거부. `Env.urls.ota` 비면 비활성
@@ -179,7 +180,7 @@
 - [ ] 검증 후 커밋 5개(팝업 / 프리로더·splash / OTA / 딥링크 / 문서) — 관련 파일만 stage
 - 앱 TODO: `urls.ota`·S3 버킷·AWS 키·정책 API·권한 주입·프리페치 목록·딥링크 호스트/라우트 (`docs/boot.md` 표)
 
-### C2b. 푸시 알림 — 구현 중 → **시뮬 검증 대기** (커밋 전, `docs/push.md`)
+### C2b. 푸시 알림 — 커밋·릴리즈됨, **기기 검증 대기** (`docs/push.md`)
 
 - [x] **SDK 57 호환성 검수(2026-09-03)**: KR/JP 네이티브 스택 매트릭스 — 깨지는 8개(nitro <0.37 · restart 0.0.27 · moti · render-html · community/blur · notifee 아카이브 · hot-updater 서버 0.30 · deploymentTarget 16.0), 경고 수준 9개, hot-updater 0.30→0.36 체크리스트(서버 import 경로·routes.bundles opt-in·db migrate·infra floor 0.33). Airbridge는 템플릿 제외(KR 전용, AppDelegate 앵커 `import Expo` → `internal import Expo` 정규식 1줄)
 - [x] **결정**: RNFB **26.3.3 exact**(RN 0.86 CI 검증 유일) + **notify-kit 10.7 FCM Mode**(notifee 포크, Android data-only·iOS alert+NSE — 중복/유실 구조적 해소) + react-native-permissions 5.6 하나 + NSE는 notify-kit 플러그인(apple-targets 제외). 활성화 = `firebase/` 파일 존재. iOS static + `$RNFirebaseDisableSPM` 무조건(flavor 하나). 참조 앱 결함 D1(권한 전 토큰)·D2(로그아웃 재등록)·D3(채널 지연)·D4/D5(탭 이벤트 누락)·D6(이중 enqueue)·D10(권한 API 3종)·D13(채널 문자열 3곳) 수정
@@ -207,7 +208,7 @@
 
 - [x] KR `app.config`·루트 설정·src 인프라를 파일 단위로 대조(Explore 매핑) → 제네릭만 이식: pnpm **hoisted** 링커(`.npmrc` + `nodeLinker`, KR·Expo 권장; stale 55.x releaseAge 제거) · `_layout` 모듈 스코프 `configureReanimatedLogger`·`enableFreeze(true)` · `unstable_settings.anchor` → `'splash'`(2026-09-07 정정: 한때 제거했으나 값이 틀린 것이지 메커니즘이 틀린 게 아니었다 — 아래 "anchor" 절) · `experiments.reactCompiler` 제거(KR = typedRoutes 만) · `KeyboardProvider` · `react-native-network-logger` + dev FAB(`/dev/network-logger`) · `firebase.json` messaging 키 · prettier 설정+스크립트(`format:check` 75파일 대기, `--write` 는 별도 커밋) · 스크립트 체계(`start*`, `prebuild`=rm -rf, `ios|android:development`, `:release`) · `.gitignore` · `expo-localization` 초기 언어
 - [x] SDK 57 Δ 반영: dev-client `launchMode:'most-recent'` 는 57 기본값(플러그인 자동 적용) → 추가 안 함, `developmentClient.silentLaunch` 는 Expo Go 전용 죽은 키 · React 19 `Text.defaultProps` 불가 → `Text`/`Input` 컴포넌트 기본 `allowFontScaling=false` · `@react-navigation/*` 직접 import 없음 · `__mocks__/react-native-gesture-handler` 경로 2.32 대응
-- [x] **테스트는 레포에 넣지 않는다(2026-09-07, 사용자 지시 — A5·`handoff.md` #19 원래 결정 유지)**: 부팅/푸시/딥링크 검증용 jest 스위트(최종 17 스위트 123 케이스)는 세션 내에서 작성·실행하고 커밋 전 제거했다. jest 인프라(`jest.config.js`·`jest-setup.ts`·`__mocks__/`·devDeps 4종·`test`/`test:ci` 스크립트) 미포함, `check-all` = lint + tsc. 앱이 필요하면 그때 추가한다(`decisions.md`: 대상 옆 colocated `x.test.tsx`, `__tests__/` 폴더 금지). 남는 코드 사실: mmkv 목은 `remove` 가 필요하다(lib/storage.removeItem), `bindContext` 는 큐를 비우지 않는다(의도), `onProgress` 는 시도 기준 카운트
+- [x] **테스트 결정이 뒤집혔다(2026-09-14~15)**: 당시 지시대로 스위트를 커밋 전 제거했는데, 이후 조용히 틀리는 버그가 여럿 나와 **목 없이 도는 것만** 다시 넣었다(`jest.config.js` + 8 스위트 64 케이스, `check-all` = lint + tsc + test). `jest-setup.ts` 와 네이티브 모듈 목은 두지 않는다 — 목을 실제 API 와 맞추는 일이 본업이 되고, 이름 하나 어긋나면 아무 소리도 안 난다(MMKV v4 는 `delete` 가 아니라 `remove`). 화면·스토어 테스트는 앱이 자기 방식대로 세운다. 배치 규칙은 그대로 — 대상 옆 colocated, `__tests__/` 금지
 - [x] 게이트: frozen install · check-all · doctor 18/18 · `expo install --check` · export · iOS/Android prebuild
 - [x] **컴파일 전용 빌드(시뮬 미설치)**: iOS pod install(hoisted, 135 pods: ExpoLogBox·RNNotifee 10.7·RNFB 26.3.3·keyboard-controller 1.21.9·RNPermissions·HotUpdater) + `xcodebuild` BUILD SUCCEEDED · Android SDK 57 첫 빌드 `assembleDebug` 성공(compileSdk 36)
 - [ ] **시뮬(사용자)**: `pnpm ios:development`(ios/ 는 방금 생성됨; 처음부터면 `pnpm prebuild:development` 먼저) → ① 로고 아래 `js splash · <stage> n/m` 표식 유무(없으면 루트 렌더 미도달 → Metro `j` DevTools 콘솔 확인) ② splash → 탭 ③ 알림 권한 다이얼로그 ④ 홈 Push 버튼 → 배너 → 탭 → menu-4/42 ⑤ dev 아이콘 배지·네트워크 로거 FAB ⑥ Android `pnpm android:development`

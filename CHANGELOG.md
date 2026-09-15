@@ -9,6 +9,67 @@
 
 ## [Unreleased]
 
+## [0.0.3] — 2026-09-15
+
+### Docs
+
+- 검증 기준을 명시했다 — **npm 최신이 아니라 Expo 다.** `pnpm doctor` + `expo install --check`
+  가 통과하면 맞는 상태다. RN·React 는 `bundledNativeModules.json` 이 정하므로 npm 에 더
+  높은 버전이 있어도 올리지 않는다(SDK 57 = RN 0.86.3). `AGENTS.md` ④ · `docs/config.md`
+- Xcode 27 을 기록했다. Apple 이 `Simulator.app` 을 `DeviceHub.app` 으로 대체했고
+  `@expo/cli` 에 fallback 이 들어가 있다(expo/expo#46757) — 템플릿이 할 일은 없다.
+  `xcrun simctl` 은 그대로 동작하므로 딥링크·푸시 검증 명령은 유효하다
+- `template-completion.md` 의 "커밋 전" 헤더 2개와, 뒤집힌 테스트 결정을 실제 상태로 맞췄다
+
+### Fixed
+
+- **크래시 리포터가 부팅을 죽일 수 있었다.** 앱이 넣은 `onStageError`·`onProgress` 가
+  throw 하면 `runPreloader` 가 reject 돼 splash 가 끝나지 않고 앱이 아예 뜨지 않았다.
+  이 콜백들은 이미 뭔가 잘못됐을 때 불린다 — 이제 격리하고, 실패는 콜백보다 먼저
+  기록한다(콜백이 throw 하면 기록까지 사라졌다)
+
+- 딥링크 파라미터가 인코딩된 경우 라우팅이 어긋났다. 파서가 세그먼트를 나눠 디코딩한 뒤
+  **다시 이어서 재분할**하는 바람에 인코딩된 슬래시(`menu-4/a%2Fb`)가 세그먼트 개수를
+  바꿨고, expo 경로에는 디코딩된 값이 재인코딩 없이 들어갔다(`/(tabs)/menu-4/a b`).
+  이제 세그먼트 배열이 원본이고 경로에 넣을 때 다시 인코딩한다 — 공백·슬래시·한글 id
+
+### Added
+
+- 자리표시 로그인 화면(`app/auth/login.tsx`). auth 게이트가 `AUTH_LOGIN_PATH` 로 push
+  하는데 **그 라우트가 템플릿에 없어서**, 게이트를 켠 딥링크가 `+not-found` 로 떨어지고
+  보류 의도는 이미 저장된 뒤라 빠져나갈 길이 없었다. 앱은 화면 내용만 교체하면 되고
+  계약은 하나다 — 성공하면 `signIn(tokens)`. 개발용 로그인 버튼은 `__DEV__` 안에 있다
+
+- 푸시 payload → url 추출 테스트 8개. 계약 키가 어긋나면 알림이 조용히 아무 일도 안 한다
+
+- 프리로더 테스트 19개 — 부팅 오케스트레이션 7, 강제 업데이트 12. 버전 비교가 틀리면
+  전 사용자가 스토어로 막히거나 아무도 막히지 않는다
+
+- 딥링크 parser 테스트 9개 — 인코딩된 세그먼트가 라우트 모양을 바꾸지 않는지
+
+- **providers 역류 error 가 `features/` 에서 발동하지 않았다.** flat config 는 같은 rule
+  키를 쓰는 블록 중 마지막 것만 적용하는데, cross-feature 블록이 같은
+  `no-restricted-imports` 를 다시 써서 providers 규칙을 통째로 덮었다 — 그 규칙이 가장
+  중요한 곳이 features 다. error(providers)는 `import/no-restricted-paths`,
+  warn(나머지)은 `no-restricted-imports` 로 키를 갈라 고정했다. 실제로 eslint 를 돌리는
+  회귀 테스트 5개 추가(수정 전 코드에서 3개 실패하는 것을 확인)
+- providers 끼리 절대경로로 조립하는 것도 error 로 잡았다 — provider 합성은 정상이다
+
+- Android release 서명 주입이 앵커를 못 찾으면 **throw 한다.** 그냥 두면 두 가지로
+  조용히 망가졌다 — signingConfigs 주입만 실패하면 Gradle 이 없는
+  `signingConfigs.release` 를 찾고, buildTypes 치환만 실패하면 **debug 키로 서명된
+  릴리즈가 그대로 나간다.** `signingConfigs` 와 `buildTypes` 사이에 주석 한 줄만 끼어도
+  앵커가 깨지는 것을 실측했다. 테스트 7개 추가
+- reanimated 목에 템플릿이 실제로 쓰는 `FadeIn`·`FadeOut`·`runOnJS`·`useDerivedValue`·
+  `useAnimatedReaction` 이 빠져 있었다 — 화면 테스트를 쓰는 순간 undefined 로 터진다
+
+### Added
+
+- 테스트 — `env.ts` 환경 접기 · 딥링크 디스패처 큐·중복 제거 · eslint 경계 규칙 ·
+  Android 서명 주입 · 프리로더. **네이티브 모듈 목 없이 도는 것만** 둔다
+
+### Fixed
+
 ## [0.0.2] — 2026-09-14
 
 ### Added
@@ -20,6 +81,11 @@
 - 릴리즈·다운로드·스타·라이선스 배지
 
 ### Changed
+
+- **jest 에서 네이티브 모듈 목을 걷어냈다.** MMKV·RNFB·notifee·reanimated 를 목으로
+  세우면 목을 실제 API 와 맞추는 일이 본업이 된다 — 이름 하나 어긋나면(v4 는 `delete` 가
+  아니라 `remove`) 아무 소리도 안 난다. 템플릿 테스트는 목 없이 도는 순수 로직만 다루고,
+  화면·스토어 테스트는 필요한 앱이 자기 방식대로 세운다. `jest-setup.ts` 삭제
 
 - SDK 57 패치를 최신에 맞췄다 — expo 57.0.21 → 57.0.22 외 15개. **네이티브에 영향이
   있으므로 재빌드가 필요하다**
@@ -81,7 +147,7 @@ Team ID)로 `env-candidates.ts` 를 치환하고 216파일을 초기 커밋한�
   splash 가 첫 화면임을 모른다.
 - 딥링크 in-flight 중복 창 · `makeKey` 키 충돌 · `external-web` 쿼리 인코딩 · 탭 이름 무검증.
 - 푸시 토큰 동기화에 참조 앱의 in-flight 단일화와 fetch 후 auth 재확인 이식.
-- 하이픈이 든 slug 이 잘못된 Android package 를 만들었다(`com.gym-log.…`). `android.package`
+- 하이픈이 든 slug 이 잘못된 Android package 를 만들었다(`com.my-app.…`). `android.package`
   는 하이픈을 못 쓴다(SDK 57 app config 문서) → 리버스 도메인에서만 제거한다.
 - CLI 가 완료 후 종료되지 않았다 — `exit()` 미호출로 인트로 타이머와 raw mode 가 이벤트
   루프를 잡고 있었다. 긴 화면에서 인트로 애니메이션 잔해가 쌓이던 것도 함께 고쳤다.
@@ -105,6 +171,7 @@ Team ID)로 `env-candidates.ts` 를 치환하고 216파일을 초기 커밋한�
 
 ---
 
-[unreleased]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.2...HEAD
+[unreleased]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.3...HEAD
+[0.0.3]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.2...v0.0.3
 [0.0.2]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.1...v0.0.2
 [0.0.1]: https://github.com/LESANF/react-native-template-lesa/releases/tag/v0.0.1

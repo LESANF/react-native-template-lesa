@@ -1,10 +1,11 @@
 /**
- * 테스트 인프라만 둔다 — 템플릿에 테스트 파일은 없다. `**\/*.test.ts(x)` 를 만들면 잡힌다.
+ * `**\/*.test.ts(x)` 를 잡는다. **네이티브 모듈 목은 두지 않는다** — MMKV·RNFB·notifee 를
+ * 목으로 세우기 시작하면 목을 관리하는 일이 본업이 된다. 템플릿 테스트는 목 없이 도는
+ * 순수 로직만 다루고, 화면·스토어 테스트는 필요한 앱이 자기 방식대로 세운다.
  * 참조 앱(KR) 설정에서 프로젝트 전용(CI 리포터·개별 라이브러리 매핑)을 걷어낸 형태다.
  */
 module.exports = {
   preset: 'jest-expo',
-  setupFilesAfterEnv: ['<rootDir>/jest-setup.ts'],
   testMatch: ['**/?(*.)+(spec|test).ts?(x)'],
   moduleFileExtensions: ['js', 'ts', 'tsx'],
   // tsconfig 의 paths 와 같은 순서여야 한다 — `@/assets/*` 가 `@/*` 보다 먼저다.

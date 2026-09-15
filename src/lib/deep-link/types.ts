@@ -12,7 +12,11 @@ export type EntrySource = 'cold' | 'background' | 'foreground-tap' | 'in-app' | 
 // TODO(앱): 게이트를 추가하면 union 을 넓힌다. 구현은 `lib/deep-link/gates` 의 GATE_MAP.
 export type GateName = 'auth';
 
-/** path 는 선행/후행 슬래시 없이 정규화된다 (예: 'menu-4/42'). segments = path.split('/'). */
+/**
+ * path 는 선행/후행 슬래시 없이 정규화된다 (예: 'menu-4/42').
+ * `segments` 가 원본이고 `path` 는 그것을 이은 것이다 — 디코딩된 세그먼트에 슬래시가
+ * 들어 있으면 둘이 어긋날 수 있으니 **매칭은 `segments` 로** 한다.
+ */
 export type ParsedDeepLink = {
   readonly transport: LinkTransport;
   readonly path: string;

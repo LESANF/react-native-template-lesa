@@ -1,0 +1,33 @@
+# PR 에서 `check-all` 을 돌린다. 네이티브 빌드는 하지 않는다 — 러너 시간이 크고
+# prebuild 산출물은 커밋되지 않으므로 lint·타입·테스트까지가 여기서 얻을 수 있는 것이다.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+# 같은 브랜치에 새 푸시가 오면 이전 실행을 버린다.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      # 락파일과 어긋나면 실패시킨다 — 러너가 조용히 다른 버전을 깔면 검증이 무의미하다.
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm run check-all
+        env:
+          CI: true

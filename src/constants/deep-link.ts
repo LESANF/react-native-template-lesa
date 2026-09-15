@@ -12,7 +12,7 @@ export const HANDLED_TTL_MS = 2000;
 export const HANDLED_MAX = 50;
 export const SPLASH_HANDOFF_DELAY_MS = 100;
 
-// TODO(앱): 이 로그인 화면은 템플릿에 없다. 안 만들면 auth 게이트에서 +not-found.
+// `app/auth/login.tsx` 자리표시가 이 경로다. 옮기면 여기도 같이 바꾼다.
 export const AUTH_LOGIN_PATH = '/auth/login';
 export const AUTH_ROUTE_GROUP = 'auth';
 
@@ -73,9 +73,11 @@ export type DynamicRouteSpec = {
 export const DYNAMIC_ROUTES_SPEC = {
   menu4Detail: {
     appPattern: 'menu-4/:id',
+    // 파라미터는 디코딩된 값이다 — 경로에 넣을 때 다시 인코딩한다(공백·슬래시·한글).
     toExpoPath: ({ id }, query) => {
       const search = new URLSearchParams(query).toString();
-      return search ? `/(tabs)/menu-4/${id}?${search}` : `/(tabs)/menu-4/${id}`;
+      const path = `/(tabs)/menu-4/${encodeURIComponent(id)}`;
+      return search ? `${path}?${search}` : path;
     },
   },
 } as const satisfies Record<string, DynamicRouteSpec>;
