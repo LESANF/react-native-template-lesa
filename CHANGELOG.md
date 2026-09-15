@@ -9,6 +9,11 @@
 
 ## [Unreleased]
 
+### Changed
+
+- GitHub 릴리즈를 정식 릴리즈(`--latest`)로 올린다. 0.x `--prerelease` 규칙은 폐기 — pre-release 에는
+  Latest 배지가 붙지 않아 v0.0.1~v0.0.5 도 정식 릴리즈로 전환했다(`docs/config.md` "릴리즈" 5번)
+
 ## [0.0.5] — 2026-09-15
 
 ### Fixed
