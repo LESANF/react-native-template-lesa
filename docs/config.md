@@ -384,8 +384,8 @@ gh pr merge --merge          # 버전 브랜치는 지우지 않는다(아래 "�
 git switch master && git pull
 git tag -a v0.0.2 -m "v0.0.2 — <한 줄 요약>" && git push --follow-tags
 
-# 5. GitHub 릴리즈 — 0.x 는 반드시 --prerelease
-gh release create v0.0.2 --title "v0.0.2" --prerelease --notes-file <(sed -n '/## \[0.0.2\]/,/## \[0.0.1/p' CHANGELOG.md)
+# 5. GitHub 릴리즈 — 정식 릴리즈로 올리고 Latest 를 붙인다(pre-release 에는 Latest 배지가 붙지 않는다)
+gh release create v0.0.2 --title "v0.0.2" --latest --notes-file <(sed -n '/## \[0.0.2\]/,/## \[0.0.1/p' CHANGELOG.md)
 
 # 6. 다음 버전 브랜치를 딴다
 git switch -c 0.0.3 master && git push -u origin 0.0.3
