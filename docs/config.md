@@ -423,13 +423,39 @@ npm 에 더 높은 버전이 있어도 SDK 가 고정한 것과 다르면 올리
 `jest`·`@types/jest` 는 `expo.install.exclude` 에 있다. Expo 는 29 를 기대하지만 이 템플릿은
 30 을 쓴다 — 안 빼면 `expo install --fix` 마다 되돌린다.
 
-### Xcode 27 — Simulator.app 이 DeviceHub.app 으로 대체됐다
+### Xcode 27 · iOS 27 SDK
 
-Apple 이 Xcode 27 에서 `Simulator.app` 을 없애고 `DeviceHub.app` 을 넣었다. `expo run:ios` 가
-한동안 깨졌지만 `@expo/cli` 에 fallback 이 들어갔다(expo/expo#46757) — Simulator 를 먼저
-찾고 없으면 `devices://device/open?id=<udid>` 로 DeviceHub 를 연다. 템플릿이 할 일은 없다.
+두 가지가 걸린다. **하나는 이미 해결돼 있고 하나는 우리가 대응한다.**
 
+**① Simulator.app → DeviceHub.app (대응 불필요).** Apple 이 Xcode 27 에서 `Simulator.app`
+을 없앴다. `@expo/cli` 에 fallback 이 있다([#46757](https://github.com/expo/expo/pull/46757)) —
+Simulator 를 먼저 찾고 없으면 `devices://device/open?id=<udid>` 로 DeviceHub 를 연다.
 `xcrun simctl` 은 그대로 동작하므로 `boot.md`·`push.md` 의 딥링크·푸시 검증 명령은 유효하다.
+
+**② UIScene 생명주기 (우리가 대응).** iOS 27 SDK 로 빌드한 앱은 UIScene 을 채택해야
+**실행된다.** SDK 57 템플릿은 `AppDelegate` 가 window 를 만들어서 빌드는 되고 실행에서 죽는다.
+
+```
+Application failed to launch: UIScene life cycle is required for apps built with this SDK.
+```
+
+`patches/expo@57.0.22.patch` 가 런타임 클래스를, `plugins/with-ios-scene.ts` 가 생성물을
+맡는다. 출처와 **제거 조건**은 [`patches/README.md`](../patches/README.md) — upstream
+[#50026](https://github.com/expo/expo/pull/50026) 이 57.0.x 에 들어오면 둘 다 지운다.
+
+scene 생명주기에서는 **링크가 AppDelegate 로 오지 않는다.** `SceneEventForwarder` 가
+넘기므로 콜드 `Linking.getInitialURL()` 이 첫 실행에서 확인해야 할 항목이다.
+
+### 앱 아이콘 배지는 1024×1024 를 요구한다
+
+`app-icon-badge` 의 오버레이가 **1024×1024 고정**이고 `(0,0)` 에 합성된다. 원본이 그보다
+크면 배지가 어긋난다 — 1254px 아이콘에서 배너가 폭의 81.7% 만 덮고 하단이 아니라
+y 67~82% 에 앉아 아이콘 본체를 가렸다(실측). `icon.png`·`adaptive-icon.png` 를
+**1024×1024 로 맞춘다**(Apple 요구 크기이기도 하다).
+
+```bash
+sips -z 1024 1024 assets/images/icon.png assets/images/adaptive-icon.png
+```
 
 ## 테스트 — 쓰고 싶으면 쓰는 것
 
