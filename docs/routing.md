@@ -568,6 +568,23 @@ anchor 를 빼면 그 둘이 splash 가 첫 화면임을 모른다. 두 값을 *
 의 흰 화면 증상(`_layout.tsx` 청크가 Metro 에 요청조차 되지 않음)도 재현되지 않았다 — 당시
 anchor 가 제거된 상태였으므로 이 복원이 유력한 원인이다(확정은 아니다, 그 사이 다른 변경도 있다).
 
+## auth 게이트와 로그인 라우트
+
+`gates: ['auth']` 를 건 링크는 미인증이면 `AUTH_LOGIN_PATH`(`/auth/login`) 로 push 되고,
+원래 의도는 `pendingDeepLinkIntent` 에 보관된다. 로그인에 성공해 `signIn(tokens)` 가
+불리면 `AuthDeferredRunner` 가 그 의도를 이어서 재생한다.
+
+**그래서 그 라우트는 반드시 존재해야 한다.** 없으면 `+not-found` 로 떨어지는데, 이때
+보류 의도는 이미 저장된 뒤라 사용자가 빠져나갈 길이 없다. 템플릿은 자리표시 화면을
+`app/auth/login.tsx` 에 싣는다(2026-09-15) — 다른 자리표시 화면과 같은 취급이다.
+
+앱이 할 일은 화면 내용 교체뿐이고 계약은 하나다 — **성공하면 `signIn(tokens)`.**
+경로를 옮기면 `AUTH_LOGIN_PATH` 와 `AUTH_ROUTE_GROUP` 을 같이 바꾼다. `AUTH_ROUTE_GROUP`
+은 `AuthDeferredRunner` 가 "지금 로그인 화면 위인가" 를 보는 값이라 어긋나면 로그인
+직후 재생이 로그인 화면 위에서 일어난다.
+
+자리표시의 개발용 로그인 버튼은 `__DEV__` 안에 있다 — 릴리즈 빌드에는 나오지 않는다.
+
 ## 거부된 대안 (다시 제안하지 말 것)
 
 - `composeProviders` 추상화 → `app-providers.tsx` 는 명시적 중첩. 순서가 보여야 한다.

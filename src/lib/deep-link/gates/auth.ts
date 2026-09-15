@@ -15,7 +15,7 @@ export const authGate: Gate = {
   },
   request(navigationContext, onResolve) {
     pendingDeepLinkIntent.set(onResolve);
-    // TODO(앱): AUTH_LOGIN_PATH 라우트가 템플릿에 없다 — 만들고 경로를 맞춘다.
+    // 자리표시 화면이 `app/auth/login.tsx` 에 있다. TODO(앱): 실제 로그인 UI 로 교체.
     navigationContext.router.push(AUTH_LOGIN_PATH as Href);
   },
 };

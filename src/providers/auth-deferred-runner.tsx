@@ -13,7 +13,7 @@ import { useAuthStore } from '@/stores/auth-store';
 export function AuthDeferredRunner() {
   const isSignedIn = useAuthStore(state => state.status === 'signedIn');
   const segments = useSegments();
-  // AUTH_ROUTE_GROUP 라우트가 없어 세그먼트 union 에도 없다 — 문자열 비교.
+  // 세그먼트 union 은 생성 타입이라 문자열로 비교한다.
   const isOnAuth = (segments[0] as string | undefined) === AUTH_ROUTE_GROUP;
 
   useEffect(() => {
