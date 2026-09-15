@@ -457,6 +457,14 @@ y 67~82% 에 앉아 아이콘 본체를 가렸다(실측). `icon.png`·`adaptive
 sips -z 1024 1024 assets/images/icon.png assets/images/adaptive-icon.png
 ```
 
+**두 파일은 역할이 다르다.** `icon.png` 은 풀블리드(iOS), `adaptive-icon.png` 은 **여백 있는
+foreground**(Android)다. Android 런처 마스크는 108dp 중 가운데 72dp 만 보장하므로 풀블리드를
+넣으면 가장자리가 잘린다. 아이콘 파이프라인이 두 산출물을 따로 내면 각각을 쓴다 — 풀블리드
+하나를 두 곳에 넣지 않는다.
+
+배지 자체는 두 경우를 알고 처리한다(adaptive 는 배너 높이 310px, 텍스트를 안전 영역 안에
+올린다). 원본 크기만 1024 로 맞추면 된다.
+
 ## 테스트 — 쓰고 싶으면 쓰는 것
 
 `jest-expo` 설정이 있고 `check-all` 에 포함된다. **네이티브 모듈 목은 두지 않는다.**
