@@ -404,6 +404,33 @@ git switch -c 0.0.3 master && git push -u origin 0.0.3
 
 두 레포의 버전을 맞추려 하지 않는다 — 따로 움직인다.
 
+## 검증 기준은 Expo 다
+
+npm 최신 버전이 기준이 아니다. **`pnpm doctor`(expo-doctor) 와 `npx expo install --check`
+가 통과하면 맞는 상태다.**
+
+```bash
+pnpm doctor                 # 18개 검사
+npx expo install --check    # SDK 가 고정한 버전과 대조
+CI=true pnpm run check-all  # lint → tsc → test
+```
+
+npm 에 더 높은 버전이 있어도 SDK 가 고정한 것과 다르면 올리지 않는다. `react-native` 와
+`react` 는 `expo/bundledNativeModules.json` 이 정한다 — SDK 57 은 `react-native 0.86.3` 이라
+0.87 로 손수 올리면 네이티브 코드젠·Podspec 이 expo 모듈들과 어긋난다. SDK 단위 업그레이드는
+`upgrading-expo` 스킬로 한다.
+
+`jest`·`@types/jest` 는 `expo.install.exclude` 에 있다. Expo 는 29 를 기대하지만 이 템플릿은
+30 을 쓴다 — 안 빼면 `expo install --fix` 마다 되돌린다.
+
+### Xcode 27 — Simulator.app 이 DeviceHub.app 으로 대체됐다
+
+Apple 이 Xcode 27 에서 `Simulator.app` 을 없애고 `DeviceHub.app` 을 넣었다. `expo run:ios` 가
+한동안 깨졌지만 `@expo/cli` 에 fallback 이 들어갔다(expo/expo#46757) — Simulator 를 먼저
+찾고 없으면 `devices://device/open?id=<udid>` 로 DeviceHub 를 연다. 템플릿이 할 일은 없다.
+
+`xcrun simctl` 은 그대로 동작하므로 `boot.md`·`push.md` 의 딥링크·푸시 검증 명령은 유효하다.
+
 ## 테스트 — 쓰고 싶으면 쓰는 것
 
 `jest-expo` 설정이 있고 `check-all` 에 포함된다. **네이티브 모듈 목은 두지 않는다.**
