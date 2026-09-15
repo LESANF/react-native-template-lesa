@@ -60,9 +60,9 @@ describe('parseDeepLink', () => {
       'menu-4',
       'a b',
     ]);
-    expect(parse(`${scheme}://menu-4/${encodeURIComponent('짐로그')}`)?.segments).toEqual([
+    expect(parse(`${scheme}://menu-4/${encodeURIComponent('한글-아이디')}`)?.segments).toEqual([
       'menu-4',
-      '짐로그',
+      '한글-아이디',
     ]);
   });
 });
