@@ -387,9 +387,44 @@ git tag -a v0.0.2 -m "v0.0.2 — <한 줄 요약>" && git push --follow-tags
 # 5. GitHub 릴리즈 — 0.x 는 반드시 --prerelease
 gh release create v0.0.2 --title "v0.0.2" --prerelease --notes-file <(sed -n '/## \[0.0.2\]/,/## \[0.0.1/p' CHANGELOG.md)
 
-# 6. 다음 버전 브랜치를 딴다
+# 6. CLI 의 TEMPLATE_REF 를 올린다 — **이걸 빼면 CLA 가 옛 템플릿을 준다**
+#    CLI 도 같은 절차로 릴리즈하고 npm 에 올린다(OTP 필요)
+cd ../create-lesa-app
+# src/fetch-template.ts 의 TEMPLATE_REF 를 v0.0.2 로
+# 위 1~5 를 CLI 에서 반복 → npm publish
+
+# 7. 체인이 맞는지 확인한다 — 빠진 단계를 여기서 잡는다
+cd ../lesa-expo-template && pnpm release:check
+
+# 8. 다음 버전 브랜치를 딴다
 git switch -c 0.0.3 master && git push -u origin 0.0.3
 ```
+
+### `pnpm release:check` — 릴리즈는 네 군데를 같이 올려야 한다
+
+템플릿 태그 · CLI `TEMPLATE_REF` · CLI 태그 · npm. 하나만 빠져도 **`npx create-lesa-app`
+이 옛 템플릿을 조용히 준다** — 에러도 경고도 없다. 실제로 이 절차에서 매번 하나씩
+빠졌다(2026-09 릴리즈 0.0.1~0.0.7).
+
+```bash
+pnpm release:check
+```
+
+```
+  ✓ 템플릿 package.json  0.0.7
+  ✓ 템플릿 최신 태그      v0.0.7
+  ✓ CLI TEMPLATE_REF     v0.0.7
+  ✓ CLI package.json     0.0.7
+  ✓ CLI 최신 태그         v0.0.7
+  ✗ npm latest           0.0.5
+  ✓ tarball v0.0.7       200
+
+  ✗ npm latest 가 0.0.5 인데 CLI 는 0.0.7 다 — `npm publish` 가 남았다
+```
+
+어긋나면 **무엇을 해야 하는지**까지 출력하고 exit 1 이다. npm 은 레지스트리를 직접
+조회한다 — `npm view` 는 캐시 때문에 방금 올린 것을 놓친다(실제로 한 번 속았다).
+CLI 레포 경로는 형제 폴더가 기본이고 `$LESA_CLI_DIR` 로 바꾼다.
 
 ### CLI 와의 관계
 

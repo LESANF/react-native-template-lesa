@@ -48,7 +48,8 @@
     "ota:deploy:android:production": "cross-env EXPO_PUBLIC_APP_ENV=production node scripts/ota-deploy.mjs android",
     "ota:fingerprint": "hot-updater fingerprint create",
     "ota:app-version": "hot-updater app-version",
-    "prepare": "husky"
+    "prepare": "husky",
+    "release:check": "node scripts/release-check.mjs"
   },
   "dependencies": {
     "@expo/metro-runtime": "~57.0.15",

@@ -196,6 +196,9 @@ OS Linking · 푸시 탭 · 인앱 · 어트리뷰션 SDK — 진입이 어디�
   메커니즘이라 살리고, 테이블·문구·엔드포인트만 비운다.
 - **검증은 사용자 몫이다.** 시뮬레이터·실기 조작은 하지 않는다. 코드 검증·구조 확인·
   의존성 점검·빌드까지가 내 범위다. 그 다음은 사용자가 본다.
+- **릴리즈 뒤에는 `pnpm release:check` 를 돌린다.** 템플릿 태그·CLI `TEMPLATE_REF`·CLI
+  태그·npm 네 군데를 같이 올려야 하고, 하나만 빠지면 `npx create-lesa-app` 이 옛 템플릿을
+  조용히 준다. 실제로 매 릴리즈에서 하나씩 빠졌다.
 - **버전 판정 기준은 npm 최신이 아니라 Expo 다.** `pnpm doctor`(expo-doctor)와
   `npx expo install --check` 가 통과하면 맞는 상태다. npm 에 더 높은 버전이 있어도
   SDK 가 고정한 것과 다르면 올리지 않는다 — RN·React 는 `bundledNativeModules.json`
