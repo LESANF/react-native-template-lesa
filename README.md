@@ -227,15 +227,16 @@ None of these are required. `AGENTS.md` records the fallback for each.
 
 ## Docs
 
-|                                              |                                             |
-| -------------------------------------------- | ------------------------------------------- |
-| [`docs/config.md`](./docs/config.md)         | env, app config, plugins, release procedure |
-| [`docs/boot.md`](./docs/boot.md)             | splash, preloader, OTA, deep links          |
-| [`docs/push.md`](./docs/push.md)             | FCM, the headless chain, taps               |
-| [`docs/routing.md`](./docs/routing.md)       | routes, tabs, modals, overlays              |
-| [`docs/ui.md`](./docs/ui.md)                 | tokens, dark mode, `InsetView`              |
-| [`docs/data-layer.md`](./docs/data-layer.md) | api, auth, query                            |
-| [`docs/decisions.md`](./docs/decisions.md)   | what was decided, and when                  |
+|                                              |                                                         |
+| -------------------------------------------- | ------------------------------------------------------- |
+| [`docs/config.md`](./docs/config.md)         | env, app config, plugins, release procedure             |
+| [`docs/boot.md`](./docs/boot.md)             | splash, preloader, OTA, deep links                      |
+| [`docs/push.md`](./docs/push.md)             | FCM, the headless chain, taps                           |
+| [`docs/routing.md`](./docs/routing.md)       | routes, tabs, modals, overlays                          |
+| [`docs/ui.md`](./docs/ui.md)                 | tokens, dark mode, `InsetView`                          |
+| [`docs/data-layer.md`](./docs/data-layer.md) | api, auth, query                                        |
+| [`docs/decisions.md`](./docs/decisions.md)   | what was decided, and when                              |
+| [`MIGRATION.md`](./MIGRATION.md)             | moving an already-generated project to a newer template |
 
 ## License
 

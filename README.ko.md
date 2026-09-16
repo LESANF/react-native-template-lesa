@@ -223,6 +223,7 @@ MCP 를 같이 등록합니다.
 | [`docs/ui.md`](./docs/ui.md)                 | 토큰 · 다크모드 · `InsetView`             |
 | [`docs/data-layer.md`](./docs/data-layer.md) | api · auth · query                        |
 | [`docs/decisions.md`](./docs/decisions.md)   | 무엇을 언제 결정했나                      |
+| [`MIGRATION.md`](./MIGRATION.md)             | 이미 만든 프로젝트를 새 템플릿으로 올리기 |
 
 ## 라이선스
 
