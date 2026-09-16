@@ -7,15 +7,12 @@ import { DEEP_LINK_HTTPS_HOSTS } from './src/constants/deep-link';
 
 import type { AppIconBadgeConfig } from 'app-icon-badge/types';
 
-// @types/node 를 안 들이려고 require + 단언.
-const { existsSync } = require('node:fs') as {
-  existsSync: (path: string) => boolean;
-};
+import { existsSync } from 'node:fs';
 
 // `.env` 의 APP_BUILD_ONLY_* 는 이 파일에서만 읽는다 — docs/config.md.
 const STRICT = process.env.STRICT_ENV_VALIDATION === '1';
-function requireInStrict(key: string): string {
-  const value = process.env[key];
+// 값을 인자로 받는다 — `process.env[key]` 는 Metro 가 인라인하지 못하고 eslint 도 막는다.
+function requireInStrict(key: string, value: string | undefined): string {
   if (!value) {
     const message = `[env.build] Missing build-time secret: ${key} (.env 확인)`;
     if (STRICT) throw new Error(message);
@@ -26,7 +23,10 @@ function requireInStrict(key: string): string {
 const mask = (value: string) => (value ? `****${value.slice(-4)}` : '(missing)');
 
 // TODO(앱): 실제 시크릿으로 교체. **expo.extra 에는 넣지 않는다.**
-const EXAMPLE_BUILD_SECRET = requireInStrict('APP_BUILD_ONLY_EXAMPLE_SECRET');
+const EXAMPLE_BUILD_SECRET = requireInStrict(
+  'APP_BUILD_ONLY_EXAMPLE_SECRET',
+  process.env.APP_BUILD_ONLY_EXAMPLE_SECRET
+);
 if (STRICT) {
   console.log(`🔐 BUILD_SECRET APP_BUILD_ONLY_EXAMPLE_SECRET: ${mask(EXAMPLE_BUILD_SECRET)}`);
 }
@@ -160,7 +160,12 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     // static 은 무조건 — RNFB 는 푸시 off 에도 컴파일된다.
     [
       'expo-build-properties',
-      { ios: { useFrameworks: 'static' }, android: { enableProguardInReleaseBuilds: true } },
+      {
+        // iOS 27 SDK 는 UIScene 을 요구한다 — 끄면 빌드는 되고 실행에서 죽는다.
+        // SDK 58 부터는 기본이라 이 줄을 지운다(켜둔 채로 두면 경고만 나온다).
+        ios: { useFrameworks: 'static', enableSceneSupport: true },
+        android: { enableProguardInReleaseBuilds: true },
+      },
     ],
     ['react-native-permissions', { iosPermissions: ['Notifications'] }],
     // 자체 플러그인 — 폴더블 · release 서명 · Podfile DisableSPM.
