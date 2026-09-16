@@ -9,6 +9,22 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- `app.config.ts` 의 lint 위반 2건. `process.env[key]` 동적 접근(Metro 가 인라인 못 한다)과
+  `require('node:fs')`. 값을 인자로 받게 바꾸고 일반 import 로 되돌렸다 — `@types/node` 는
+  이미 참조돼 있다
+
+### Changed
+
+- iOS 27 UIScene 을 **공식 스위치로 교체**했다 — `expo-build-properties` 의
+  `ios.enableSceneSupport: true`. 자체 플러그인(`plugins/with-ios-scene.ts`)과
+  `expo@57.0.22` 패치를 지웠다. Expo 가 SDK 57 에 **opt-in** 으로 낸 것이다
+  ([#50191](https://github.com/expo/expo/pull/50191) 런타임 ·
+  [#50205](https://github.com/expo/expo/pull/50205) 스위치) — SDK 중간에 기본값을 바꾸면
+  기존 앱의 AppDelegate 가 깨지기 때문이다. 하루 만에 upstream 이 따라왔다
+- `expo` 57.0.22 → 57.0.23, `expo-build-properties` 57.0.17 → 57.0.19
+
 ## [0.0.5] — 2026-09-15
 
 ### Fixed
