@@ -9,6 +9,16 @@
 
 ## [Unreleased]
 
+## [0.0.7] — 2026-09-16
+
+### Fixed
+
+- **푸시를 켜면 prebuild 가 실패했다.** `expo-build-properties@57.0.19` 의
+  `enableSceneSupport` 가 `AppDelegate` 를 고치는 다른 플러그인과 충돌한다 — 푸시가 켜지면
+  RNFB 가 `FirebaseApp.configure()` 를 넣으므로 이 템플릿이 정확히 그 경우다. 57.0.20 으로
+  올려 해소했다([#50210](https://github.com/expo/expo/issues/50210)).
+  푸시 ON 상태로 prebuild → `xcodebuild` 까지 확인했다(error 0, Firebase pods 컴파일)
+
 ## [0.0.6] — 2026-09-16
 
 ### Fixed
@@ -212,7 +222,8 @@ Team ID)로 `env-candidates.ts` 를 치환하고 216파일을 초기 커밋한�
 
 ---
 
-[unreleased]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.6...HEAD
+[unreleased]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.7...HEAD
+[0.0.7]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.6...v0.0.7
 [0.0.6]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.5...v0.0.6
 [0.0.5]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.4...v0.0.5
 [0.0.4]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.3...v0.0.4
