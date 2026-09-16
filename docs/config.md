@@ -439,9 +439,22 @@ Simulator 를 먼저 찾고 없으면 `devices://device/open?id=<udid>` 로 Devi
 Application failed to launch: UIScene life cycle is required for apps built with this SDK.
 ```
 
-`patches/expo@57.0.22.patch` 가 런타임 클래스를, `plugins/with-ios-scene.ts` 가 생성물을
-맡는다. 출처와 **제거 조건**은 [`patches/README.md`](../patches/README.md) — upstream
-[#50026](https://github.com/expo/expo/pull/50026) 이 57.0.x 에 들어오면 둘 다 지운다.
+**공식 스위치 한 줄로 켠다.** `app.config.ts` 의 `expo-build-properties`:
+
+```ts
+ios: { useFrameworks: 'static', enableSceneSupport: true },
+```
+
+Expo 는 SDK 57 에서 이걸 **opt-in** 으로 냈다 — SDK 중간에 기본값을 바꾸면 기존 앱의
+AppDelegate 가 깨지기 때문이다. 런타임은 `expo@57.0.23`, 스위치는
+`expo-build-properties@57.0.19` 에 들어왔다([#50191](https://github.com/expo/expo/pull/50191) ·
+[#50205](https://github.com/expo/expo/pull/50205)).
+
+켜면 prebuild 가 `AppDelegate` 를 `ExpoReactNativeFactoryProvider` 에 맞추고 window 생성
+블록을 빼고 Info.plist 에 `EXExpoAppSceneDelegate` 를 가리키는 manifest 를 넣는다.
+
+**SDK 58 부터는 기본이라 이 줄을 지운다.** 켜둔 채로 올리면 prebuild 가 "더 이상 필요
+없다" 고 경고한다. 57.0.22 이하에서 켜면 throw 한다.
 
 scene 생명주기에서는 **링크가 AppDelegate 로 오지 않는다.** `SceneEventForwarder` 가
 넘기므로 콜드 `Linking.getInitialURL()` 이 첫 실행에서 확인해야 할 항목이다.

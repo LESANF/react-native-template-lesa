@@ -1,6 +1,5 @@
 import withAndroidPlugin from './with-android-plugin';
 import withIosPlugin from './with-ios-plugin';
-import withIosScene from './with-ios-scene';
 
 import type { ConfigPlugin } from 'expo/config-plugins';
 
@@ -18,8 +17,6 @@ export type PluginOptions = {
 const withPlugin: ConfigPlugin<PluginOptions> = (config, options) => {
   config = withAndroidPlugin(config, options);
   config = withIosPlugin(config, options);
-  // iOS 27 SDK 요구사항 — 앱 옵션과 무관하게 항상 적용한다.
-  config = withIosScene(config);
   return config;
 };
 
