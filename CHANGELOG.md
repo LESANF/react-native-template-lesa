@@ -9,6 +9,16 @@
 
 ## [Unreleased]
 
+## [0.0.8] — 2026-09-16
+
+### Added
+
+- `pnpm release:check` — 템플릿 태그 · CLI `TEMPLATE_REF` · CLI 태그 · npm 네 군데가
+  어긋났는지 본다. 하나만 빠지면 `npx create-lesa-app` 이 **옛 템플릿을 조용히 준다** —
+  에러도 경고도 없다. 실제로 0.0.1~0.0.7 릴리즈에서 매번 하나씩 빠졌다.
+  어긋나면 할 일까지 출력하고 exit 1 한다. npm 은 레지스트리를 직접 조회한다
+  (`npm view` 는 캐시 때문에 방금 올린 것을 놓친다)
+
 ## [0.0.7] — 2026-09-16
 
 ### Fixed
@@ -222,7 +232,8 @@ Team ID)로 `env-candidates.ts` 를 치환하고 216파일을 초기 커밋한�
 
 ---
 
-[unreleased]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.7...HEAD
+[unreleased]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.8...HEAD
+[0.0.8]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.7...v0.0.8
 [0.0.7]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.6...v0.0.7
 [0.0.6]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.5...v0.0.6
 [0.0.5]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.4...v0.0.5
