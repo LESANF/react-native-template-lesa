@@ -445,6 +445,14 @@ Application failed to launch: UIScene life cycle is required for apps built with
 ios: { useFrameworks: 'static', enableSceneSupport: true },
 ```
 
+**`expo-build-properties` 는 57.0.20 이상이어야 한다.** 57.0.19 는 `AppDelegate` 를 고치는
+다른 플러그인과 충돌해 prebuild 가 실패한다 —
+`ios.enableSceneSupport requires the standard Expo SDK 57 Swift AppDelegate`.
+**푸시를 켜면 RNFB 가 `FirebaseApp.configure()` 를 넣으므로 이 템플릿이 정확히 그 경우다**
+(실측: 푸시 ON + 57.0.19 → prebuild 실패, 57.0.20 → 통과).
+사유는 [#50210](https://github.com/expo/expo/issues/50210),
+공식 안내는 [#46664 의 공지](https://github.com/expo/expo/issues/46664#issuecomment-5683396867).
+
 Expo 는 SDK 57 에서 이걸 **opt-in** 으로 냈다 — SDK 중간에 기본값을 바꾸면 기존 앱의
 AppDelegate 가 깨지기 때문이다. 런타임은 `expo@57.0.23`, 스위치는
 `expo-build-properties@57.0.19` 에 들어왔다([#50191](https://github.com/expo/expo/pull/50191) ·

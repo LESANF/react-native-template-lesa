@@ -15,4 +15,4 @@ minimumReleaseAgeExclude:
   - '@expo/router-server@57.0.10'
   - babel-preset-expo@57.0.12
   - expo@57.0.23
-  - expo-build-properties@57.0.19
+  - expo-build-properties@57.0.20
