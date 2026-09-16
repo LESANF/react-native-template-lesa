@@ -9,6 +9,8 @@
 
 ## [Unreleased]
 
+## [0.0.7] — 2026-09-16
+
 ### Fixed
 
 - **푸시를 켜면 prebuild 가 실패했다.** `expo-build-properties@57.0.19` 의
@@ -220,7 +222,8 @@ Team ID)로 `env-candidates.ts` 를 치환하고 216파일을 초기 커밋한�
 
 ---
 
-[unreleased]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.6...HEAD
+[unreleased]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.7...HEAD
+[0.0.7]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.6...v0.0.7
 [0.0.6]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.5...v0.0.6
 [0.0.5]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.4...v0.0.5
 [0.0.4]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.3...v0.0.4
