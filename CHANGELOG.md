@@ -9,6 +9,8 @@
 
 ## [Unreleased]
 
+## [0.0.8] — 2026-09-16
+
 ### Added
 
 - `pnpm release:check` — 템플릿 태그 · CLI `TEMPLATE_REF` · CLI 태그 · npm 네 군데가
@@ -230,7 +232,8 @@ Team ID)로 `env-candidates.ts` 를 치환하고 216파일을 초기 커밋한�
 
 ---
 
-[unreleased]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.7...HEAD
+[unreleased]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.8...HEAD
+[0.0.8]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.7...v0.0.8
 [0.0.7]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.6...v0.0.7
 [0.0.6]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.5...v0.0.6
 [0.0.5]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.4...v0.0.5
