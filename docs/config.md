@@ -384,8 +384,8 @@ gh pr merge --merge          # 버전 브랜치는 지우지 않는다(아래 "�
 git switch master && git pull
 git tag -a v0.0.2 -m "v0.0.2 — <한 줄 요약>" && git push --follow-tags
 
-# 5. GitHub 릴리즈 — 0.x 는 반드시 --prerelease
-gh release create v0.0.2 --title "v0.0.2" --prerelease --notes-file <(sed -n '/## \[0.0.2\]/,/## \[0.0.1/p' CHANGELOG.md)
+# 5. GitHub 릴리즈 — `--latest` 를 쓴다. `--prerelease` 를 쓰면 안 된다
+gh release create v0.0.2 --title "v0.0.2" --latest --notes-file <(sed -n '/## \[0.0.2\]/,/## \[0.0.1/p' CHANGELOG.md)
 
 # 6. CLI 의 TEMPLATE_REF 를 올린다 — **이걸 빼면 CLA 가 옛 템플릿을 준다**
 #    CLI 도 같은 절차로 릴리즈하고 npm 에 올린다(OTP 필요)
@@ -398,6 +398,22 @@ cd ../lesa-expo-template && pnpm release:check
 
 # 8. 다음 버전 브랜치를 딴다
 git switch -c 0.0.3 master && git push -u origin 0.0.3
+```
+
+### `--prerelease` 를 쓰지 않는다
+
+GitHub 은 **pre-release 를 절대 Latest 로 표시하지 않는다.** `0.x` 라서 pre-release 로
+표시하는 게 맞아 보이지만, 그러면 `releases/latest` 가 옛 버전을 가리키고 릴리즈 페이지에
+Latest 배지가 없다 — 실제로 v0.0.6~v0.0.8 을 `--prerelease` 로 내는 동안 `releases/latest`
+가 계속 v0.0.5 였다.
+
+PoC 라는 사실은 **릴리즈 노트 맨 위의 경고문**으로 알린다. 버전 번호가 `0.0.x` 인 것도
+이미 그 신호다. pre-release 플래그는 "아직 못 쓰는 미리보기" 라는 다른 뜻이다.
+
+이미 잘못 낸 릴리즈는 이렇게 고친다.
+
+```bash
+gh release edit v0.0.8 --prerelease=false --latest
 ```
 
 ### `pnpm release:check` — 릴리즈는 네 군데를 같이 올려야 한다
