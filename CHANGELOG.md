@@ -9,6 +9,13 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- 릴리즈를 `--prerelease` 로 내고 있었다. GitHub 은 pre-release 를 **절대 Latest 로 표시하지
+  않으므로** `releases/latest` 가 v0.0.6~~v0.0.8 동안 계속 v0.0.5 를 가리켰다. 두 레포의
+  v0.0.6~~v0.0.8 을 full release 로 바꾸고 v0.0.8 을 Latest 로 표시했고, 절차를 `--latest`
+  로 고쳤다. PoC 라는 사실은 노트 맨 위 경고문과 `0.0.x` 번호로 알린다
+
 ## [0.0.8] — 2026-09-16
 
 ### Added
