@@ -9,6 +9,8 @@
 
 ## [Unreleased]
 
+## [0.0.6] — 2026-09-16
+
 ### Fixed
 
 - `app.config.ts` 의 lint 위반 2건. `process.env[key]` 동적 접근(Metro 가 인라인 못 한다)과
@@ -210,7 +212,8 @@ Team ID)로 `env-candidates.ts` 를 치환하고 216파일을 초기 커밋한�
 
 ---
 
-[unreleased]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.5...HEAD
+[unreleased]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.6...HEAD
+[0.0.6]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.5...v0.0.6
 [0.0.5]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.4...v0.0.5
 [0.0.4]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.3...v0.0.4
 [0.0.3]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.2...v0.0.3
