@@ -184,7 +184,7 @@ an optional later add-on, not a default.
 | `react-native-permissions` Notifications                                                                                                                             | ✅                                                                                                                                 |
 | RNFB app/messaging                                                                                                                                                   | ✅ `firebase/` 파일 존재 게이트                                                                                                    |
 | RNFB auth/crashlytics/analytics                                                                                                                                      | ❌ 범위 밖 — 붙일 땐 같은 게이트 안에                                                                                              |
-| `@bacons/apple-targets` NSE                                                                                                                                          | ↔ notify-kit 플러그인이 NSE 생성                                                                                                   |
+| `@bacons/apple-targets` NSE                                                                                                                                          | ✅ `targets/notification-service/` verbatim · 푸시 게이트 안 · `patches/` 의 4.0.6 패치 필수(push.md)                              |
 | `with-android-plugin`: 폴더블(configChanges·resizeableActivity)                                                                                                      | ✅ `plugins/with-plugin.ts`(→ `with-android-plugin.ts` · `with-ios-plugin.ts`)                                                     |
 | `with-android-plugin`: release 서명(Gradle env, production 만)                                                                                                       | ✅ 같은 파일. 키스토어 기본 경로 `<repo>/upload.jks`, 값은 `ANDROID_UPLOAD_*` 환경 변수                                            |
 | `with-android-plugin`: 결제 앱 query(`auwallet`) · Analytics 메타데이터                                                                                              | ❌ 앱 전용                                                                                                                         |
@@ -255,9 +255,15 @@ Xcode 프로젝트·스킴·`PRODUCT_NAME` 을 파생하는데, `sanitizedName()
   EAS 를 붙이면 EAS credentials 가 자체 signingConfig 를 넣어 이 블록은 쓰이지 않는다.
 - **iOS 서명** — `.env` `APP_BUILD_ONLY_APPLE_TEAM_ID` → `ios.appleTeamId`, 비면 Xcode 자동 서명.
   스토어 업로드는 Xcode 또는 앱이 직접 붙이는 fastlane.
-- **푸시 NSE** — 기본은 **수동 프로비저닝**(`<bundleId>.NotifyKitNSE` 프로필). EAS 를 붙이면
+- **푸시 NSE** — 기본은 **수동 프로비저닝**(`<bundleId>.ImageNotification` 프로필). EAS 를 붙이면
   `extra.eas.build.experimental.ios.appExtensions` 에 자동 등록된다.
 - **Firebase 설정 파일** — 커밋하거나, CI 시크릿 / EAS file 타입 환경 변수로 복원한다.
+- **pnpm 버전** — `packageManager` 로 정확한 버전을 박지 않는다. corepack 심이 그 버전으로 내려가
+  전역에 올려둔 pnpm 을 무력화한다(실제로 전역 12 인 머신이 프로젝트 안에서 11 로 돌았다).
+  `engines.pnpm` 이 하한(로컬에서 불일치면 pnpm 이 실패한다), `preinstall` 의 `only-allow` 가 pnpm 강제.
+  CI 는 `pnpm/action-setup` 의 `version: 12`. 메이저를 올릴 때 `package.json`·`ci.yml` 두 곳을 같이 올린다.
+- **pnpm 패치** — `patches/` 에 있고 `pnpm-workspace.yaml` 의 `patchedDependencies` 가 등록이다.
+  버전에 묶이니 그 패키지를 올리면 같이 다시 만든다. 지우는 조건은 `patches/README.md`.
 - **OTA** — hot-updater 자체 서버라 EAS 연결 여부와 무관하다(위 OTA 결정).
 
 **CNG 는 EAS 와 무관하게 그대로다.** EAS 를 안 붙였다고 네이티브를 커밋하는 게 아니다 —
@@ -331,10 +337,28 @@ dev 번들이 들어가고**, `:186` 의 Release 분기도 건너뛴다. `XcodeB
 `0.x` 다 — **PoC 이고 API·구조 안정성을 약속하지 않는다.** 그래서 `0.x` 안에서는
 breaking change 를 minor 로 낸다(semver 가 `0.x` 에 허용하는 것이다).
 
-| 무엇이 바뀌었나                                                 | 올리는 자리 |
-| --------------------------------------------------------------- | ----------- |
-| 구조·계약 변경(폴더 이동 · `env-candidates` 필드 · 배럴 export) | `0.1.0`     |
-| 버그 수정 · 의존성 패치 · 문서                                  | `0.0.2`     |
+### 릴리즈는 모아서 낸다
+
+**받는 쪽이 달라지는 변경에만 버전을 올린다.**
+
+| 올린다                                                          | 올리지 않는다         |
+| --------------------------------------------------------------- | --------------------- |
+| SDK·Xcode 대응                                                  | 오타                  |
+| 버그 수정                                                       | 주석 정리             |
+| 구조·계약 변경(폴더 이동 · `env-candidates` 필드 · 배럴 export) | 코드 정리·내부 리팩터 |
+| 생성 결과가 바뀌는 것                                           | 문서 문장 다듬기      |
+
+오른쪽 것들은 **버전 브랜치에 쌓아두고 다음 실질 릴리즈에 같이 나간다.** 릴리즈 한 번에
+`npm publish` 와 OTP 가 따라오므로 오타 수정으로 그 손이 가면 안 되고, 릴리즈 노트도
+의미 없는 항목으로 희석된다.
+
+**"발행하세요 → 아 잠깐 하나 더" 를 만들지 않는다.** 릴리즈를 내기 전에 더 넣을 게 없는지
+먼저 확인한다(실제로 0.0.7 발행 직후 0.0.8 을 내서 형님이 OTP 를 두 번 쳤다).
+
+| 무엇이 바뀌었나         | 올리는 자리 |
+| ----------------------- | ----------- |
+| 구조·계약 변경          | `0.1.0`     |
+| 버그 수정 · 의존성 패치 | `0.0.2`     |
 
 `1.0.0` 은 **실제 앱 하나를 이 템플릿으로 끝까지 만들어 스토어에 올린 뒤**에 단다.
 그때까지는 무엇이 부족한지 알 수 없다.
@@ -538,7 +562,6 @@ src/types/jest.d.ts   `/// <reference types="jest" />` · `node`
 | 파일                                      | 무엇을 지키나                                                            |
 | ----------------------------------------- | ------------------------------------------------------------------------ |
 | `env.test.ts`                             | 환경 leaf 접기. 키가 하나 빠지면 undefined 가 아니라 throw 해야 한다     |
-| `eslint.config.test.ts`                   | import 경계가 실제로 발동하는지(eslint 를 직접 돌린다)                   |
 | `plugins/with-android-plugin.test.ts`     | release 서명 주입. 앵커가 어긋나면 debug 키로 서명된 빌드가 나간다       |
 | `src/lib/deep-link/parser.test.ts`        | 딥링크 파싱. 인코딩된 세그먼트가 라우트 모양을 바꾸지 않아야 한다        |
 | `src/lib/deep-link/extractors.test.ts`    | 푸시 payload → url 계약. 키가 어긋나면 알림이 조용히 아무 일도 안 한다   |
@@ -551,6 +574,12 @@ src/types/jest.d.ts   `/// <reference types="jest" />` · `node`
 
 딥링크 테스트는 URL 을 `Env.identity.scheme` 에서 만든다 — 하드코딩하면 CLI 가 식별자를
 치환한 뒤 깨진다.
+
+**테스트가 `src/` 에 파일을 만들지 않게 한다.** 경로 기반 규칙(import 경계 같은 것)을
+검사하려고 임시 파일을 두면 `src/app/` 아래에서 expo-router 가 라우트를 다시 만들고
+Metro 가 리로드한다 — 에디터가 테스트를 자동 실행하는 환경에서는 그게 끝없이 반복된다
+(실개발에서 보고돼 그 테스트를 걷어냈다). 꼭 필요하면 `eslint --stdin --stdin-filename`
+처럼 디스크를 안 건드리는 방법을 쓴다.
 
 **화면·스토어 테스트가 필요하면 앱이 자기 방식대로 세운다.** MMKV·RNFB·reanimated 를
 건드리는 순간 목이 필요하고, 그 형태는 앱마다 다르다.

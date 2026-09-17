@@ -9,11 +9,51 @@
 
 | 무엇이 있나                                                                    | 그 버전         |
 | ------------------------------------------------------------------------------ | --------------- |
+| `targets/notification-service/` 가 있고 `package.json` 에 `engines.pnpm`       | v0.0.9          |
+| `enableSceneSupport` 와 `expo-build-properties` `~57.0.20`, `targets/` 없음    | v0.0.7 · v0.0.8 |
 | `patches/expo@57.0.22.patch` 와 `plugins/with-ios-scene.ts`                    | v0.0.4 · v0.0.5 |
 | `app.config.ts` 에 `enableSceneSupport`, `expo-build-properties` 가 `~57.0.19` | v0.0.6          |
 | 위 둘 다 없고 `expo` 가 `~57.0.22`                                             | v0.0.3 이하     |
 
 ---
+
+## v0.0.7 · v0.0.8 에서 올리기 — pnpm 핀과 NSE
+
+둘은 독립이다. pnpm 은 전부에 권하고, NSE 는 iOS 리치 푸시 이미지가 필요할 때만.
+
+**pnpm.** `packageManager: pnpm@11.10.0` 이 corepack 심을 그 버전으로 내려 전역 pnpm 을 무력화한다.
+
+```bash
+# package.json: "packageManager" 줄을 지우고 아래를 넣는다
+#   "engines": { "node": ">=22", "pnpm": ">=12" }
+# .github/workflows/ci.yml: pnpm/action-setup 에 with: version: 12
+pnpm -v   # 프로젝트 안에서 전역과 같은 버전이 나오면 끝. lockfile 형식은 11·12 동일
+```
+
+**NSE.** 파일은 손으로 옮기지 말고 그 태그에서 그대로 받는다.
+
+```bash
+T=https://raw.githubusercontent.com/LESANF/react-native-template-lesa/v0.0.9
+mkdir -p targets/notification-service patches
+for f in expo-target.config.js Info.plist NotificationService.swift; do
+  curl -fsSL "$T/targets/notification-service/$f" -o "targets/notification-service/$f"; done
+curl -fsSL "$T/patches/@bacons__apple-targets@4.0.6.patch" -o "patches/@bacons__apple-targets@4.0.6.patch"
+curl -fsSL "$T/patches/README.md" -o patches/README.md
+pnpm add @bacons/apple-targets@4.0.6
+# pnpm-workspace.yaml 끝에:
+#   patchedDependencies:
+#     '@bacons/apple-targets@4.0.6': patches/@bacons__apple-targets@4.0.6.patch
+# .gitignore 에:  targets/**/generated.entitlements
+# app.config.ts 의 PUSH_PLUGINS 위에:
+#   const nseEnabled = pushEnabled && existsSync('./targets/notification-service');
+#   … 배열 첫 항목으로  ...(nseEnabled ? ['@bacons/apple-targets' as const] : []),
+pnpm install
+grep -c previousConfigurationList node_modules/@bacons/apple-targets/build/with-xcode-changes.js   # 1 이상이면 패치 적용
+```
+
+확인은 `firebase/` 를 채운 상태에서 prebuild 를 **두 번**(두 번째는 `--no-clean`) — 둘 다 `Finished prebuild`
+여야 한다. 실기는 `<bundleId>.ImageNotification` 프로비저닝 프로필이 따로 필요하다. 테스트 이미지는
+JPEG·PNG 로(SVG 는 첨부가 안 된다).
 
 ## v0.0.6 에서 올리기 — 한 줄
 
@@ -95,7 +135,7 @@ sips -z 1024 1024 assets/images/icon.png
 
 ```bash
 npx expo install --check     # Dependencies are up to date
-npx expo-doctor              # 18/18
+npx expo-doctor              # 전부 통과
 CI=true pnpm run check-all   # lint · tsc · test
 rm -rf ios && npx expo prebuild -p ios && npx expo run:ios
 ```

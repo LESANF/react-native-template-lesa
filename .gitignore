@@ -60,3 +60,6 @@ build/
 .codegraph/
 .omo/
 docs/superpowers/
+
+# @bacons/apple-targets 가 prebuild 때 다시 쓴다 — 산출물
+targets/**/generated.entitlements
