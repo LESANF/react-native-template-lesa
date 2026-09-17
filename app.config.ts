@@ -73,8 +73,12 @@ const appIconBadgeConfig: AppIconBadgeConfig = {
   ],
 };
 
+// NSE(리치 푸시 이미지)는 `targets/` 존재로 갈린다 — 푸시가 켜진 상태에서만. 빼려면 폴더를 지운다.
+const nseEnabled = pushEnabled && existsSync('./targets/notification-service');
+
 const PUSH_PLUGINS: NonNullable<ExpoConfig['plugins']> = pushEnabled
   ? [
+      ...(nseEnabled ? ['@bacons/apple-targets' as const] : []),
       ['@react-native-firebase/app', { ios: { disableSPM: true } }],
       '@react-native-firebase/messaging',
       'react-native-notify-kit',

@@ -184,7 +184,7 @@ an optional later add-on, not a default.
 | `react-native-permissions` Notifications                                                                                                                             | ✅                                                                                                                                 |
 | RNFB app/messaging                                                                                                                                                   | ✅ `firebase/` 파일 존재 게이트                                                                                                    |
 | RNFB auth/crashlytics/analytics                                                                                                                                      | ❌ 범위 밖 — 붙일 땐 같은 게이트 안에                                                                                              |
-| `@bacons/apple-targets` NSE                                                                                                                                          | ↔ notify-kit 플러그인이 NSE 생성                                                                                                   |
+| `@bacons/apple-targets` NSE                                                                                                                                          | ✅ `targets/notification-service/` verbatim · 푸시 게이트 안 · `patches/` 의 4.0.6 패치 필수(push.md)                              |
 | `with-android-plugin`: 폴더블(configChanges·resizeableActivity)                                                                                                      | ✅ `plugins/with-plugin.ts`(→ `with-android-plugin.ts` · `with-ios-plugin.ts`)                                                     |
 | `with-android-plugin`: release 서명(Gradle env, production 만)                                                                                                       | ✅ 같은 파일. 키스토어 기본 경로 `<repo>/upload.jks`, 값은 `ANDROID_UPLOAD_*` 환경 변수                                            |
 | `with-android-plugin`: 결제 앱 query(`auwallet`) · Analytics 메타데이터                                                                                              | ❌ 앱 전용                                                                                                                         |
@@ -255,9 +255,15 @@ Xcode 프로젝트·스킴·`PRODUCT_NAME` 을 파생하는데, `sanitizedName()
   EAS 를 붙이면 EAS credentials 가 자체 signingConfig 를 넣어 이 블록은 쓰이지 않는다.
 - **iOS 서명** — `.env` `APP_BUILD_ONLY_APPLE_TEAM_ID` → `ios.appleTeamId`, 비면 Xcode 자동 서명.
   스토어 업로드는 Xcode 또는 앱이 직접 붙이는 fastlane.
-- **푸시 NSE** — 기본은 **수동 프로비저닝**(`<bundleId>.NotifyKitNSE` 프로필). EAS 를 붙이면
+- **푸시 NSE** — 기본은 **수동 프로비저닝**(`<bundleId>.ImageNotification` 프로필). EAS 를 붙이면
   `extra.eas.build.experimental.ios.appExtensions` 에 자동 등록된다.
 - **Firebase 설정 파일** — 커밋하거나, CI 시크릿 / EAS file 타입 환경 변수로 복원한다.
+- **pnpm 버전** — `packageManager` 로 정확한 버전을 박지 않는다. corepack 심이 그 버전으로 내려가
+  전역에 올려둔 pnpm 을 무력화한다(실제로 전역 12 인 머신이 프로젝트 안에서 11 로 돌았다).
+  `engines.pnpm` 이 하한(로컬에서 불일치면 pnpm 이 실패한다), `preinstall` 의 `only-allow` 가 pnpm 강제.
+  CI 는 `pnpm/action-setup` 의 `version: 12`. 메이저를 올릴 때 `package.json`·`ci.yml` 두 곳을 같이 올린다.
+- **pnpm 패치** — `patches/` 에 있고 `pnpm-workspace.yaml` 의 `patchedDependencies` 가 등록이다.
+  버전에 묶이니 그 패키지를 올리면 같이 다시 만든다. 지우는 조건은 `patches/README.md`.
 - **OTA** — hot-updater 자체 서버라 EAS 연결 여부와 무관하다(위 OTA 결정).
 
 **CNG 는 EAS 와 무관하게 그대로다.** EAS 를 안 붙였다고 네이티브를 커밋하는 게 아니다 —

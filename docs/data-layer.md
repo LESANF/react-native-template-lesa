@@ -115,7 +115,7 @@ query fetcher는 TanStack Query의 `context.signal`을 request 함수에 넘기�
 - 2026-08-31 SDK 57(RN 0.86.3) 재검증: 하네스 auth 9/9 · client 8/8 · env 13/13, check-all(tsc 6)·Doctor 18/18·iOS export 통과.
 - 2026-08-26 재실행: `CI=true pnpm run check-all` 통과(frozen lockfile 포함), Expo Doctor 18/18, `expo install --check` up to date, development iOS `expo export` 통과.
 - **사용자 확인 대기**: 새 시뮬레이터를 띄우지 않는다. 기존 시뮬레이터에서 `/api-example` 확인만 요청한다.
-- 스크래치 하네스(커밋 안 함, 레시피는 template-completion.md A4): lib/auth 오케스트레이션 9/9 · client 레이어 8/8(로컬 에코 서버, 외부 호출 0) · env 체계 13/13 · import 방향 정적 확인. 예제 API 자체는 검증 대상이 아니다.
+- 스크래치 하네스(커밋 안 함): lib/auth 오케스트레이션 9/9 · client 레이어 8/8(로컬 에코 서버, 외부 호출 0) · env 체계 13/13 · import 방향 정적 확인. 예제 API 자체는 검증 대상이 아니다.
 - **2026-09-07 코드 감사** — 위 "확정 결정"의 주장을 코드·라이브러리로 대조했다. **전부 사실, 수정 없음**:
   `_authAttached` 문자열 프로퍼티가 axios 1.20.0 `mergeConfig` 를 견디고 WeakSet 은 유실됨을 실측 ·
   `required` + 토큰 없음 → 네트워크 전 `AUTH_REQUIRED` throw · `isRefreshableError` 는

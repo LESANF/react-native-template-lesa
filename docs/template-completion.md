@@ -1,5 +1,7 @@
 # 템플릿 완성 TODO
 
+> 템플릿 레포 전용이다 — `create-lesa-app` 이 생성 프로젝트에 복사하지 않는다.
+
 > 마지막 감사: 2026-09-11 — 작업 트리 실측 기준 (문서 주장이 아니라 파일·명령 결과로 확인한 것만 적음)
 > 이 문서가 구현 순서와 완료 상태의 단일 기준이다. 세부 설계 근거는 섹션 문서(`AGENTS.md` 표).
 
@@ -63,25 +65,11 @@
 
 아래 순서를 바꾸지 않는다. 각 단계는 관련 파일만 stage하고 `git diff --cached`를 확인한 뒤 커밋한다.
 
-### A1. pnpm 11 마이그레이션
+### A1·A2. 패키지 매니저·SDK 정렬 — 완료
 
-- [~] 전역 pnpm `11.10.0`, `packageManager` `pnpm@11.10.0`
-- [~] `onlyBuiltDependencies` → pnpm 11 `allowBuilds`
-- [~] Expo 55 당일 버전만 `minimumReleaseAgeExclude`에 버전 한정으로 기록
-- [x] `pnpm install` → lockfile 갱신
-- [x] frozen 재현 확인 (`CI=true pnpm run check-all`의 install 단계)
-- [x] 커밋: `c03fcea chore: pnpm 11 마이그레이션과 의존성 정렬` (A1·A2 통합 — lockfile은 쪼갤 수 없음)
-
-완료 조건: clean install이 pnpm 11에서 재현되고 package manager 변경만 독립적으로 되돌릴 수 있다.
-
-### A2. Expo SDK 55 패치 정렬
-
-- [~] `expo` 55.0.30 및 SDK 55 호환 패치 버전 manifest 반영
-- [x] `npx expo install --check` — up to date
-- [x] `npx expo-doctor` — 18/18
-- [x] 커밋: A1에 통합(`c03fcea`), 이후 SDK 57로 대체(`959c596`)
-
-완료 조건: Expo가 권장 버전 불일치를 보고하지 않고 Doctor가 전체 통과한다.
+- [x] 2026-08-31 pnpm 11 (`c03fcea`), `onlyBuiltDependencies` → `allowBuilds`. SDK 55 → 57 (`959c596`)
+- [x] 2026-09-17 `packageManager` 정확 핀 제거 → `engines.pnpm >=12` 하한. corepack 이 핀 버전으로
+      내려가 전역 12 를 무력화하던 문제. CI 는 `action-setup` `version: 12`
 
 ### A3. Overlay 상태를 Zustand로 정리
 
