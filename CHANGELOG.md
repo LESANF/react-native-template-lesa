@@ -9,6 +9,13 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- **`eslint.config.test.ts` 가 `src/` 에 임시 파일을 만들었다.** `src/app/__eslint_fixture__/`
+  가 생겼다 지워지면서 expo-router 가 라우트를 재생성하고 Metro 가 리로드했고, 에디터가
+  테스트를 자동 실행하는 환경에서는 그게 반복됐다(실개발에서 보고). `--stdin-filename` 으로
+  바꿔 디스크를 건드리지 않는다 — 깨진 설정에서 여전히 3개 실패하는 것을 확인했다
+
 ## [0.0.8] — 2026-09-16
 
 ### Added

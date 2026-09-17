@@ -553,22 +553,28 @@ jest.config.js        preset · 경로 별칭 · transformIgnorePatterns
 src/types/jest.d.ts   `/// <reference types="jest" />` · `node`
 ```
 
-| 파일                                      | 무엇을 지키나                                                            |
-| ----------------------------------------- | ------------------------------------------------------------------------ |
-| `env.test.ts`                             | 환경 leaf 접기. 키가 하나 빠지면 undefined 가 아니라 throw 해야 한다     |
-| `eslint.config.test.ts`                   | import 경계가 실제로 발동하는지(eslint 를 직접 돌린다)                   |
-| `plugins/with-android-plugin.test.ts`     | release 서명 주입. 앵커가 어긋나면 debug 키로 서명된 빌드가 나간다       |
-| `src/lib/deep-link/parser.test.ts`        | 딥링크 파싱. 인코딩된 세그먼트가 라우트 모양을 바꾸지 않아야 한다        |
-| `src/lib/deep-link/extractors.test.ts`    | 푸시 payload → url 계약. 키가 어긋나면 알림이 조용히 아무 일도 안 한다   |
-| `src/lib/deep-link/dispatcher.test.ts`    | cold 홀드와 TTL 중복 제거. 틀리면 화면이 두 번 열리거나 splash 에 갇힌다 |
-| `src/lib/preloader/core.test.ts`          | 스테이지 격리. 앱 콜백이 throw 해도 부팅이 죽지 않아야 한다              |
-| `src/lib/preloader/forced-update.test.ts` | 버전 비교. 틀리면 전 사용자가 막히거나 아무도 안 막힌다                  |
+| 파일                                      | 무엇을 지키나                                                                                    |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `env.test.ts`                             | 환경 leaf 접기. 키가 하나 빠지면 undefined 가 아니라 throw 해야 한다                             |
+| `eslint.config.test.ts`                   | import 경계가 실제로 발동하는지(eslint 를 `--stdin-filename` 으로 돌린다 — 파일을 만들지 않는다) |
+| `plugins/with-android-plugin.test.ts`     | release 서명 주입. 앵커가 어긋나면 debug 키로 서명된 빌드가 나간다                               |
+| `src/lib/deep-link/parser.test.ts`        | 딥링크 파싱. 인코딩된 세그먼트가 라우트 모양을 바꾸지 않아야 한다                                |
+| `src/lib/deep-link/extractors.test.ts`    | 푸시 payload → url 계약. 키가 어긋나면 알림이 조용히 아무 일도 안 한다                           |
+| `src/lib/deep-link/dispatcher.test.ts`    | cold 홀드와 TTL 중복 제거. 틀리면 화면이 두 번 열리거나 splash 에 갇힌다                         |
+| `src/lib/preloader/core.test.ts`          | 스테이지 격리. 앱 콜백이 throw 해도 부팅이 죽지 않아야 한다                                      |
+| `src/lib/preloader/forced-update.test.ts` | 버전 비교. 틀리면 전 사용자가 막히거나 아무도 안 막힌다                                          |
 
 뒤 세 개는 **자기 바로 아래 모듈만** 목한다(스테이지 함수·matcher·정책 요청). 공용 설정에
 쌓이는 목이 아니라 그 파일 안에서 끝난다.
 
 딥링크 테스트는 URL 을 `Env.identity.scheme` 에서 만든다 — 하드코딩하면 CLI 가 식별자를
 치환한 뒤 깨진다.
+
+**테스트가 `src/` 에 파일을 만들지 않게 한다.** 경로 기반 규칙을 검사하려고 임시 파일을
+두면 `src/app/` 아래에서 expo-router 가 라우트를 다시 만들고 Metro 가 리로드한다 —
+에디터가 테스트를 자동 실행하는 환경에서는 그게 끝없이 반복된다(실개발에서 보고됨).
+`eslint --stdin --stdin-filename <경로>` 는 그 경로의 설정을 그대로 적용하면서 디스크를
+건드리지 않는다.
 
 **화면·스토어 테스트가 필요하면 앱이 자기 방식대로 세운다.** MMKV·RNFB·reanimated 를
 건드리는 순간 목이 필요하고, 그 형태는 앱마다 다르다.
