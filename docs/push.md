@@ -151,6 +151,9 @@ iOS 는 백그라운드·종료 상태에서 이미지가 든 푸시를 앱이 �
 
 - 푸시 on/off는 파일 존재로 갈리므로 **빌드하는 머신·CI(EAS 를 붙였다면 EAS)에도 같은 파일이 있어야** 프로덕션 빌드에 푸시가 들어간다. 없으면 조용히 off로 빌드된다 → `STRICT_ENV_VALIDATION=1`에서는 한쪽만 있을 때 throw, 둘 다 없으면 `[push] disabled` 로그.
 - 네이티브가 바뀌므로(RNFB·notify-kit·NSE) hot-updater fingerprint가 바뀐다 — 스토어 배포 필요.
+- **테스트 이미지는 래스터로.** iOS 첨부(NSE·notifee 포그라운드 둘 다 `UNNotificationAttachment`)는 JPEG·PNG·GIF 만 받는다.
+  SVG 면 `UNErrorDomain 101 Unrecognized attachment file type` 으로 첨부만 빠지고 제목·본문은 뜬다. `placehold.co` 는 확장자
+  없으면 SVG 를 준다 — `…/600x400.png`. NSE 를 보려면 앱을 백그라운드·종료로 두고 보낸다(포그라운드는 notifee 가 그린다).
 - 시뮬레이터는 APNs를 못 받는다. Firebase 없이도 홈 "Push" 버튼(로컬 알림 → 탭 → menu-4/42)과 `xcrun simctl push <UDID> <bundleId> payload.apns`로 표시·탭·딥링크는 확인할 수 있다. FCM 수신·NSE 이미지는 실기 + Firebase 프로젝트.
 
 ## 검증 상태 (2026-09-03, 표시 정책 전환은 2026-09-07)
