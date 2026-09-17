@@ -166,6 +166,6 @@ hot-updater.config.ts · scripts/ota-deploy.mjs CLI 전용(번들 밖). 배포 �
 
 ## 검증 상태 (2026-09-03)
 
-- 스크래치 하네스(커밋 안 함, 레시피 template-completion A4): preloader 13/13(격리·타임아웃·스킵/카운트·강제 업데이트 사다리·OTA 어댑터 흐름) · deep-link 10/10(parser·matcher·콜드 홀드·즉시 처리·dedup·reopen·sources·native-intent)
+- 스크래치 하네스(커밋 안 함): preloader 13/13(격리·타임아웃·스킵/카운트·강제 업데이트 사다리·OTA 어댑터 흐름) · deep-link 10/10(parser·matcher·콜드 홀드·즉시 처리·dedup·reopen·sources·native-intent)
 - `check-all`(tsc 6) · Expo Doctor 18/18(hot-updater 플러그인 포함) · frozen install · `hot-updater.config.ts` tsx 로드 스모크
 - **미검증**: RN 0.86 네이티브 빌드에서 hot-updater 컴파일(`pnpm ios` 1회 필요) · 실제 OTA 서버 배포/롤백(서버 없음) · 시뮬 콜드 딥링크(`xcrun simctl openurl booted <scheme>://menu-4/42`). 푸시 탭 딥링크는 docs/push.md 검증 상태 참고

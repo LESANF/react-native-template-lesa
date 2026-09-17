@@ -155,7 +155,7 @@ iOS 는 백그라운드·종료 상태에서 이미지가 든 푸시를 앱이 �
 
 ## 검증 상태 (2026-09-03, 표시 정책 전환은 2026-09-07)
 
-- 스크래치 하네스(커밋 안 함, 레시피 template-completion A4): 구성 모드 15/15 · 미구성 모드 11/11 — extractPushUrl 사다리 · ensurePushChannel 메모이즈 · headless bg 핸들러 게이트 · onBackgroundEvent PRESS→cold 홀드 · dispatcher 두 소스 dedup(markHandled 선행) · cold 캡처 once · subscribePush 등록/해제 · 권한 사다리 · token-sync(멱등 start·signedIn 등록·refresh guard·D1 getToken throw 회복·D2 signOut 후 refresh 무시·unregister)
+- 스크래치 하네스(커밋 안 함): 구성 모드 15/15 · 미구성 모드 11/11 — extractPushUrl 사다리 · ensurePushChannel 메모이즈 · headless bg 핸들러 게이트 · onBackgroundEvent PRESS→cold 홀드 · dispatcher 두 소스 dedup(markHandled 선행) · cold 캡처 once · subscribePush 등록/해제 · 권한 사다리 · token-sync(멱등 start·signedIn 등록·refresh guard·D1 getToken throw 회복·D2 signOut 후 refresh 무시·unregister)
 - `check-all`·`expo config --type prebuild` 3회(파일 0 / 더미 2 / STRICT+1 → throw)·`expo export -p ios`(custom entry 번들)·frozen install·expo-doctor 18/18·`expo install --check` 통과
 - **실빌드(푸시 off)**: `prebuild --clean` 에서 RNFB 26.3.3 pod 이 `$RNFirebaseDisableSPM` 을 인식해 CocoaPods 경로로, static framework 로 RN 0.86.3 빌드 성공(iOS 26.4 시뮬). SDK 57 기본 `usePrecompiledModules` 와의 조합도 문제 없음 — 폴백 불필요
 - dev client 부팅: 커스텀 엔트리(`index.js`)로 번들 로드 · headless `[push] disabled — Firebase 미구성(getApps()=0)` 출력 · 크래시 없음. 그 뒤 화면이 흰색으로 남는 문제는 `main`을 `expo-router/entry`로 되돌려도 동일해 **푸시와 무관**(C2 항목, template-completion C2 `[!]`). 시뮬 QA는 사용자 몫.
