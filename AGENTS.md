@@ -131,14 +131,14 @@ Codex 는 프로젝트 훅을 **신뢰해야** 실행한다. 처음 열면 `/hoo
 
 파일이나 값의 **존재**가 기능을 켠다. 코드에 플래그를 두지 않는다.
 
-| 무엇               | 켜는 방법                                                         |
-| ------------------ | ----------------------------------------------------------------- |
-| 푸시(FCM)          | `firebase/` 에 plist + json 을 **둘 다** 넣는다(하나만이면 throw) |
-| OTA                | `env-candidates.ts` 의 `urls.ota` 를 채운다(비면 스테이지 스킵)   |
-| EAS                | `eas init` 또는 `app.config.ts` 의 두 줄                          |
-| 어트리뷰션 SDK     | `lib/deep-link/attribution.ts` 를 채운다(비면 no-op)              |
-| 유니버설 링크      | `constants/deep-link.ts` 의 `DEEP_LINK_HTTPS_HOSTS`               |
-| iOS NSE(리치 푸시) | 미포함. `targets/` + `@bacons/apple-targets` 로 붙인다            |
+| 무엇               | 켜는 방법                                                                                       |
+| ------------------ | ----------------------------------------------------------------------------------------------- |
+| 푸시(FCM)          | `firebase/` 에 plist + json 을 **둘 다** 넣는다(하나만이면 throw)                               |
+| OTA                | `env-candidates.ts` 의 `urls.ota` 를 채운다(비면 스테이지 스킵)                                 |
+| EAS                | `eas init` 또는 `app.config.ts` 의 두 줄                                                        |
+| 어트리뷰션 SDK     | `lib/deep-link/attribution.ts` 를 채운다(비면 no-op)                                            |
+| 유니버설 링크      | `constants/deep-link.ts` 의 `DEEP_LINK_HTTPS_HOSTS`                                             |
+| iOS NSE(리치 푸시) | 푸시가 켜진 상태에서 `targets/notification-service/` 가 있으면(기본 포함). 빼려면 폴더를 지운다 |
 
 ## 값은 한 파일에서만 바꾼다
 

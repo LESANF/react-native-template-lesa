@@ -54,9 +54,9 @@ app.config.ts            파일 존재 → RNFB·notify-kit 플러그인·google
 - **포그라운드는 앱 정책.** iOS·Android 모두 OS 가 표시하지 않고 `onMessage` 만 발화한다.
   그릴지는 `SHOW_FOREGROUND_NOTIFICATION`(constants/push) 하나로 갈린다 — 템플릿 기본 켬,
   KR 은 끄고 배지·목록 갱신만 한다. 표시하면 그 탭은 notifee 로 온다.
-- **notify-kit FCM Mode 는 쓰지 않는다.** `setFcmConfig`·`handleFcmMessage`·NSE 모두 미사용.
+- **notify-kit FCM Mode 는 쓰지 않는다.** `setFcmConfig`·`handleFcmMessage` 미사용.
   FCM Mode 는 notify-kit 이 모든 상태의 표시를 가로채는 방식인데, KR 정책과 목적이 겹치면서
-  실기 검증 이력이 없다. NSE 를 빼면 수동 프로비저닝 프로필도 사라진다.
+  실기 검증 이력이 없다. NSE 는 notify-kit 것이 아니라 KR 의 자체 타깃을 쓴다(아래 절).
 - **라이브러리는 `react-native-notify-kit` 유지.** KR 의 `@notifee/react-native` 9.1.8 은
   아카이브(2026-04, 마지막 릴리스 2024-12) + SDK 54+ Android 빌드 이슈 + Expo 플러그인 부재다.
   notify-kit 은 같은 API 의 유지보수 fork 이고 FCM Mode 는 opt-in 이라 안 쓰면 그만이다.
@@ -128,6 +128,24 @@ KR 대조에서 **템플릿이 빠뜨린 KR 보호 두 개**를 찾아 이식했
 | `lib/push/taps.ts`                                                                                   | 포그라운드 수신 시 알림 배지·목록 쿼리 invalidate(KR 은 배지/카테고리/목록 3개) · 배지 리셋 정책(`notifee.setBadgeCount(0)`)                               |
 | `lib/preloader/permissions/` 결과 소비처 (코드 마커 없음 — 그 폴더는 KR verbatim 이라 손대지 않는다) | 알림 거부(`shouldGuide`)일 때 설정 이동 UX(참조 앱은 팝업 → `openSettings`)                                                                                |
 | `app.config.ts` notify-kit 플러그인                                                                  | Android small icon(`android.icons`), 포그라운드 서비스 타입                                                                                                |
+| `targets/notification-service/` (코드 마커 없음)                                                     | 채울 값 없음 — 번들·팀은 `app.config.ts` 에서 온다. 실기는 `<bundleId>.ImageNotification` 프로비저닝 프로필. 안 쓰면 폴더를 지운다                         |
+
+## iOS NSE — 리치 푸시 이미지 (2026-09-17, KR verbatim)
+
+iOS 는 백그라운드·종료 상태에서 이미지가 든 푸시를 앱이 아니라 **Notification Service Extension**
+이 받아 첨부한다. 없으면 이미지 없는 알림만 뜬다. `targets/notification-service/` 가 그 타깃이고
+`@bacons/apple-targets` 가 prebuild 때 Xcode 타깃으로 만든다.
+
+- **켜는 조건** — 푸시가 켜진 상태(`firebase/` 파일)에서 `targets/notification-service/` 가 있으면
+  `app.config.ts` 가 `@bacons/apple-targets` 를 플러그인에 넣는다. **빼려면 폴더를 지운다.**
+  푸시가 꺼져 있으면 폴더가 있어도 안 붙는다.
+- **읽는 키** — `fcm_options.image`(최상위·`data` 아래 둘 다) → `image`·`imageUrl`·`gcm.notification.image*`.
+  포그라운드 경로(`lib/push/taps.ts`)와 같은 계약이다. 서버 페이로드 절 참고.
+- **번들·서명** — `<bundleId>.ImageNotification`, 팀은 `ios.appleTeamId` 를 따라간다. 실기·배포는
+  이 번들의 프로비저닝 프로필이 **따로** 필요하다(config.md "EAS 없이 운영").
+- **패치가 필요하다** — `@bacons/apple-targets@4.0.6` 은 타깃이 이미 있는 상태의 prebuild(`--no-clean`)
+  에서 죽는다. `patches/` 의 pnpm 패치가 고친다. 지우는 조건과 업스트림은 `patches/README.md`.
+- `targets/**/generated.entitlements` 는 prebuild 산출물이라 gitignore 다.
 
 ## 운영
 
@@ -141,4 +159,6 @@ KR 대조에서 **템플릿이 빠뜨린 KR 보호 두 개**를 찾아 이식했
 - `check-all`·`expo config --type prebuild` 3회(파일 0 / 더미 2 / STRICT+1 → throw)·`expo export -p ios`(custom entry 번들)·frozen install·expo-doctor 18/18·`expo install --check` 통과
 - **실빌드(푸시 off)**: `prebuild --clean` 에서 RNFB 26.3.3 pod 이 `$RNFirebaseDisableSPM` 을 인식해 CocoaPods 경로로, static framework 로 RN 0.86.3 빌드 성공(iOS 26.4 시뮬). SDK 57 기본 `usePrecompiledModules` 와의 조합도 문제 없음 — 폴백 불필요
 - dev client 부팅: 커스텀 엔트리(`index.js`)로 번들 로드 · headless `[push] disabled — Firebase 미구성(getApps()=0)` 출력 · 크래시 없음. 그 뒤 화면이 흰색으로 남는 문제는 `main`을 `expo-router/entry`로 되돌려도 동일해 **푸시와 무관**(C2 항목, template-completion C2 `[!]`). 시뮬 QA는 사용자 몫.
-- **미검증**: 실기 FCM 수신·APNs·NSE 이미지(Firebase 프로젝트 필요 — 앱 몫) · 서버 SDK 페이로드 · 푸시 on 빌드(사용자가 dev 설정 파일을 제공할 때만)
+- **확인(2026-09-17)**: 푸시 on 에서 NSE 타깃 생성 → `xcodebuild` 성공 → `.app/PlugIns/ImageNotification.appex`
+  임베드(`com.apple.usernotifications.service`). prebuild 2회차(`--no-clean`)도 패치로 통과. 푸시 off 는 타깃 0.
+- **미검증**: 실기 FCM 수신·APNs·NSE 이미지 표시(Firebase 프로젝트 + NSE 프로비저닝 필요 — 앱 몫) · 서버 SDK 페이로드 · 푸시 on 빌드(사용자가 dev 설정 파일을 제공할 때만)

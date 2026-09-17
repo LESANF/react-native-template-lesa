@@ -9,6 +9,17 @@
 
 ## [Unreleased]
 
+### Added
+
+- **iOS NSE(리치 푸시 이미지)** — `targets/notification-service/` (KR verbatim) 와
+  `@bacons/apple-targets@4.0.6`. 푸시가 켜진 상태에서 폴더가 있으면 `app.config.ts` 가 플러그인을
+  넣는다. 안 쓰면 폴더를 지운다. 번들은 `<bundleId>.ImageNotification`, 실기는 그 프로비저닝
+  프로필이 따로 필요하다(docs/push.md "iOS NSE")
+- **`patches/@bacons__apple-targets@4.0.6.patch`** — 타깃이 이미 있는 prebuild(`--no-clean`) 에서
+  `buildConfigurationList` 를 지우는 루프가 자기 프로퍼티를 `undefined` 로 만들어 죽는 버그.
+  업스트림 #201·#206 이 리뷰 없이 열려 있고 5.0.0 도 같다. 지우는 조건은 `patches/README.md`
+- `.gitignore` 에 `targets/**/generated.entitlements` — prebuild 산출물
+
 ### Removed
 
 - `eslint.config.test.ts` 를 걷어냈다. 경로 기반 규칙을 검사하려고 `src/` 에 임시 파일을

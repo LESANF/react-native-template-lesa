@@ -154,9 +154,9 @@ function projectState() {
 
   try {
     const n = readdirSync(at('targets'), { recursive: true }).length;
-    out.push(n ? 'iOS NSE: targets/ 있음' : 'iOS NSE: 미포함');
+    out.push(n ? 'iOS NSE: targets/ 있음 (푸시가 켜져 있을 때만 붙는다)' : 'iOS NSE: 없음');
   } catch {
-    out.push('iOS NSE: 미포함 (리치 푸시 이미지는 백그라운드에서 안 나온다)');
+    out.push('iOS NSE: 없음 (targets/ 를 지운 상태 — 리치 푸시 이미지는 백그라운드에서 안 나온다)');
   }
 
   return out;
