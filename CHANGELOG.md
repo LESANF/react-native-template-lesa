@@ -9,6 +9,8 @@
 
 ## [Unreleased]
 
+## [0.0.9] — 2026-09-17
+
 ### Added
 
 - **iOS NSE(리치 푸시 이미지)** — `targets/notification-service/` (KR verbatim) 와
@@ -33,7 +35,6 @@
   있어 살릴 것이 없었다
 - `docs/template-completion.md` 는 남기되 **생성 프로젝트에 복사하지 않는다**(CLI `REPO_ONLY`).
   템플릿 레포의 진행 기록이라 받는 쪽엔 소음이었다
-
 - `eslint.config.test.ts` 를 걷어냈다. 경로 기반 규칙을 검사하려고 `src/` 에 임시 파일을
   만들었는데, `src/app/` 아래에 파일이 생겼다 지워지면서 expo-router 가 라우트를 재생성하고
   Metro 가 리로드했다 — 에디터가 테스트를 자동 실행하면 끝없이 반복된다(실개발에서 보고).
@@ -264,6 +265,7 @@ Team ID)로 `env-candidates.ts` 를 치환하고 216파일을 초기 커밋한�
 ---
 
 [unreleased]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.8...HEAD
+[0.0.9]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.8...v0.0.9
 [0.0.8]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.7...v0.0.8
 [0.0.7]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.6...v0.0.7
 [0.0.6]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.5...v0.0.6
