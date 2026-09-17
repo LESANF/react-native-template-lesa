@@ -151,14 +151,17 @@ iOS 는 백그라운드·종료 상태에서 이미지가 든 푸시를 앱이 �
 
 - 푸시 on/off는 파일 존재로 갈리므로 **빌드하는 머신·CI(EAS 를 붙였다면 EAS)에도 같은 파일이 있어야** 프로덕션 빌드에 푸시가 들어간다. 없으면 조용히 off로 빌드된다 → `STRICT_ENV_VALIDATION=1`에서는 한쪽만 있을 때 throw, 둘 다 없으면 `[push] disabled` 로그.
 - 네이티브가 바뀌므로(RNFB·notify-kit·NSE) hot-updater fingerprint가 바뀐다 — 스토어 배포 필요.
+- **테스트 이미지는 래스터로.** iOS 첨부(NSE·notifee 포그라운드 둘 다 `UNNotificationAttachment`)는 JPEG·PNG·GIF 만 받는다.
+  SVG 면 `UNErrorDomain 101 Unrecognized attachment file type` 으로 첨부만 빠지고 제목·본문은 뜬다. `placehold.co` 는 확장자
+  없으면 SVG 를 준다 — `…/600x400.png`. NSE 를 보려면 앱을 백그라운드·종료로 두고 보낸다(포그라운드는 notifee 가 그린다).
 - 시뮬레이터는 APNs를 못 받는다. Firebase 없이도 홈 "Push" 버튼(로컬 알림 → 탭 → menu-4/42)과 `xcrun simctl push <UDID> <bundleId> payload.apns`로 표시·탭·딥링크는 확인할 수 있다. FCM 수신·NSE 이미지는 실기 + Firebase 프로젝트.
 
 ## 검증 상태 (2026-09-03, 표시 정책 전환은 2026-09-07)
 
-- 스크래치 하네스(커밋 안 함, 레시피 template-completion A4): 구성 모드 15/15 · 미구성 모드 11/11 — extractPushUrl 사다리 · ensurePushChannel 메모이즈 · headless bg 핸들러 게이트 · onBackgroundEvent PRESS→cold 홀드 · dispatcher 두 소스 dedup(markHandled 선행) · cold 캡처 once · subscribePush 등록/해제 · 권한 사다리 · token-sync(멱등 start·signedIn 등록·refresh guard·D1 getToken throw 회복·D2 signOut 후 refresh 무시·unregister)
+- 스크래치 하네스(커밋 안 함): 구성 모드 15/15 · 미구성 모드 11/11 — extractPushUrl 사다리 · ensurePushChannel 메모이즈 · headless bg 핸들러 게이트 · onBackgroundEvent PRESS→cold 홀드 · dispatcher 두 소스 dedup(markHandled 선행) · cold 캡처 once · subscribePush 등록/해제 · 권한 사다리 · token-sync(멱등 start·signedIn 등록·refresh guard·D1 getToken throw 회복·D2 signOut 후 refresh 무시·unregister)
 - `check-all`·`expo config --type prebuild` 3회(파일 0 / 더미 2 / STRICT+1 → throw)·`expo export -p ios`(custom entry 번들)·frozen install·expo-doctor 18/18·`expo install --check` 통과
 - **실빌드(푸시 off)**: `prebuild --clean` 에서 RNFB 26.3.3 pod 이 `$RNFirebaseDisableSPM` 을 인식해 CocoaPods 경로로, static framework 로 RN 0.86.3 빌드 성공(iOS 26.4 시뮬). SDK 57 기본 `usePrecompiledModules` 와의 조합도 문제 없음 — 폴백 불필요
-- dev client 부팅: 커스텀 엔트리(`index.js`)로 번들 로드 · headless `[push] disabled — Firebase 미구성(getApps()=0)` 출력 · 크래시 없음. 그 뒤 화면이 흰색으로 남는 문제는 `main`을 `expo-router/entry`로 되돌려도 동일해 **푸시와 무관**(C2 항목, template-completion C2 `[!]`). 시뮬 QA는 사용자 몫.
+- dev client 부팅: 커스텀 엔트리(`index.js`)로 번들 로드 · headless `[push] disabled — Firebase 미구성(getApps()=0)` 출력 · 크래시 없음. 그 뒤 화면이 흰색으로 남는 문제는 `main`을 `expo-router/entry`로 되돌려도 동일해 **푸시와 무관**. 시뮬 QA는 사용자 몫.
 - **확인(2026-09-17)**: 푸시 on 에서 NSE 타깃 생성 → `xcodebuild` 성공 → `.app/PlugIns/ImageNotification.appex`
   임베드(`com.apple.usernotifications.service`). prebuild 2회차(`--no-clean`)도 패치로 통과. 푸시 off 는 타깃 0.
 - **미검증**: 실기 FCM 수신·APNs·NSE 이미지 표시(Firebase 프로젝트 + NSE 프로비저닝 필요 — 앱 몫) · 서버 SDK 페이로드 · 푸시 on 빌드(사용자가 dev 설정 파일을 제공할 때만)
