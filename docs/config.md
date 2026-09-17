@@ -556,7 +556,6 @@ src/types/jest.d.ts   `/// <reference types="jest" />` · `node`
 | 파일                                      | 무엇을 지키나                                                            |
 | ----------------------------------------- | ------------------------------------------------------------------------ |
 | `env.test.ts`                             | 환경 leaf 접기. 키가 하나 빠지면 undefined 가 아니라 throw 해야 한다     |
-| `eslint.config.test.ts`                   | import 경계가 실제로 발동하는지(eslint 를 직접 돌린다)                   |
 | `plugins/with-android-plugin.test.ts`     | release 서명 주입. 앵커가 어긋나면 debug 키로 서명된 빌드가 나간다       |
 | `src/lib/deep-link/parser.test.ts`        | 딥링크 파싱. 인코딩된 세그먼트가 라우트 모양을 바꾸지 않아야 한다        |
 | `src/lib/deep-link/extractors.test.ts`    | 푸시 payload → url 계약. 키가 어긋나면 알림이 조용히 아무 일도 안 한다   |
@@ -569,6 +568,12 @@ src/types/jest.d.ts   `/// <reference types="jest" />` · `node`
 
 딥링크 테스트는 URL 을 `Env.identity.scheme` 에서 만든다 — 하드코딩하면 CLI 가 식별자를
 치환한 뒤 깨진다.
+
+**테스트가 `src/` 에 파일을 만들지 않게 한다.** 경로 기반 규칙(import 경계 같은 것)을
+검사하려고 임시 파일을 두면 `src/app/` 아래에서 expo-router 가 라우트를 다시 만들고
+Metro 가 리로드한다 — 에디터가 테스트를 자동 실행하는 환경에서는 그게 끝없이 반복된다
+(실개발에서 보고돼 그 테스트를 걷어냈다). 꼭 필요하면 `eslint --stdin --stdin-filename`
+처럼 디스크를 안 건드리는 방법을 쓴다.
 
 **화면·스토어 테스트가 필요하면 앱이 자기 방식대로 세운다.** MMKV·RNFB·reanimated 를
 건드리는 순간 목이 필요하고, 그 형태는 앱마다 다르다.
