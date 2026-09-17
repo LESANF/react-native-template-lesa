@@ -51,7 +51,11 @@ function templateRef(dir) {
 async function npmLatest(name) {
   try {
     // 레지스트리를 직접 본다 — `npm view` 는 캐시 때문에 방금 올린 것을 놓친다.
-    const response = await fetch(`https://registry.npmjs.org/${name}`);
+    // 레지스트리 앞 CDN 이 발행 뒤 몇 분간 옛 dist-tag 를 준다 — 캐시를 우회한다.
+    const response = await fetch(`https://registry.npmjs.org/${name}?t=${Date.now()}`, {
+      headers: { 'Cache-Control': 'no-cache' },
+      cache: 'no-store',
+    });
     if (!response.ok) return null;
     const body = await response.json();
     return body['dist-tags']?.latest ?? null;
