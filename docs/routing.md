@@ -534,7 +534,7 @@ specifics evolved during implementation. Verified in the iOS simulator.
   the stack it is pushed onto. Demo `app/modal.tsx` was removed; login later uses
   `presentation:'fullScreenModal'` (#16).
 - presentation fixed by purpose: `modal` / `fullScreenModal` /
-  `transparentModal` / `formSheet` (native detents, SDK55 — no gorhom needed).
+  `transparentModal` / `formSheet` (native detents, SDK 57 — no gorhom needed).
 - RN `<Modal>` (standalone overlay) vs router modal screen (navigable) — pick
   by "does it need URL/back/deep-link"; don't mix the two mechanisms.
 

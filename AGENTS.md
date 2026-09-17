@@ -118,8 +118,7 @@ Codex 는 프로젝트 훅을 **신뢰해야** 실행한다. 처음 열면 `/hoo
 
 - [docs/cli.md](docs/cli.md) — `create-lesa-app` 프로젝트 생성 CLI. **치환 대상의 단일 출처** — `env-candidates.ts` 필드를 바꾸면 여기와 CLI 를 같이 고친다
 - [docs/decisions.md](docs/decisions.md) — 날짜별 결정 색인(본문은 위 섹션 문서에 있다)
-- [docs/template-completion.md](docs/template-completion.md) — 진행 상황과 남은 작업
-- [docs/handoff.md](docs/handoff.md) — 세션 인수인계
+- [docs/template-completion.md](docs/template-completion.md) — 템플릿 레포 전용 진행 기록(생성 프로젝트에는 없다)
 
 ---
 
@@ -191,7 +190,7 @@ OS Linking · 푸시 탭 · 인앱 · 어트리뷰션 SDK — 진입이 어디�
 
 - **거부된 대안을 다시 제안하지 마라.** 각 섹션 문서에 그 절이 있다. 이미 판단이 끝난 것이다.
 - **참조 앱(KR/JP)이 스펙이다.** 로컬에 소스가 있다 — 추측하지 말고 열어서 대조한다.
-  경로는 `docs/handoff.md`. 단 참조 앱에도 결함이 있으니(문서의 D1~D19) 그대로 베끼지 않는다.
+  경로는 사용자에게 받는다(머신마다 다르다). 단 참조 앱에도 결함이 있으니(push.md 의 D1~D19) 그대로 베끼지 않는다.
 - **메커니즘은 그대로, 정책은 비운다.** 참조 앱에서 이식할 때 안전 탈출 경로·게이트 인프라는
   메커니즘이라 살리고, 테이블·문구·엔드포인트만 비운다.
 - **검증은 사용자 몫이다.** 시뮬레이터·실기 조작은 하지 않는다. 코드 검증·구조 확인·

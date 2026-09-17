@@ -233,4 +233,4 @@ times"_ 라고 경고한다. 그래서 배럴에서 `SafeAreaView` export 를 �
 ## 검증 상태
 
 `check-all`(lint + tsc) 로 클래스 검증(`eslint-plugin-better-tailwindcss`)까지 돈다.
-시감(다크모드 전환·Dimmed blur·토큰 적용)은 시뮬 QA 몫 — `template-completion.md` B1.
+시감(다크모드 전환·Dimmed blur·토큰 적용)은 시뮬 QA 몫.

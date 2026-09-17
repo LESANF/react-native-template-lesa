@@ -258,6 +258,10 @@ Xcode 프로젝트·스킴·`PRODUCT_NAME` 을 파생하는데, `sanitizedName()
 - **푸시 NSE** — 기본은 **수동 프로비저닝**(`<bundleId>.ImageNotification` 프로필). EAS 를 붙이면
   `extra.eas.build.experimental.ios.appExtensions` 에 자동 등록된다.
 - **Firebase 설정 파일** — 커밋하거나, CI 시크릿 / EAS file 타입 환경 변수로 복원한다.
+- **pnpm 버전** — `packageManager` 로 정확한 버전을 박지 않는다. corepack 심이 그 버전으로 내려가
+  전역에 올려둔 pnpm 을 무력화한다(실제로 전역 12 인 머신이 프로젝트 안에서 11 로 돌았다).
+  `engines.pnpm` 이 하한(로컬에서 불일치면 pnpm 이 실패한다), `preinstall` 의 `only-allow` 가 pnpm 강제.
+  CI 는 `pnpm/action-setup` 의 `version: 12`. 메이저를 올릴 때 `package.json`·`ci.yml` 두 곳을 같이 올린다.
 - **pnpm 패치** — `patches/` 에 있고 `pnpm-workspace.yaml` 의 `patchedDependencies` 가 등록이다.
   버전에 묶이니 그 패키지를 올리면 같이 다시 만든다. 지우는 조건은 `patches/README.md`.
 - **OTA** — hot-updater 자체 서버라 EAS 연결 여부와 무관하다(위 OTA 결정).

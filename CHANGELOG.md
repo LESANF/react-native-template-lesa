@@ -19,8 +19,20 @@
   `buildConfigurationList` 를 지우는 루프가 자기 프로퍼티를 `undefined` 로 만들어 죽는 버그.
   업스트림 #201·#206 이 리뷰 없이 열려 있고 5.0.0 도 같다. 지우는 조건은 `patches/README.md`
 - `.gitignore` 에 `targets/**/generated.entitlements` — prebuild 산출물
+- `patches/README.md` 에 날짜별 패치 이력 표 — 넣은 것과 뺀 것 모두
+
+### Changed
+
+- **pnpm 은 하한만 둔다.** `packageManager: pnpm@11.10.0` 정확 핀을 빼고 `engines.pnpm: ">=12"`
+  (`node: ">=22"`)로. corepack 심이 핀 버전으로 내려가서 전역 12 를 깔아도 프로젝트 안에서는
+  11 이 돌았다. `only-allow pnpm` 은 그대로. CI 의 `pnpm/action-setup` 은 `version: 12`
 
 ### Removed
+
+- `docs/handoff.md` — SDK 55·pnpm 10 시절의 AI 인수인계. 경로는 자리표시였고 D1~D19 는 `push.md` 에
+  있어 살릴 것이 없었다
+- `docs/template-completion.md` 는 남기되 **생성 프로젝트에 복사하지 않는다**(CLI `REPO_ONLY`).
+  템플릿 레포의 진행 기록이라 받는 쪽엔 소음이었다
 
 - `eslint.config.test.ts` 를 걷어냈다. 경로 기반 규칙을 검사하려고 `src/` 에 임시 파일을
   만들었는데, `src/app/` 아래에 파일이 생겼다 지워지면서 expo-router 가 라우트를 재생성하고
