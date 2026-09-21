@@ -1,12 +1,11 @@
-# PR 과 버전 브랜치 푸시에서 `check-all` 을 돌린다. 네이티브 빌드는 하지 않는다 — 러너 시간이 크고
+# PR 에서 `check-all` 을 돌린다. 네이티브 빌드는 하지 않는다 — 러너 시간이 크고
 # prebuild 산출물은 커밋되지 않으므로 lint·타입·테스트까지가 여기서 얻을 수 있는 것이다.
 name: CI
 
-# 버전 브랜치(0.0.9)는 PR 없이 머지되므로 푸시에서 돈다 — docs/config.md "브랜치 모델".
 on:
   pull_request:
   push:
-    branches: [master, '[0-9]+.[0-9]+.[0-9]+']
+    branches: [master]
 
 # 같은 브랜치에 새 푸시가 오면 이전 실행을 버린다.
 concurrency:
@@ -17,12 +16,6 @@ jobs:
   check:
     runs-on: ubuntu-latest
     steps:
-      - name: PR base must be master
-        if: github.event_name == 'pull_request' && github.base_ref != 'master'
-        run: |
-          echo "::error::PR 은 master 로만 연다. 버전 브랜치에는 로컬 머지로 넣는다 — docs/config.md '브랜치 모델'"
-          exit 1
-
       - uses: actions/checkout@v4
 
       # 메이저만 준다 — 12.x 최신. package.json engines.pnpm 과 같이 올린다.
