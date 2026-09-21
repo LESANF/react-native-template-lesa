@@ -348,7 +348,7 @@ breaking change 를 minor 로 낸다(semver 가 `0.x` 에 허용하는 것이다
 | 구조·계약 변경(폴더 이동 · `env-candidates` 필드 · 배럴 export) | 코드 정리·내부 리팩터 |
 | 생성 결과가 바뀌는 것                                           | 문서 문장 다듬기      |
 
-오른쪽 것들은 **태그 없이 `master` 까지만 보내고 다음 실질 릴리즈에 같이 나간다.** 릴리즈 한 번에
+오른쪽 것들은 **버전 브랜치에 쌓아두고 다음 실질 릴리즈에 같이 나간다.** 릴리즈 한 번에
 `npm publish` 와 OTP 가 따라오므로 오타 수정으로 그 손이 가면 안 되고, 릴리즈 노트도
 의미 없는 항목으로 희석된다.
 
@@ -365,24 +365,19 @@ breaking change 를 minor 로 낸다(semver 가 `0.x` 에 허용하는 것이다
 
 ### 브랜치 모델
 
-**릴리즈는 태그다.** CLI 가 템플릿을 태그로 고정해 받으므로(`TEMPLATE_REF`) `master` 가
-태그보다 앞서 있어도 사용자에게 가지 않는다. 버전 브랜치가 develop 역할을 한다 — 피쳐를
-거기에 모으고, 작업 단위가 끝날 때마다 `master` 로 PR 을 연다.
+`master` 가 **실 배포**다. 버전 브랜치가 develop 역할을 한다 — 피쳐를 거기에 모으고,
+그 브랜치를 `master` 로 머지하는 순간이 릴리즈다.
 
 ```
-feature/xxx ──로컬 머지──▶ 0.0.2 ──PR──▶ master ──tag──▶ v0.0.2
+feature/xxx ──PR──▶ 0.0.2 ──PR──▶ master ──tag──▶ v0.0.2
 ```
-
-**PR 은 `master` 로만 연다.** 버전 브랜치로 가는 PR 은 만들지 않는다. GitHub 은 커밋을
-**처음 실어 온 PR** 에 묶는다 — 피쳐를 버전 브랜치 PR 로 넣으면 그 커밋은 거기 소속이 되고,
-뒤따르는 `master` PR 에는 머지 커밋만 새로 실린다. 기본 브랜치로 머지된 PR 만 세는 집계
-(프로필 achievements 의 공동 작성 커밋 등)에서 전부 빠진다 — 2026-09 에 76개가 그렇게 빠졌다.
-CI 의 `PR base must be master` 단계가 이걸 막는다.
-
-PR 이 없는 구간의 검증은 CI 가 버전 브랜치 푸시에서 돈다(`.github/workflows/ci.yml`).
 
 머지는 항상 **merge commit**(`gh pr merge --merge`)이다. squash 는 커밋 단위 이력과
 `Co-Authored-By` 트레일러를 하나로 뭉갠다.
+
+이 흐름을 프로필 achievements 집계 때문에 바꾸지 않는다. 피쳐 PR 은 버전 브랜치로 머지돼도
+센다 — Pair Extraordinaire x2 가 `create-lesa-app#10`(`ci/check` → `0.0.3`)으로 열렸다.
+반영은 며칠 늦는다. 2026-09-21 에 "기본 브랜치 PR 만 센다" 고 오판해 흐름을 바꿨다가 되돌렸다.
 
 브랜치 이름에는 `v` 를 붙이지 않는다. 태그가 `v0.0.2` 라서 브랜치도 같은 이름이면
 `git checkout 0.0.2` 가 "refname is ambiguous" 로 갈린다.
@@ -393,18 +388,15 @@ PR 이 없는 구간의 검증은 CI 가 버전 브랜치 푸시에서 돈다(`.
 쪽이 0.0.3 으로 못 올라오는 상황 — 그 브랜치에서 바로 작업한다. React 의 `18.x`,
 Node 의 `v20.x` 와 같은 유지 브랜치다.
 
-`feature/*` 는 반대다. 머지되면 지운다(`git branch -d`) — 수명이 작업 하나짜리라 남기면
-죽은 브랜치만 쌓인다. 로컬 머지라 원격에 올릴 일도 없다.
+`feature/*` 는 반대다. 머지되면 지운다(`gh pr merge --merge --delete-branch`) — 수명이
+PR 하나짜리라 남기면 죽은 브랜치만 쌓인다.
 
 ### 절차
 
 ```bash
-# 1. 피쳐는 버전 브랜치로 모은다 — PR 없이 로컬 머지. 푸시하면 CI 가 돈다
+# 1. 피쳐는 버전 브랜치로 모은다
 git switch -c feature/xxx 0.0.2
-git switch 0.0.2 && git merge --no-ff feature/xxx && git push && git branch -d feature/xxx
-
-# 1-1. 작업 단위가 끝나면 master 로 PR — 릴리즈가 아니어도 연다(태그를 안 달면 배포가 아니다)
-gh pr create --base master --head 0.0.2 && gh pr merge --merge
+gh pr create --base 0.0.2 && gh pr merge --merge --delete-branch
 
 # 2. 릴리즈할 준비가 되면 — 버전 브랜치의 마지막 커밋에서
 #    CHANGELOG 의 [Unreleased] 를 새 버전 절로 바꾸고(Added·Changed·Fixed·Docs)
@@ -412,7 +404,7 @@ pnpm version 0.0.2 --no-git-tag-version   # package.json 만 바꾼다
 pnpm check-all
 git commit -am "chore(release): 0.0.2" && git push
 
-# 3. 릴리즈 커밋을 master 로
+# 3. 버전 브랜치를 master 로 — 이게 배포다
 gh pr create --base master --head 0.0.2 --title "release: 0.0.2"
 gh pr merge --merge          # 버전 브랜치는 지우지 않는다(아래 "버전 브랜치를 남긴다")
 
