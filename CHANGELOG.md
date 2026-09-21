@@ -9,6 +9,13 @@
 
 ## [Unreleased]
 
+### Changed
+
+- **PR 은 `master` 로만 연다.** 피쳐는 버전 브랜치에 로컬 머지로 넣고, 릴리즈는 master 머지가 아니라
+  태그다. GitHub 이 커밋을 처음 실어 온 PR 에 묶어서 버전 브랜치 PR 을 거친 커밋은 `master` PR 의
+  집계에서 빠졌다. CI 가 버전 브랜치 푸시에서 돌고, `master` 가 아닌 PR 은 실패시킨다
+  (docs/config.md "브랜치 모델")
+
 ## [0.0.9] — 2026-09-17
 
 ### Added
