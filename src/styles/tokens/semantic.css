@@ -1,6 +1,5 @@
-/* 의미 토큰. @theme static 이 토큰을 등록하고 light 값을 준다. dark 는 아래에서 값만 바꾼다.
- * 화면 코드에 dark: 를 쓰지 않는다. 값은 colors.css 의 원시색 참조로만 적는다.
- * 토큰을 추가하면 두 블록 모두에 넣는다 — use-colors.test 가 집합이 같은지 본다. */
+/* 의미 토큰. light 값은 @theme static, dark 는 아래에서 값만 바꾼다 — 화면 코드에 dark: 를 쓰지 않는다.
+ * 값은 원시색 참조만. 토큰은 두 블록에 같이 넣는다(use-colors.test 가 본다). */
 @theme static {
   --color-background: var(--color-white);
   --color-foreground: var(--color-black);

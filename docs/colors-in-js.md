@@ -90,7 +90,7 @@ const CSS_VARIABLE_READS = [
   },
 ];
 /** 템플릿 시절 hex 가 남은 파일. 여기에 추가하지 않는다 — 화면을 바꿀 때 뺀다. */
-const LEGACY_HEX_FILES = [/* 예시 화면 — eslint.config.js 참조 */];
+const LEGACY_HEX_FILES = [];
 
 // defineConfig 배열 끝. 같은 rule 키를 쓰는 좁은 블록이 넓은 블록을 덮으므로 순서가 중요하다.
   {

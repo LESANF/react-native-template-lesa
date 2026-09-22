@@ -4,8 +4,7 @@ import { tv } from 'tailwind-variants';
 
 import { Text } from './text';
 
-// 높이·테두리는 감싸는 뷰(field)가 갖는다. 입력에는 글꼴·크기만 준다 — 행간을 주면 안드로이드가
-// 글자를 줄 상자 아래로 밀어 옆 슬롯과 어긋난다. docs/ui.md "텍스트와 입력의 높이".
+// 높이·테두리는 field 뷰가 갖고 입력에는 글꼴 크기만 — 행간을 주면 안드로이드가 글자를 슬롯과 어긋나게 민다.
 const input = tv({
   slots: {
     root: 'gap-1.5',

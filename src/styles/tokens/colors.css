@@ -1,6 +1,5 @@
-/* 원시색 — 브랜드가 정한 값은 여기에만 적는다. 의미 토큰(semantic.css)이 이 변수를 참조한다.
- * `static`: className 에서 안 쓰는 변수도 번들에 남긴다 — useColors() 로만 읽는 색이 사라지지 않게.
- * 새 앱: 아래 값을 브랜드 팔레트로 바꾸고 semantic.css 의 참조만 조정한다. */
+/* 원시색. 새 앱은 이 값만 브랜드 팔레트로 바꾼다 — 의미 토큰(semantic.css)이 참조한다.
+ * static: className 에서 안 쓰는 변수도 번들에 남긴다(useColors 가 읽는 색). */
 @theme static {
   --color-white: #ffffff;
   --color-black: #09090b;

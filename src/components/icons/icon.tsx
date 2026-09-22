@@ -11,8 +11,7 @@ type Props = Omit<IconProps, 'color' | 'size'> & {
   readonly children: ReactNode;
 };
 
-/** 모든 아이콘의 바탕. onPress 가 있으면 Pressable 로 감싸 버튼으로 만든다.
- * 공통 아이콘은 components/icons/, 한 도메인 전용은 components/<도메인>/icons/ 에 둔다. */
+/** 모든 아이콘의 바탕. onPress 가 있으면 Pressable 로 감싸 버튼으로 만든다. */
 export function Icon({ onPress, hitSlop = 16, accessibilityLabel, children, ...svgProps }: Props) {
   if (!onPress) {
     return (
