@@ -9,6 +9,8 @@
 
 ## [Unreleased]
 
+## [0.0.11] — 2026-09-22
+
 ### Fixed
 
 - **`semantic.css` 에 `@variant light` 블록을 되살렸다.** 0.0.10 은 light 값을 `@theme static` 에만 두어
