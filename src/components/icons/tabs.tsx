@@ -1,25 +1,24 @@
-import type { SvgProps } from 'react-native-svg';
-import Svg, { Path } from 'react-native-svg';
+import { Path } from 'react-native-svg';
 
-export type TabIconProps = Omit<SvgProps, 'color' | 'width' | 'height'> & {
-  readonly color?: string;
-  readonly size?: number;
-};
+import { Icon } from './icon';
+import type { IconProps } from './types';
+
+export type TabIconProps = IconProps;
 
 export function HomeTabIcon({ color = 'currentColor', size = 32, ...props }: TabIconProps) {
   return (
-    <Svg width={size} height={size} viewBox="0 0 32 32" fill="none" {...props}>
+    <Icon width={size} height={size} viewBox="0 0 32 32" {...props}>
       <Path
         d="M24.1215 26H7.87477L7.87352 16.9116L6 16.9044V15.0872L15.9988 6L25.99 15.0835L26 16.9068L24.124 16.9104L24.1215 26ZM18.4972 18.7264H13.4978V24.1816H18.4972V18.7264Z"
         fill={color}
       />
-    </Svg>
+    </Icon>
   );
 }
 
 export function ShopTabIcon({ color = 'currentColor', size = 32, ...props }: TabIconProps) {
   return (
-    <Svg width={size} height={size} viewBox="0 0 32 32" fill="none" {...props}>
+    <Icon width={size} height={size} viewBox="0 0 32 32" {...props}>
       <Path
         d="M11.1419 12.2148H3.21874C2.58448 12.2148 2.07031 12.8049 2.07031 13.5327C2.07031 14.2605 2.58448 14.8506 3.21874 14.8506H11.1419C11.7761 14.8506 12.2903 14.2605 12.2903 13.5327C12.2903 12.8049 11.7761 12.2148 11.1419 12.2148Z"
         fill={color}
@@ -32,39 +31,39 @@ export function ShopTabIcon({ color = 'currentColor', size = 32, ...props }: Tab
         d="M29.6347 23.7075C29.2464 24.0985 28.6197 24.0975 28.2334 23.7045L25.1745 20.6002C23.7475 21.6893 22.0091 22.1643 20.2688 21.9573C15.9682 21.4473 13.2148 17.1489 14.4417 12.9975C15.6637 8.86213 20.251 6.79794 24.1092 8.73112C27.9634 10.6623 29.141 15.6737 26.5886 19.1891L29.6367 22.2793C30.026 22.6734 30.025 23.3144 29.6347 23.7075ZM25.9737 15.0007C25.9737 12.2394 23.7682 10.0012 21.0473 10.0012C18.3264 10.0012 16.1209 12.2394 16.1209 15.0007C16.1209 17.7619 18.3264 20.0001 21.0473 20.0001C23.7682 20.0001 25.9737 17.7619 25.9737 15.0007Z"
         fill={color}
       />
-    </Svg>
+    </Icon>
   );
 }
 
 export function BrandTabIcon({ color = 'currentColor', size = 32, ...props }: TabIconProps) {
   return (
-    <Svg width={size} height={size} viewBox="0 0 32 32" fill="none" {...props}>
+    <Icon width={size} height={size} viewBox="0 0 32 32" {...props}>
       <Path
         d="M27.6829 15.0504C27.6829 15.0504 22.785 9.5 22.1292 9.5H5.66994C4.7065 9.5 3.92969 10.1783 3.92969 11.0091V20.9909C3.92969 21.8274 4.7065 22.5 5.66994 22.5H22.1342C22.79 22.5 27.6829 16.9496 27.6829 16.9496C28.2024 16.3957 28.2024 15.5987 27.6829 15.0448V15.0504ZM17.3069 12.6991H6.36604C6.2248 12.6991 6.10879 12.5409 6.10879 12.343C6.10879 12.1452 6.2248 11.987 6.36604 11.987H17.3019C17.4431 11.987 17.5591 12.1452 17.5591 12.343C17.5591 12.5409 17.4431 12.6991 17.3019 12.6991H17.3069ZM23.8695 17.0626C23.1683 17.0626 22.6034 16.4296 22.6034 15.6439C22.6034 14.8583 23.1683 14.2252 23.8695 14.2252C24.5706 14.2252 25.1356 14.8583 25.1356 15.6439C25.1356 16.4296 24.5706 17.0626 23.8695 17.0626Z"
         fill={color}
       />
-    </Svg>
+    </Icon>
   );
 }
 
 export function FilterTabIcon({ color = 'currentColor', size = 32, ...props }: TabIconProps) {
   return (
-    <Svg width={size} height={size} viewBox="0 0 32 32" fill="none" {...props}>
+    <Icon width={size} height={size} viewBox="0 0 32 32" {...props}>
       <Path
         d="M7.75075 7.75098C7.27566 7.75098 6.84476 8.03824 6.66062 8.48018C6.47647 8.92213 6.5796 9.42668 6.91842 9.76182L13.6433 16.4904V20.7147C13.6433 21.0277 13.7686 21.326 13.9895 21.547L16.3466 23.904C16.6854 24.2429 17.1899 24.3423 17.6319 24.1582C18.0738 23.974 18.3574 23.5468 18.3574 23.0717V16.4904L25.0823 9.76551C25.4212 9.42668 25.5206 8.92213 25.3365 8.48018C25.1523 8.03824 24.7251 7.75098 24.25 7.75098H7.75075Z"
         fill={color}
       />
-    </Svg>
+    </Icon>
   );
 }
 
 export function LoginTabIcon({ color = 'currentColor', size = 32, ...props }: TabIconProps) {
   return (
-    <Svg width={size} height={size} viewBox="0 0 32 32" fill="none" {...props}>
+    <Icon width={size} height={size} viewBox="0 0 32 32" {...props}>
       <Path
         d="M16.003 15.5476C18.4543 15.5476 20.4398 13.5232 20.4398 11.0238C20.4398 8.5244 18.4543 6.5 16.003 6.5C13.5516 6.5 11.5662 8.5244 11.5662 11.0238C11.5662 13.5232 13.5516 15.5476 16.003 15.5476ZM14.9049 17.6587C11.263 17.6587 8.3125 20.6671 8.3125 24.3804C8.3125 24.9986 8.80425 25.5 9.41061 25.5H22.5953C23.2017 25.5 23.6935 24.9986 23.6935 24.3804C23.6935 20.6671 20.743 17.6587 17.1011 17.6587H14.9049Z"
         fill={color}
       />
-    </Svg>
+    </Icon>
   );
 }
