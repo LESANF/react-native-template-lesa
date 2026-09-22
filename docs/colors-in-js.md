@@ -25,8 +25,8 @@ const colors = useColors();
 
 ```
 src/styles/tokens/colors.css      @theme static — 원시색
-src/styles/tokens/semantic.css    @theme static — 의미 토큰 등록 + light 값
-                                  @layer theme { :root { @variant dark { … } } } — dark 값
+src/styles/tokens/semantic.css    @theme static — 의미 토큰 등록(값은 light 와 같음)
+                                  @layer theme { :root { @variant light { … } @variant dark { … } } } — 테마별 값
 src/lib/theme/use-colors.ts       useColors() — TOKENS 표 하나, useCSSVariable 배열 읽기
 src/lib/theme/use-colors.test.ts  이름 검증
 ```
@@ -61,7 +61,7 @@ export function useColors(): Colors {
 ## 색을 추가할 때
 
 1. 원시색이면 `colors.css`에 `--color-<이름>: #hex`.
-2. 의미 토큰이면 `semantic.css`의 `@theme static`(light)과 `@variant dark` **둘 다**에 원시색 참조로 적는다.
+2. 의미 토큰이면 `semantic.css`의 `@theme static`(등록), `@variant light`, `@variant dark` **세 곳 모두**에 원시색 참조로 적는다. 하나라도 빠지면 Uniwind 가 부팅 때 `Theme light is missing variable` 을 낸다.
 3. JS에서도 쓰면 `use-colors.ts`의 `TOKENS`에 한 줄 추가한다.
 
 ## 가드레일
@@ -134,5 +134,5 @@ ESLint 규칙이 살아 있는지 확인하는 테스트(`eslint.config.test.ts`
 ## 검증
 
 - `pnpm run check-all`.
-- 번들: `npx expo export --platform android --no-bytecode --output-dir <임시경로>` 뒤 번들에 `"__uniwind-theme-dark":{"--color-background":…}`(dark 표)와 기본 표의 `"--color-background":…`(light)가 둘 다 있는지 본다.
+- 번들: `npx expo export --platform android --no-bytecode --output-dir <임시경로>` 뒤 번들에 `"__uniwind-theme-light"` 와 `"__uniwind-theme-dark"` 표가 둘 다 있고 각각에 토큰이 전부 있는지 본다.
 - jest에서는 Metro 변환이 안 돌아 `useCSSVariable` 값이 비어 있다. 색 값 자체를 검증하는 테스트는 쓸 수 없고 쓸 필요도 없다.
