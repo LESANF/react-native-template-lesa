@@ -9,6 +9,14 @@
 
 ## [Unreleased]
 
+## [0.0.11] — 2026-09-22
+
+### Fixed
+
+- **`semantic.css` 에 `@variant light` 블록을 되살렸다.** 0.0.10 은 light 값을 `@theme static` 에만 두어
+  Uniwind 가 부팅 때 `Theme light is missing variable --color-…` 를 냈다. 의미 토큰은 등록·light·dark
+  세 블록에 같이 넣는다 — `use-colors.test` 가 셋의 집합이 같은지 본다
+
 ## [0.0.10] — 2026-09-22
 
 ### Added
