@@ -2,7 +2,8 @@ import { getLocales } from 'expo-localization';
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
-const DEFAULT_LANGUAGE = 'ko';
+/** 앱 기본 언어. dayjs 로케일(lib/dayjs)도 이 값을 따른다. */
+export const DEFAULT_LANGUAGE = 'ko';
 
 // 다국어를 시작할 때 true 로 — docs/ui.md "i18n".
 const USE_DEVICE_LANGUAGE = false;
