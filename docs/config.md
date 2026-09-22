@@ -411,8 +411,9 @@ gh pr merge --merge          # 버전 브랜치는 지우지 않는다(아래 "�
 git switch master && git pull
 git tag -a v0.0.2 -m "v0.0.2 — <한 줄 요약>" && git push --follow-tags
 
-# 5. GitHub 릴리즈 — 0.x 는 반드시 --prerelease
-gh release create v0.0.2 --title "v0.0.2" --prerelease --notes-file <(sed -n '/## \[0.0.2\]/,/## \[0.0.1/p' CHANGELOG.md)
+# 5. GitHub 릴리즈 — --prerelease 를 쓰지 않는다. prerelease 는 "Latest" 로 잡히지 않아
+#    레포 첫 화면이 이전 버전을 가리킨다(0.0.10 에서 겪음). 0.x 임은 릴리즈 노트 첫 줄이 말한다
+gh release create v0.0.2 --title "v0.0.2" --latest --notes-file <(sed -n '/## \[0.0.2\]/,/## \[0.0.1/p' CHANGELOG.md)
 
 # 6. CLI 의 TEMPLATE_REF 를 올린다 — **이걸 빼면 CLA 가 옛 템플릿을 준다**
 #    CLI 도 같은 절차로 릴리즈하고 npm 에 올린다(OTP 필요)
