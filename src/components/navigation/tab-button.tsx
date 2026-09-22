@@ -1,10 +1,9 @@
 import { forwardRef, type ComponentType } from 'react';
 import { Pressable, StyleSheet, type PressableProps, type View } from 'react-native';
 import type { TabTriggerSlotProps } from 'expo-router/ui';
-import { useCSSVariable } from 'uniwind';
 
 import { type TabIconProps } from '@/components/icons/tabs';
-import { TAB_BAR_COLOR_VARS } from '@/constants/tab-bar';
+import { useColors } from '@/lib/theme/use-colors';
 
 import { Text } from '../ui/text';
 
@@ -22,8 +21,8 @@ export const TabButton = forwardRef<View, TabButtonProps>(function TabButton(
   { href: _href, icon: Icon, isFocused = false, label, style: _style, ...props },
   ref
 ) {
-  const [active, inactive] = useCSSVariable(TAB_BAR_COLOR_VARS);
-  const color = String(isFocused ? active : inactive);
+  const colors = useColors();
+  const color = isFocused ? colors.tabActive : colors.tabInactive;
   const pressableProps: PressableProps = props;
 
   return (

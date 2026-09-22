@@ -114,7 +114,7 @@ const ROUTES = [
   },
   {
     re: /색상?|컬러|colou?r|hex|(디자인|색상?|컬러)\s*토큰|design\s*token|테마|theme|다크\s*모드|css\.create|useCSSVariable|getCSSVariable/i,
-    say: '색 → 값은 `src/styles/tokens` CSS 에만 둔다. 정적인 곳은 className, JS 값은 `useCSSVariable` 배열 읽기. hex 직접 기입·`getCSSVariable`·생성 스크립트는 거부된 대안이다(ESLint error) — `docs/colors-in-js.md`.',
+    say: '색·테마 → 색 값은 `src/styles/tokens` CSS 에만 둔다. 정적인 곳은 className, JS 색은 `useColors()`. 다크는 `semantic.css` 의 dark 블록이 담당하고 화면 코드에 `dark:` 를 쓰지 않는다. hex 직접 기입·생성 스크립트·읽기 한 번 상수는 거부된 대안이다(ESLint error) — `docs/colors-in-js.md`.',
   },
 ];
 

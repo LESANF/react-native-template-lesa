@@ -1,5 +1,5 @@
-/* 원시색 — 브랜드가 정한 값은 여기에만 적는다. 의미 토큰(semantic.css)은 이 변수를 참조한다.
- * `static`: className 에서 안 쓰는 변수도 번들에 남긴다 — JS 에서 useCSSVariable 로 읽는 색이 사라지지 않게.
+/* 원시색 — 브랜드가 정한 값은 여기에만 적는다. 의미 토큰(semantic.css)이 이 변수를 참조한다.
+ * `static`: className 에서 안 쓰는 변수도 번들에 남긴다 — useColors() 로만 읽는 색이 사라지지 않게.
  * 새 앱: 아래 값을 브랜드 팔레트로 바꾸고 semantic.css 의 참조만 조정한다. */
 @theme static {
   --color-white: #ffffff;
@@ -21,19 +21,4 @@
   --color-amber-400: #fbbf24;
   --color-red-600: #dc2626;
   --color-red-400: #f87171;
-
-  /* 의미 토큰 등록 + light 기본값. 테마별 값은 semantic.css. */
-  --color-background: var(--color-white);
-  --color-foreground: var(--color-black);
-  --color-card: var(--color-white);
-  --color-muted: var(--color-gray-100);
-  --color-muted-foreground: var(--color-gray-500);
-  --color-primary: var(--color-gray-900);
-  --color-primary-foreground: var(--color-gray-50);
-  --color-success: var(--color-green-500);
-  --color-warning: var(--color-amber-600);
-  --color-destructive: var(--color-red-600);
-  --color-border: var(--color-gray-200);
-  --color-tab-active: var(--color-gray-700);
-  --color-tab-inactive: var(--color-gray-300);
 }
