@@ -25,6 +25,28 @@ const BARREL_PATTERNS = [
   },
 ];
 
+/**
+ * 색 가드레일 — 값은 src/styles/tokens 의 CSS 에만 둔다(docs/colors-in-js.md).
+ * flat config 는 같은 rule 키를 쓰는 블록 중 마지막 것만 적용한다. 아래 블록은 파일 끝에 둔다.
+ */
+const HEX_COLOR = {
+  selector: 'Literal[value=/^#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/]',
+  message:
+    'hex 색을 직접 적지 않습니다 — className 토큰(bg-primary 등)이나 useCSSVariable 을 쓰세요. 없는 색이면 src/styles/tokens 에 먼저 추가합니다.',
+};
+const GET_CSS_VARIABLE = {
+  selector: "MemberExpression[property.name='getCSSVariable']",
+  message:
+    'Uniwind.getCSSVariable 은 시작 시점 값이라 다크 전환을 못 따라갑니다 — useCSSVariable 을 쓰세요. 라이트 고정 앱이면 docs/colors-in-js.md.',
+};
+/** 템플릿 시절 hex 가 남은 파일. 여기에 추가하지 않는다 — 화면을 바꿀 때 뺀다. */
+const LEGACY_HEX_FILES = [
+  'src/components/ui/net-log-fab.tsx',
+  'src/features/home/home-screen.tsx',
+  'src/features/menu-2/menu-2-screen.tsx',
+  'src/features/splash/splash-screen.tsx',
+];
+
 module.exports = defineConfig([
   expoConfig,
   {
@@ -139,5 +161,15 @@ module.exports = defineConfig([
         },
       ],
     },
+  },
+
+  // ── 색 가드레일 ─────────────────────────────────────────────────
+  {
+    files: ['src/**/*.{ts,tsx}'],
+    rules: { 'no-restricted-syntax': ['error', HEX_COLOR, GET_CSS_VARIABLE] },
+  },
+  {
+    files: LEGACY_HEX_FILES,
+    rules: { 'no-restricted-syntax': ['error', GET_CSS_VARIABLE] },
   },
 ]);

@@ -8,21 +8,13 @@ import { tabs } from '@/constants/tabs';
 import { TabButton } from './tab-button';
 
 const TAB_BAR_HEIGHT = 72;
-const TAB_BAR_BORDER_FALLBACK = '#e4e4e7';
-const TAB_BAR_BACKGROUND_FALLBACK = '#ffffff';
-
-function resolveColorToken(value: number | string | undefined, fallback: string): string {
-  return typeof value === 'string' ? value : fallback;
-}
 
 export function CustomTabsLayout() {
   const insets = useSafeAreaInsets();
-  const [backgroundColorToken, borderColorToken] = useCSSVariable([
-    '--color-card',
-    '--color-border',
-  ]);
-  const backgroundColor = resolveColorToken(backgroundColorToken, TAB_BAR_BACKGROUND_FALLBACK);
-  const borderTopColor = resolveColorToken(borderColorToken, TAB_BAR_BORDER_FALLBACK);
+  // @theme static 이라 변수는 항상 있다 — 폴백 hex 를 두지 않는다. 타입만 string 으로 좁힌다.
+  const [backgroundColor, borderTopColor] = useCSSVariable(['--color-card', '--color-border']).map(
+    String
+  );
 
   return (
     <Tabs style={styles.tabs}>
