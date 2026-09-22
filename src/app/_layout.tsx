@@ -7,10 +7,11 @@ import { SystemBars } from 'react-native-edge-to-edge';
 import { configureReanimatedLogger, ReanimatedLogLevel } from 'react-native-reanimated';
 import { enableFreeze } from 'react-native-screens';
 
-import '../global.css';
+import '@/global.css';
 import '@/lib/i18n';
 import { Env } from '@env';
 import { ErrorFallback } from '@/components/ui';
+import { useDismissKeyboardOnBackground } from '@/hooks/use-dismiss-keyboard-on-background';
 import { useNavigationReset } from '@/hooks/use-navigation-reset';
 import { queryClient } from '@/lib/api/query-client';
 import { setupReactQueryNativeListeners } from '@/lib/api/react-query-native-listeners';
@@ -46,6 +47,7 @@ export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
 
 export default function RootLayout() {
   const resetNavigation = useNavigationReset();
+  useDismissKeyboardOnBackground();
 
   useEffect(
     () =>

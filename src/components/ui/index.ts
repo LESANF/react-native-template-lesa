@@ -1,6 +1,3 @@
-import Svg from 'react-native-svg';
-import { withUniwind } from 'uniwind';
-
 // UI Kit 의 유일한 배럴.
 export {
   ActivityIndicator,
@@ -31,9 +28,10 @@ export { GlobalPopup, popup } from './popup';
 export type { PopupChoice, PopupOptions } from './popup';
 export { Pressable } from './pressable';
 export { ScreenSystemBars } from './screen-system-bars';
+export { StrikethroughText } from './strikethrough-text';
+export type { StrikethroughTextProps } from './strikethrough-text';
 export type { ScreenSystemBarsProps } from './screen-system-bars';
 export { Text } from './text';
 export { GlobalToast, toast } from './toast';
-
-// className 이 필요한 외부 primitive 만 감싼다. 무거운 건 올리지 않는다.
-export const StyledSvg = withUniwind(Svg);
+export { UnderlineText } from './underline-text';
+export type { UnderlineTextProps } from './underline-text';

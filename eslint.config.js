@@ -6,10 +6,14 @@ const expoConfig = require('eslint-config-expo/flat');
 const betterTailwindcss = require('eslint-plugin-better-tailwindcss');
 
 /**
- * barrel 패턴. flat config 는 **같은 rule 키를 쓰는 블록 중 마지막 것만 적용**하므로
+ * import 경로 패턴. flat config 는 **같은 rule 키를 쓰는 블록 중 마지막 것만 적용**하므로
  * 더 좁은 스코프 블록이 이것을 다시 넣어야 한다 — 안 넣으면 조용히 사라진다.
  */
-const BARREL_PATTERNS = [
+const IMPORT_PATTERNS = [
+  {
+    regex: '^\\.\\./',
+    message: '상위 폴더 상대경로 대신 @/ alias 를 쓰세요. 같은 폴더(./)는 허용합니다.',
+  },
   {
     regex: '^@/components/ui/.+',
     message: 'ui 컴포넌트는 barrel 경유 권장: @/components/ui',
@@ -32,13 +36,19 @@ const BARREL_PATTERNS = [
 const HEX_COLOR = {
   selector: 'Literal[value=/^#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/]',
   message:
-    'hex 색을 직접 적지 않습니다 — className 토큰(bg-primary 등)이나 useCSSVariable 을 쓰세요. 없는 색이면 src/styles/tokens 에 먼저 추가합니다.',
+    'hex 색을 직접 적지 않습니다 — className 토큰(bg-primary 등)이나 useColors() 를 쓰세요. 없는 색이면 src/styles/tokens 에 먼저 추가합니다.',
 };
-const GET_CSS_VARIABLE = {
-  selector: "MemberExpression[property.name='getCSSVariable']",
-  message:
-    'Uniwind.getCSSVariable 은 시작 시점 값이라 다크 전환을 못 따라갑니다 — useCSSVariable 을 쓰세요. 라이트 고정 앱이면 docs/colors-in-js.md.',
-};
+const CSS_VARIABLE_READS = [
+  {
+    selector: "ImportSpecifier[imported.name='useCSSVariable']",
+    message:
+      'CSS 변수는 useColors()(@/lib/theme/use-colors) 로 읽습니다 — 거기에 색을 추가해 쓰세요.',
+  },
+  {
+    selector: "MemberExpression[property.name='getCSSVariable']",
+    message: 'getCSSVariable 은 테마 전환을 따라가지 않습니다 — useColors() 를 쓰세요.',
+  },
+];
 /** 템플릿 시절 hex 가 남은 파일. 여기에 추가하지 않는다 — 화면을 바꿀 때 뺀다. */
 const LEGACY_HEX_FILES = [
   'src/components/ui/net-log-fab.tsx',
@@ -86,7 +96,7 @@ module.exports = defineConfig([
         'warn',
         {
           patterns: [
-            ...BARREL_PATTERNS,
+            ...IMPORT_PATTERNS,
             {
               regex: '^@/features/[^/]+$',
               message:
@@ -107,7 +117,7 @@ module.exports = defineConfig([
         'warn',
         {
           patterns: [
-            ...BARREL_PATTERNS,
+            ...IMPORT_PATTERNS,
             {
               regex: '^@/features/',
               message: 'shared 계층은 features를 모릅니다 — 도메인 무관 코드만 둡니다.',
@@ -146,7 +156,7 @@ module.exports = defineConfig([
         'warn',
         {
           patterns: [
-            ...BARREL_PATTERNS,
+            ...IMPORT_PATTERNS,
             {
               regex: '^@/features/',
               message:
@@ -163,13 +173,17 @@ module.exports = defineConfig([
     },
   },
 
-  // ── 색 가드레일 ─────────────────────────────────────────────────
+  // ── 색 가드레일 — docs/colors-in-js.md. 같은 키를 쓰는 좁은 블록 둘이 예외를 덮어쓴다.
   {
     files: ['src/**/*.{ts,tsx}'],
-    rules: { 'no-restricted-syntax': ['error', HEX_COLOR, GET_CSS_VARIABLE] },
+    rules: { 'no-restricted-syntax': ['error', HEX_COLOR, ...CSS_VARIABLE_READS] },
+  },
+  {
+    files: ['src/lib/theme/use-colors.ts'],
+    rules: { 'no-restricted-syntax': ['error', HEX_COLOR, CSS_VARIABLE_READS[1]] },
   },
   {
     files: LEGACY_HEX_FILES,
-    rules: { 'no-restricted-syntax': ['error', GET_CSS_VARIABLE] },
+    rules: { 'no-restricted-syntax': ['error', ...CSS_VARIABLE_READS] },
   },
 ]);

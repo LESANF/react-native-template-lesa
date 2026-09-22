@@ -5,7 +5,7 @@
 
 import { authGate } from './auth';
 
-import type { GateName, NavigateContext } from '../types';
+import type { GateName, NavigateContext } from '@/lib/deep-link/types';
 
 export type GateContext = NavigateContext;
 

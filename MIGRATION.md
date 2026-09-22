@@ -17,6 +17,20 @@
 
 ---
 
+## v0.0.9 에서 올리기 — Input · 탭 색 · 색 규칙 (Unreleased)
+
+- **`Input` 의 `className` 대상이 바뀌었다.** 입력 자체가 아니라 감싸는 뷰(높이·테두리·배경)에 붙는다.
+  `editable` 은 타입에서 빠졌다 — `disabled` 로 바꾼다. `hint`·`left`·`right` 가 새로 생겼다.
+- **`constants/tab-bar.ts` 가 없어졌다.** 탭 라벨 색은 `useColors().tabActive`·`tabInactive` 로 읽는다.
+  토큰은 `semantic.css` 의 `--color-tab-active`·`--color-tab-inactive`.
+- **`colors.css` 는 원시색만, `semantic.css` 가 의미 토큰이다.** 브랜드 색을 이미 `colors.css` 의 의미
+  토큰에 직접 넣었다면 원시색으로 옮기고 참조로 바꾼다. 둘 다 `@theme static`.
+- **JS 에서 색을 읽던 곳은 `useColors()` 로.** `useCSSVariable` 직접 호출과 hex 리터럴은 lint error 가 된다.
+  당장 못 고치는 파일은 `eslint.config.js` 의 `LEGACY_HEX_FILES` 에 넣고 줄여 간다.
+- 그 외는 추가만이다: `UnderlineText`·`StrikethroughText`, `useDismissKeyboardOnBackground`(루트에서 호출),
+  `useDebouncedValue`, `components/icons/icon.tsx`, `lib/dayjs`·`utils/format`, `constants/motion`,
+  `../` import 금지 lint(warn).
+
 ## v0.0.7 · v0.0.8 에서 올리기 — pnpm 핀과 NSE
 
 둘은 독립이다. pnpm 은 전부에 권하고, NSE 는 iOS 리치 푸시 이미지가 필요할 때만.
