@@ -9,6 +9,8 @@
 
 ## [Unreleased]
 
+## [0.1.0] — 2026-09-22
+
 ### Added
 
 - `UnderlineText`·`StrikethroughText` — 선을 뷰로 그린다. `textDecorationLine` 은 두께·색·위치를 못 잡는다
