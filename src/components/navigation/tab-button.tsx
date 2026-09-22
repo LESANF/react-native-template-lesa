@@ -5,7 +5,7 @@ import type { TabTriggerSlotProps } from 'expo-router/ui';
 import { type TabIconProps } from '@/components/icons/tabs';
 import { useColors } from '@/lib/theme/use-colors';
 
-import { Text } from '../ui/text';
+import { Text } from '@/components/ui';
 
 const TAB_ICON_SIZE = 32;
 

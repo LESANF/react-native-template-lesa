@@ -6,10 +6,14 @@ const expoConfig = require('eslint-config-expo/flat');
 const betterTailwindcss = require('eslint-plugin-better-tailwindcss');
 
 /**
- * barrel 패턴. flat config 는 **같은 rule 키를 쓰는 블록 중 마지막 것만 적용**하므로
+ * import 경로 패턴. flat config 는 **같은 rule 키를 쓰는 블록 중 마지막 것만 적용**하므로
  * 더 좁은 스코프 블록이 이것을 다시 넣어야 한다 — 안 넣으면 조용히 사라진다.
  */
-const BARREL_PATTERNS = [
+const IMPORT_PATTERNS = [
+  {
+    regex: '^\\.\\./',
+    message: '상위 폴더 상대경로 대신 @/ alias 를 쓰세요. 같은 폴더(./)는 허용합니다.',
+  },
   {
     regex: '^@/components/ui/.+',
     message: 'ui 컴포넌트는 barrel 경유 권장: @/components/ui',
@@ -92,7 +96,7 @@ module.exports = defineConfig([
         'warn',
         {
           patterns: [
-            ...BARREL_PATTERNS,
+            ...IMPORT_PATTERNS,
             {
               regex: '^@/features/[^/]+$',
               message:
@@ -113,7 +117,7 @@ module.exports = defineConfig([
         'warn',
         {
           patterns: [
-            ...BARREL_PATTERNS,
+            ...IMPORT_PATTERNS,
             {
               regex: '^@/features/',
               message: 'shared 계층은 features를 모릅니다 — 도메인 무관 코드만 둡니다.',
@@ -152,7 +156,7 @@ module.exports = defineConfig([
         'warn',
         {
           patterns: [
-            ...BARREL_PATTERNS,
+            ...IMPORT_PATTERNS,
             {
               regex: '^@/features/',
               message:

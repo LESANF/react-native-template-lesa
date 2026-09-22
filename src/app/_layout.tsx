@@ -7,7 +7,7 @@ import { SystemBars } from 'react-native-edge-to-edge';
 import { configureReanimatedLogger, ReanimatedLogLevel } from 'react-native-reanimated';
 import { enableFreeze } from 'react-native-screens';
 
-import '../global.css';
+import '@/global.css';
 import '@/lib/i18n';
 import { Env } from '@env';
 import { ErrorFallback } from '@/components/ui';
