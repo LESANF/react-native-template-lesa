@@ -1,5 +1,5 @@
-/* 의미 토큰. light 값은 @theme static, dark 는 아래에서 값만 바꾼다 — 화면 코드에 dark: 를 쓰지 않는다.
- * 값은 원시색 참조만. 토큰은 두 블록에 같이 넣는다(use-colors.test 가 본다). */
+/* 의미 토큰. @theme static 은 등록(값은 light 와 같음), 테마별 값은 @variant light·dark — 화면 코드에 dark: 를 쓰지 않는다.
+ * Uniwind 는 부팅 때 light·dark 표의 변수 집합을 비교한다. 토큰은 세 블록에 같이 넣는다(use-colors.test 가 본다). */
 @theme static {
   --color-background: var(--color-white);
   --color-foreground: var(--color-black);
@@ -22,6 +22,26 @@
 
 @layer theme {
   :root {
+    @variant light {
+      --color-background: var(--color-white);
+      --color-foreground: var(--color-black);
+      --color-card: var(--color-white);
+      --color-muted: var(--color-gray-100);
+      --color-muted-foreground: var(--color-gray-500);
+
+      --color-primary: var(--color-gray-900);
+      --color-primary-foreground: var(--color-gray-50);
+
+      --color-success: var(--color-green-500);
+      --color-warning: var(--color-amber-600);
+      --color-destructive: var(--color-red-600);
+
+      --color-border: var(--color-gray-200);
+
+      --color-tab-active: var(--color-gray-700);
+      --color-tab-inactive: var(--color-gray-300);
+    }
+
     @variant dark {
       --color-background: var(--color-black);
       --color-foreground: var(--color-gray-50);

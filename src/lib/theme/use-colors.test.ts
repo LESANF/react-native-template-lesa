@@ -23,9 +23,11 @@ describe('useColors', () => {
     expect(primitives + semantic).not.toMatch(/@theme\s*\{/);
   });
 
-  it('dark 는 light 와 같은 의미 토큰 집합이다 — 한쪽에만 추가하면 다른 테마에서 값이 빈다', () => {
-    const light = block(semantic, /@theme static \{/).sort();
+  it('등록·light·dark 가 같은 의미 토큰 집합이다 — 어긋나면 Uniwind 가 부팅 때 "missing variable" 을 낸다', () => {
+    const registered = block(semantic, /@theme static \{/).sort();
+    const light = block(semantic, /@variant light \{/).sort();
     const dark = block(semantic, /@variant dark \{/).sort();
-    expect(dark).toEqual(light);
+    expect(light).toEqual(registered);
+    expect(dark).toEqual(registered);
   });
 });
