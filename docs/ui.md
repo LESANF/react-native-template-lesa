@@ -64,9 +64,9 @@ Obytes-style duplicate colors.js + @theme (two hand-synced sources).
   `className="bg-bg-primary text-text-primary"`.
 - Text component: tailwind-variants `tv()` maps variant→utility class,
   color→semantic token. className still works (2-way).
-- JS color value (Reanimated color interpolation, Skia, charts — the rare
-  exception): `useCSSVariable('--color-...')`. Docs say avoid this hook
-  for normal styling — className first, always.
+- JS color value (SVG, Lottie, Reanimated interpolation — the rare
+  exception): `useCSSVariable([...])`, never a hex literal (ESLint error).
+  Token file layout and the light-only variant: `docs/colors-in-js.md`.
 
 ### Verified
 
@@ -227,6 +227,7 @@ times"_ 라고 경고한다. 그래서 배럴에서 `SafeAreaView` export 를 �
 - 토큰을 JS 객체로 → CSS `@theme` 이 단일 출처. Tailwind v4 의 `@config` 는 semantic 계층에
   동작하지 않는다(위 "Single source of truth").
 - `colors.ts → css` 생성 스크립트 → 커스텀 안티패턴, 사용자 거부.
+- JS 에 hex 직접 기입 · 폴백 hex → `docs/colors-in-js.md` "거부된 대안".
 - 우리 버전의 프리미티브 재작성 → `components/ui` 배럴이 RN 시각 프리미티브를 re-export 한다.
 - jp `pressable`(pull-to-refresh 결합) · jp `image` CDN 리사이즈 → 자사 종속.
 

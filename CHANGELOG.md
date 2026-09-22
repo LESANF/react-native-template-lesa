@@ -9,6 +9,14 @@
 
 ## [Unreleased]
 
+### Changed
+
+- **색 토큰을 원시색 층으로 분리** — `colors.css` 는 `@theme static` 의 원시색(`--color-gray-200` …)과
+  의미 토큰 등록, `semantic.css` 의 light/dark 값은 원시색 참조만. 새 앱은 원시색만 바꾼다.
+  탭 라벨 색이 `--color-tab-active`·`--color-tab-inactive` 토큰이 됐다(값은 그대로)
+- **JS 에서 hex 리터럴과 `Uniwind.getCSSVariable` 을 ESLint error 로 막는다.** JS 색은
+  `useCSSVariable` 배열 읽기. 남은 예시 화면은 `LEGACY_HEX_FILES` (docs/colors-in-js.md)
+
 ## [0.0.9] — 2026-09-17
 
 ### Added

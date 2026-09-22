@@ -1,33 +1,37 @@
-/* 테마별 값 — light / dark. 토큰 등록·기본값은 colors.css.
- * 화면 코드엔 dark: 안 쓴다 (여기서 토큰 값만 교체). */
+/* 테마별 값 — light / dark. 원시색·토큰 등록은 colors.css.
+ * 화면 코드엔 dark: 안 쓴다 (여기서 토큰 값만 교체). 값은 원시색 참조로만 적는다. */
 @layer theme {
   :root {
     @variant light {
-      --color-background: #ffffff;
-      --color-foreground: #09090b;
-      --color-card: #ffffff;
-      --color-muted: #f4f4f5;
-      --color-muted-foreground: #71717a;
-      --color-primary: #18181b;
-      --color-primary-foreground: #fafafa;
-      --color-success: #16a34a;
-      --color-warning: #d97706;
-      --color-destructive: #dc2626;
-      --color-border: #e4e4e7;
+      --color-background: var(--color-white);
+      --color-foreground: var(--color-black);
+      --color-card: var(--color-white);
+      --color-muted: var(--color-gray-100);
+      --color-muted-foreground: var(--color-gray-500);
+      --color-primary: var(--color-gray-900);
+      --color-primary-foreground: var(--color-gray-50);
+      --color-success: var(--color-green-500);
+      --color-warning: var(--color-amber-600);
+      --color-destructive: var(--color-red-600);
+      --color-border: var(--color-gray-200);
+      --color-tab-active: var(--color-gray-700);
+      --color-tab-inactive: var(--color-gray-300);
     }
 
     @variant dark {
-      --color-background: #09090b;
-      --color-foreground: #fafafa;
-      --color-card: #18181b;
-      --color-muted: #27272a;
-      --color-muted-foreground: #a1a1aa;
-      --color-primary: #fafafa;
-      --color-primary-foreground: #18181b;
-      --color-success: #4ade80;
-      --color-warning: #fbbf24;
-      --color-destructive: #f87171;
-      --color-border: #27272a;
+      --color-background: var(--color-black);
+      --color-foreground: var(--color-gray-50);
+      --color-card: var(--color-gray-900);
+      --color-muted: var(--color-gray-800);
+      --color-muted-foreground: var(--color-gray-400);
+      --color-primary: var(--color-gray-50);
+      --color-primary-foreground: var(--color-gray-900);
+      --color-success: var(--color-green-400);
+      --color-warning: var(--color-amber-400);
+      --color-destructive: var(--color-red-400);
+      --color-border: var(--color-gray-800);
+      --color-tab-active: var(--color-gray-50);
+      --color-tab-inactive: var(--color-gray-500);
     }
   }
 }
