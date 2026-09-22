@@ -375,9 +375,8 @@ feature/xxx ──PR──▶ 0.0.2 ──PR──▶ master ──tag──▶ 
 머지는 항상 **merge commit**(`gh pr merge --merge`)이다. squash 는 커밋 단위 이력과
 `Co-Authored-By` 트레일러를 하나로 뭉갠다.
 
-이 흐름을 프로필 achievements 집계 때문에 바꾸지 않는다. 피쳐 PR 은 버전 브랜치로 머지돼도
-센다 — Pair Extraordinaire x2 가 `create-lesa-app#10`(`ci/check` → `0.0.3`)으로 열렸다.
-반영은 며칠 늦는다. 2026-09-21 에 "기본 브랜치 PR 만 센다" 고 오판해 흐름을 바꿨다가 되돌렸다.
+버전 브랜치로 가는 피쳐 PR 도 프로필 achievements 에 센다(`create-lesa-app#10` 으로 x2, 반영은 며칠 늦다).
+집계를 이유로 이 흐름을 바꾸지 않는다.
 
 브랜치 이름에는 `v` 를 붙이지 않는다. 태그가 `v0.0.2` 라서 브랜치도 같은 이름이면
 `git checkout 0.0.2` 가 "refname is ambiguous" 로 갈린다.

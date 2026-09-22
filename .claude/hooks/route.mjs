@@ -112,6 +112,10 @@ const ROUTES = [
       ? 'SDK 업그레이드 → `upgrading-expo` 스킬 + **expo MCP** 로 해당 버전 문서 확인.'
       : 'SDK 업그레이드 → `npx expo install --check` 로 시작하고 해당 버전 문서를 **expo MCP** 로 확인한다.',
   },
+  {
+    re: /색상?|컬러|colou?r|hex|(디자인|색상?|컬러)\s*토큰|design\s*token|테마|theme|다크\s*모드|css\.create|useCSSVariable|getCSSVariable/i,
+    say: '색·테마 → 색 값은 `src/styles/tokens` CSS 에만 둔다. 정적인 곳은 className, JS 색은 `useColors()`. 다크는 `semantic.css` 의 dark 블록이 담당하고 화면 코드에 `dark:` 를 쓰지 않는다. hex 직접 기입·생성 스크립트·읽기 한 번 상수는 거부된 대안이다(ESLint error) — `docs/colors-in-js.md`.',
+  },
 ];
 
 const EXPO_RE = /\bexpo\b|expo-router|expo-\w+|EAS\b/i;

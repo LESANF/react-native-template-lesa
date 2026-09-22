@@ -1,28 +1,17 @@
 import { TabList, Tabs, TabSlot, TabTrigger } from 'expo-router/ui';
 import { StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useCSSVariable } from 'uniwind';
 
 import { tabs } from '@/constants/tabs';
+import { useColors } from '@/lib/theme/use-colors';
 
 import { TabButton } from './tab-button';
 
 const TAB_BAR_HEIGHT = 72;
-const TAB_BAR_BORDER_FALLBACK = '#e4e4e7';
-const TAB_BAR_BACKGROUND_FALLBACK = '#ffffff';
-
-function resolveColorToken(value: number | string | undefined, fallback: string): string {
-  return typeof value === 'string' ? value : fallback;
-}
 
 export function CustomTabsLayout() {
   const insets = useSafeAreaInsets();
-  const [backgroundColorToken, borderColorToken] = useCSSVariable([
-    '--color-card',
-    '--color-border',
-  ]);
-  const backgroundColor = resolveColorToken(backgroundColorToken, TAB_BAR_BACKGROUND_FALLBACK);
-  const borderTopColor = resolveColorToken(borderColorToken, TAB_BAR_BORDER_FALLBACK);
+  const colors = useColors();
 
   return (
     <Tabs style={styles.tabs}>
@@ -32,8 +21,8 @@ export function CustomTabsLayout() {
         style={[
           styles.tabBar,
           {
-            backgroundColor,
-            borderTopColor,
+            backgroundColor: colors.card,
+            borderTopColor: colors.border,
             height: TAB_BAR_HEIGHT + insets.bottom,
           },
         ]}>

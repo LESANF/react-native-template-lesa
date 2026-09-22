@@ -3,9 +3,9 @@ import { Pressable, StyleSheet, type PressableProps, type View } from 'react-nat
 import type { TabTriggerSlotProps } from 'expo-router/ui';
 
 import { type TabIconProps } from '@/components/icons/tabs';
-import { TAB_BAR_COLORS } from '@/constants/tab-bar';
+import { useColors } from '@/lib/theme/use-colors';
 
-import { Text } from '../ui/text';
+import { Text } from '@/components/ui';
 
 const TAB_ICON_SIZE = 32;
 
@@ -21,7 +21,8 @@ export const TabButton = forwardRef<View, TabButtonProps>(function TabButton(
   { href: _href, icon: Icon, isFocused = false, label, style: _style, ...props },
   ref
 ) {
-  const color = isFocused ? TAB_BAR_COLORS.selected : TAB_BAR_COLORS.default;
+  const colors = useColors();
+  const color = isFocused ? colors.tabActive : colors.tabInactive;
   const pressableProps: PressableProps = props;
 
   return (

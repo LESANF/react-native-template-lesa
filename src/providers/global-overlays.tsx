@@ -1,6 +1,6 @@
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 
-import { GlobalPopup, GlobalToast, NetLogFab } from '@/components/ui';
+import { GlobalPopup, GlobalToast, NetLogFab, View } from '@/components/ui';
 
 export function GlobalOverlays() {
   return (

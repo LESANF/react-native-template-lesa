@@ -1,22 +1,23 @@
-/* OFFICIAL 공통 컬러 토큰 (경량) — 유틸리티 등록 + light 기본값.
- * 다크 오버라이드는 semantic.css. 회사 브랜드색 주입은 #18에서. */
-@theme {
-  /* ── Base ── */
-  --color-background: #ffffff;
-  --color-foreground: #09090b;
-  --color-card: #ffffff;
-  --color-muted: #f4f4f5;
-  --color-muted-foreground: #71717a;
+/* 원시색. 새 앱은 이 값만 브랜드 팔레트로 바꾼다 — 의미 토큰(semantic.css)이 참조한다.
+ * static: className 에서 안 쓰는 변수도 번들에 남긴다(useColors 가 읽는 색). */
+@theme static {
+  --color-white: #ffffff;
+  --color-black: #09090b;
 
-  /* ── Action ── */
-  --color-primary: #18181b;
-  --color-primary-foreground: #fafafa;
+  --color-gray-50: #fafafa;
+  --color-gray-100: #f4f4f5;
+  --color-gray-200: #e4e4e7;
+  --color-gray-300: #b1b1b1;
+  --color-gray-400: #a1a1aa;
+  --color-gray-500: #71717a;
+  --color-gray-700: #333333;
+  --color-gray-800: #27272a;
+  --color-gray-900: #18181b;
 
-  /* ── Feedback (색만) ── */
-  --color-success: #16a34a;
-  --color-warning: #d97706;
-  --color-destructive: #dc2626;
-
-  /* ── Form ── */
-  --color-border: #e4e4e7;
+  --color-green-500: #16a34a;
+  --color-green-400: #4ade80;
+  --color-amber-600: #d97706;
+  --color-amber-400: #fbbf24;
+  --color-red-600: #dc2626;
+  --color-red-400: #f87171;
 }
