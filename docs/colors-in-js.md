@@ -115,7 +115,7 @@ const LEGACY_HEX_FILES = [/* 예시 화면 — eslint.config.js 참조 */];
 },
 ```
 
-ESLint 규칙이 살아 있는지 확인하는 테스트는 이 템플릿에 **없다**(#46 — eslint 프로세스를 띄우는 테스트를 템플릿이 들고 있지 않기로 했다). 필요한 앱은 `eslint --stdin --stdin-filename <가상 경로>`로 만든다. 픽스처를 `src/`에 파일로 쓰면 expo-router 타입 재생성과 Metro 리로드가 반복된다.
+ESLint 규칙이 살아 있는지 확인하는 테스트(`eslint.config.test.ts`)는 픽스처를 파일로 쓰지 않고 `eslint --stdin --stdin-filename <가상 경로>`로 돌린다. 파일을 `src/`에 만들면 expo-router 타입 재생성과 Metro 리로드가 반복된다(#46).
 
 ## 거부된 대안
 

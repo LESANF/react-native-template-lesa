@@ -1,6 +1,3 @@
-import Svg from 'react-native-svg';
-import { withUniwind } from 'uniwind';
-
 // UI Kit 의 유일한 배럴.
 export {
   ActivityIndicator,
@@ -38,6 +35,3 @@ export { Text } from './text';
 export { GlobalToast, toast } from './toast';
 export { UnderlineText } from './underline-text';
 export type { UnderlineTextProps } from './underline-text';
-
-// className 이 필요한 외부 primitive 만 감싼다. 무거운 건 올리지 않는다.
-export const StyledSvg = withUniwind(Svg);
