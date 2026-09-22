@@ -9,7 +9,7 @@
 
 | 무엇이 있나                                                                    | 그 버전         |
 | ------------------------------------------------------------------------------ | --------------- |
-| `src/lib/theme/use-colors.ts` 가 있다                                          | v0.1.0          |
+| `src/lib/theme/use-colors.ts` 가 있다                                          | v0.0.10         |
 | `targets/notification-service/` 가 있고 `package.json` 에 `engines.pnpm`       | v0.0.9          |
 | `enableSceneSupport` 와 `expo-build-properties` `~57.0.20`, `targets/` 없음    | v0.0.7 · v0.0.8 |
 | `patches/expo@57.0.22.patch` 와 `plugins/with-ios-scene.ts`                    | v0.0.4 · v0.0.5 |
