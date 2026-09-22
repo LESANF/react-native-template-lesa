@@ -65,8 +65,9 @@ Obytes-style duplicate colors.js + @theme (two hand-synced sources).
 - Text component: tailwind-variants `tv()` maps variant→utility class,
   color→semantic token. className still works (2-way).
 - JS color value (SVG, Lottie, Reanimated interpolation — the rare
-  exception): `useCSSVariable([...])`, never a hex literal (ESLint error).
-  Token file layout and the light-only variant: `docs/colors-in-js.md`.
+  exception): `useColors()` from `lib/theme/use-colors`, never a hex
+  literal or a direct `useCSSVariable` (both ESLint errors). Token layout,
+  dark handling and rejected alternatives: `docs/colors-in-js.md`.
 
 ### Verified
 
@@ -216,6 +217,27 @@ causes jumpy behavior."_ 네이티브 `SafeAreaView` 는 영역을 네이티브 
 **둘을 섞지 않는다.** 같은 문서가 _"Using both SafeAreaView component and
 useSafeAreaInsets hook together can cause flickering as they may update at different
 times"_ 라고 경고한다. 그래서 배럴에서 `SafeAreaView` export 를 뺐다.
+
+## UI 원칙 — 참조 앱(carhartt, 2026-09)에서 확인한 것
+
+- **Figma 값은 한 노드가 아니라 인스턴스 분포로 검증한다.** 컴포넌트가 아닌 잔재와 잘못 그린
+  variant 가 섞여 있다. 버튼 높이 하나를 정할 때도 앱 화면의 인스턴스 수백 개를 세서 정했다.
+- **텍스트와 입력의 높이는 감싸는 뷰가 갖는다.** `TextInput` 에 행간을 주면 안드로이드가 글자를 줄
+  상자 아래로 밀어 옆 슬롯과 어긋난다. 입력에는 글꼴·크기만, 높이·테두리는 wrapper — `Input` 이 그 예다.
+- **플랫폼별 픽셀 보정 전에 구조로 푼다.** 취소선을 `top: 50%` 에 두께 절반만큼 올려 중앙에 두면
+  iOS·안드로이드 분기가 필요 없다(`StrikethroughText`).
+- **글자 장식(`textDecorationLine`)은 쓰지 않는다.** 두께·색을 못 정하고 플랫폼마다 위치가 다르다.
+  `UnderlineText`·`StrikethroughText` 가 뷰로 그린다. `Button` 의 `link` 는 아직 `underline` 클래스다 —
+  쓰임이 생기면 `UnderlineText` 로 바꾼다.
+- **행간은 폰트 메트릭 이상.** 안드로이드는 텍스트 상자 밖 글자를 잘라낸다. 내장 폰트를 넣으면
+  ascent+descent 비율(Inter 1.21em, Pretendard 1.19em)을 재고 행간을 그 이상으로 둔다. 이 템플릿은
+  시스템 폰트에 1.25·1.5 배율이라 이미 안전하다.
+- **아이콘은 `components/icons/icon.tsx` 를 바탕으로 만든다.** `onPress` 를 주면 버튼이 되고 `hitSlop`
+  기본 16. 공통 아이콘은 `components/icons/`, 한 도메인 전용은 `components/<도메인>/icons/`.
+- **`dayjs` 는 `@/lib/dayjs` 로 가져온다.** 로케일을 그 모듈이 한 번 건다. `utils/format` 은 로케일
+  중립 표기만 — 통화·전화번호·주소는 앱이 자기 규칙으로 추가한다.
+- **애니메이션 시간·곡선·스프링은 `constants/motion`.** `css.create` 는 `cssEasing`, `withTiming` 은
+  `workletEasing`.
 
 ## 거부된 대안 (다시 제안하지 말 것)
 

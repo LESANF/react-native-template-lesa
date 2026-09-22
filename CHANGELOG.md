@@ -9,7 +9,24 @@
 
 ## [Unreleased]
 
+### Added
+
+- `UnderlineText`·`StrikethroughText` — 선을 뷰로 그린다. `textDecorationLine` 은 두께·색·위치를 못 잡는다
+- `useDismissKeyboardOnBackground`(루트 레이아웃에서 호출) — iOS 가 백그라운드 전환 때 포커스를 남겨 복귀
+  후 키보드가 안 뜨는 문제. `useDebouncedValue`
+- `components/icons/icon.tsx` — 모든 아이콘의 바탕. `onPress` 를 주면 `Pressable` 로 감싼다(`hitSlop` 16).
+  탭 아이콘이 이 위로 옮겨 갔다
+- `lib/dayjs`(로케일을 `DEFAULT_LANGUAGE` 로 한 번 건다) · `utils/format`(로케일 중립 표기만) · `dayjs` 의존성
+- `constants/motion` — 시간·곡선·스프링 공통 상수
+- ESLint: 상위 폴더 상대경로(`../`) import 를 warn 으로 막고 `@/` alias 로 통일
+- `docs/ui.md` "UI 원칙" — Figma 인스턴스 분포 검증, 높이는 감싸는 뷰가, 구조 우선, 행간 안전값
+
 ### Changed
+
+- **`Input` 구조** — 높이·테두리·배경이 입력에서 감싸는 뷰로 옮겨 갔다(`className` 대상이 바뀐다).
+  입력은 `text-size-md` 만, 행간 없음. `hint`·`left`·`right` 추가, `editable` 대신 `disabled`. 모양은 그대로
+- **`Button` 동작** — `textClassName`, 라벨 한 줄, `ghost`·`link` 는 로딩 중 라벨 유지, 로띠 점 색을
+  variant 별 토큰으로. `size` 와 모양은 그대로
 
 - **색 토큰을 원시색 층으로 분리** — `colors.css` 는 `@theme static` 원시색만, `semantic.css` 가 의미 토큰을
   등록하고 light 값을 주며 dark 는 값만 바꾼다. 새 앱은 원시색만 바꾼다. 탭 라벨 색이
