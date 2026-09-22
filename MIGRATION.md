@@ -7,14 +7,15 @@
 `package.json` 이 아니라 **`CHANGELOG.md` 의 맨 위 버전**을 본다(생성 시 지워지므로,
 없으면 아래 표의 특징으로 판별한다).
 
-| 무엇이 있나                                                                    | 그 버전         |
-| ------------------------------------------------------------------------------ | --------------- |
-| `src/lib/theme/use-colors.ts` 가 있다                                          | v0.0.10         |
-| `targets/notification-service/` 가 있고 `package.json` 에 `engines.pnpm`       | v0.0.9          |
-| `enableSceneSupport` 와 `expo-build-properties` `~57.0.20`, `targets/` 없음    | v0.0.7 · v0.0.8 |
-| `patches/expo@57.0.22.patch` 와 `plugins/with-ios-scene.ts`                    | v0.0.4 · v0.0.5 |
-| `app.config.ts` 에 `enableSceneSupport`, `expo-build-properties` 가 `~57.0.19` | v0.0.6          |
-| 위 둘 다 없고 `expo` 가 `~57.0.22`                                             | v0.0.3 이하     |
+| 무엇이 있나                                                                      | 그 버전                           |
+| -------------------------------------------------------------------------------- | --------------------------------- |
+| `semantic.css` 에 `@variant light` 가 있고 `src/lib/theme/use-colors.ts` 가 있다 | v0.0.11                           |
+| `src/lib/theme/use-colors.ts` 가 있고 `semantic.css` 에 `@variant light` 가 없다 | v0.0.10 (부팅 에러 — 바로 올린다) |
+| `targets/notification-service/` 가 있고 `package.json` 에 `engines.pnpm`         | v0.0.9                            |
+| `enableSceneSupport` 와 `expo-build-properties` `~57.0.20`, `targets/` 없음      | v0.0.7 · v0.0.8                   |
+| `patches/expo@57.0.22.patch` 와 `plugins/with-ios-scene.ts`                      | v0.0.4 · v0.0.5                   |
+| `app.config.ts` 에 `enableSceneSupport`, `expo-build-properties` 가 `~57.0.19`   | v0.0.6                            |
+| 위 둘 다 없고 `expo` 가 `~57.0.22`                                               | v0.0.3 이하                       |
 
 ---
 
