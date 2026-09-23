@@ -9,6 +9,11 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Expo SDK 57 패치 버전을 `expo-doctor` 기대치로 올렸다 — `expo`, `expo-router`, `expo-constants`,
+  `expo-build-properties`, `@expo/metro-runtime`. 21/21 통과
+
 ## [0.0.11] — 2026-09-22
 
 ### Fixed
