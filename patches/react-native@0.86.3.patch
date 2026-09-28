@@ -1,0 +1,243 @@
+diff --git a/Libraries/Pressability/PressabilityDebug.js b/Libraries/Pressability/PressabilityDebug.js
+index 90b83e49e51c9d1d4102a37b0b88458983bd52e5..d4c42daef71cc5d7f6fc9d7dd6e6d2f551a43954 100644
+--- a/Libraries/Pressability/PressabilityDebug.js
++++ b/Libraries/Pressability/PressabilityDebug.js
+@@ -36,8 +36,9 @@ type Props = Readonly<{
+  *
+  */
+ export function PressabilityDebugView(props: Props): React.Node {
++  const enabled = useIsEnabled();
+   if (__DEV__) {
+-    if (isEnabled()) {
++    if (enabled) {
+       const normalizedColor = normalizeColor(props.color);
+       if (typeof normalizedColor !== 'number') {
+         return null;
+@@ -70,6 +71,7 @@ export function PressabilityDebugView(props: Props): React.Node {
+ }
+ 
+ let isDebugEnabled = false;
++const listeners: Set<() => void> = new Set();
+ 
+ export function isEnabled(): boolean {
+   if (__DEV__) {
+@@ -80,6 +82,30 @@ export function isEnabled(): boolean {
+ 
+ export function setEnabled(value: boolean): void {
+   if (__DEV__) {
++    if (isDebugEnabled === value) {
++      return;
++    }
+     isDebugEnabled = value;
++    listeners.forEach(listener => listener());
+   }
+ }
++
++function subscribe(listener: () => void): () => void {
++  listeners.add(listener);
++  return () => {
++    listeners.delete(listener);
++  };
++}
++
++function useIsEnabledDev(): boolean {
++  return React.useSyncExternalStore(subscribe, isEnabled);
++}
++
++/**
++ * Like `isEnabled`, but re-renders the calling component when the value
++ * changes, so toggling it does not require remounting the app. Outside of
++ * `__DEV__` it is `isEnabled` and uses no hooks.
++ */
++export const useIsEnabled: () => boolean = __DEV__
++  ? useIsEnabledDev
++  : isEnabled;
+diff --git a/Libraries/ReactNative/AppContainer-dev.js b/Libraries/ReactNative/AppContainer-dev.js
+index db3e0868daa7f66c6f057bd7a7e5a03385af91aa..956cf0d0f28cf8fe97814c5631a2ce95f0b6eca2 100644
+--- a/Libraries/ReactNative/AppContainer-dev.js
++++ b/Libraries/ReactNative/AppContainer-dev.js
+@@ -27,7 +27,7 @@ import {RootTagContext, createRootTag} from './RootTag';
+ import * as React from 'react';
+ import {useRef} from 'react';
+ 
+-const {useEffect, useState, useCallback} = React;
++const {useEffect, useState} = React;
+ 
+ const reactDevToolsHook: ReactDevToolsGlobalHook = (window as $FlowFixMe)
+   .__REACT_DEVTOOLS_GLOBAL_HOOK__;
+@@ -49,7 +49,6 @@ type ExternalInspection = {
+ 
+ type InspectorDeferredProps = {
+   inspectedViewRef: InspectedViewRef,
+-  onInspectedViewRerenderRequest: () => void,
+   reactDevToolsAgent?: ReactDevToolsAgent,
+   devMenuInspectorOpen: boolean,
+   externalInspection: ExternalInspection,
+@@ -57,7 +56,6 @@ type InspectorDeferredProps = {
+ 
+ const InspectorDeferred = ({
+   inspectedViewRef,
+-  onInspectedViewRerenderRequest,
+   reactDevToolsAgent,
+   devMenuInspectorOpen,
+   externalInspection,
+@@ -70,7 +68,6 @@ const InspectorDeferred = ({
+   return (
+     <Inspector
+       inspectedViewRef={inspectedViewRef}
+-      onRequestRerenderApp={onInspectedViewRerenderRequest}
+       reactDevToolsAgent={reactDevToolsAgent}
+       devMenuInspectorOpen={devMenuInspectorOpen}
+       externalInspection={externalInspection}
+@@ -116,7 +113,6 @@ const AppContainer = ({
+     debuggingOverlayRef,
+   );
+ 
+-  const [key, setKey] = useState(0);
+   const [shouldRenderInspector, setShouldRenderInspector] = useState(false);
+   const [reactDevToolsAgent, setReactDevToolsAgent] =
+     useState<ReactDevToolsAgent | void>(reactDevToolsHook?.reactDevtoolsAgent);
+@@ -155,7 +151,6 @@ const AppContainer = ({
+     <View
+       collapsable={reactDevToolsAgent == null && !shouldRenderInspector}
+       pointerEvents="box-none"
+-      key={key}
+       style={rootViewStyle || styles.container}
+       ref={innerViewRef}>
+       {children}
+@@ -170,11 +165,6 @@ const AppContainer = ({
+     );
+   }
+ 
+-  const onInspectedViewRerenderRequest = useCallback(
+-    () => setKey(k => k + 1),
+-    [],
+-  );
+-
+   return (
+     <RootTagContext.Provider value={createRootTag(rootTag)}>
+       <View
+@@ -196,7 +186,6 @@ const AppContainer = ({
+           externalInspection.externalInspectingEnabled) && (
+           <InspectorDeferred
+             inspectedViewRef={innerViewRef}
+-            onInspectedViewRerenderRequest={onInspectedViewRerenderRequest}
+             reactDevToolsAgent={reactDevToolsAgent}
+             devMenuInspectorOpen={shouldRenderInspector}
+             externalInspection={externalInspection}
+diff --git a/Libraries/Text/Text.js b/Libraries/Text/Text.js
+index 8e7b29cb609698cbd6a1852a4276fda920f860ba..f780a89679a67ee1d8f2eff7bb1f7cd6a22aa38b 100644
+--- a/Libraries/Text/Text.js
++++ b/Libraries/Text/Text.js
+@@ -168,11 +168,6 @@ const TextImpl: component(
+     selectionColor != null ? processColor(selectionColor) : undefined;
+ 
+   let _style = style;
+-  if (__DEV__) {
+-    if (PressabilityDebug.isEnabled() && onPress != null) {
+-      _style = [style, {color: 'magenta'}];
+-    }
+-  }
+ 
+   let _numberOfLines = numberOfLines;
+   if (_numberOfLines != null && !(_numberOfLines >= 0)) {
+@@ -487,10 +482,15 @@ component PressableVirtualText(
+   const [isHighlighted, eventHandlersForText] = useTextPressability(
+     textPressabilityProps,
+   );
++  const style = usePressabilityDebugStyle(
++    textProps.style,
++    textPressabilityProps.onPress,
++  );
+ 
+   return (
+     <NativeVirtualText
+       {...textProps}
++      style={style}
+       {...eventHandlersForText}
+       isHighlighted={isHighlighted}
+       isPressable={true}
+@@ -515,12 +515,18 @@ component PressableText(
+     textPressabilityProps,
+   );
+ 
++  const style = usePressabilityDebugStyle(
++    textProps.style,
++    textPressabilityProps.onPress,
++  );
++
+   const NativeComponent =
+     selectable === true ? NativeSelectableText : NativeText;
+ 
+   return (
+     <NativeComponent
+       {...textProps}
++      style={style}
+       {...eventHandlersForText}
+       isHighlighted={isHighlighted}
+       isPressable={true}
+@@ -529,6 +535,19 @@ component PressableText(
+   );
+ }
+ 
++/**
++ * Colors pressable text when press targets are shown by the Inspector.
++ */
++function usePressabilityDebugStyle(
++  style: NativeTextProps['style'],
++  onPress: TextPressabilityProps['onPress'],
++): NativeTextProps['style'] {
++  const isDebugEnabled = PressabilityDebug.useIsEnabled();
++  return isDebugEnabled && onPress != null
++    ? [style, {color: 'magenta'}]
++    : style;
++}
++
+ const userSelectToSelectableMap = {
+   auto: true,
+   text: true,
+diff --git a/src/private/devsupport/devmenu/elementinspector/Inspector.js b/src/private/devsupport/devmenu/elementinspector/Inspector.js
+index e56629c3257445bf9ba06a4f376fcf11513460e0..ade1df78c0db01628a3e993dda5a6b63a356ed40 100644
+--- a/src/private/devsupport/devmenu/elementinspector/Inspector.js
++++ b/src/private/devsupport/devmenu/elementinspector/Inspector.js
+@@ -54,7 +54,6 @@ type ExternalInspection = {
+ 
+ type Props = {
+   inspectedViewRef: InspectedViewRef,
+-  onRequestRerenderApp: () => void,
+   reactDevToolsAgent?: ReactDevToolsAgent,
+   devMenuInspectorOpen: boolean,
+   externalInspection: ExternalInspection,
+@@ -62,7 +61,6 @@ type Props = {
+ 
+ function Inspector({
+   inspectedViewRef,
+-  onRequestRerenderApp,
+   reactDevToolsAgent,
+   devMenuInspectorOpen,
+   externalInspection,
+@@ -77,6 +75,7 @@ function Inspector({
+   const [selectionIndex, setSelectionIndex] = useState<?number>(null);
+   const [elementsHierarchy, setElementsHierarchy] =
+     useState<?ElementsHierarchy>(null);
++  const touchTargeting = PressabilityDebug.useIsEnabled();
+ 
+   // Derive inspecting state: external inspection forces it on, otherwise use local state
+   const isInspecting = externalInspectingEnabled || inspectingEnabled;
+@@ -158,7 +157,6 @@ function Inspector({
+ 
+   const setTouchTargeting = (val: boolean) => {
+     PressabilityDebug.setEnabled(val);
+-    onRequestRerenderApp();
+   };
+ 
+   const panelContainerStyle =
+@@ -186,7 +184,7 @@ function Inspector({
+             hierarchy={elementsHierarchy}
+             selection={selectionIndex}
+             setSelection={setSelection}
+-            touchTargeting={PressabilityDebug.isEnabled()}
++            touchTargeting={touchTargeting}
+             setTouchTargeting={setTouchTargeting}
+           />
+         </SafeAreaView>
