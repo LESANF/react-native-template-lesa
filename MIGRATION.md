@@ -9,6 +9,7 @@
 
 | 무엇이 있나                                                                      | 그 버전                           |
 | -------------------------------------------------------------------------------- | --------------------------------- |
+| `patches/react-native@0.86.3.patch` 가 있다                                      | v0.0.12                           |
 | `semantic.css` 에 `@variant light` 가 있고 `src/lib/theme/use-colors.ts` 가 있다 | v0.0.11                           |
 | `src/lib/theme/use-colors.ts` 가 있고 `semantic.css` 에 `@variant light` 가 없다 | v0.0.10 (부팅 에러 — 바로 올린다) |
 | `targets/notification-service/` 가 있고 `package.json` 에 `engines.pnpm`         | v0.0.9                            |
@@ -18,6 +19,31 @@
 | 위 둘 다 없고 `expo` 가 `~57.0.22`                                               | v0.0.3 이하                       |
 
 ---
+
+## v0.0.10 · v0.0.11 에서 올리기 — Expo 패치 버전과 RN 인스펙터 패치
+
+둘 다 작다. Expo 패치 버전은 `expo-doctor` 가 알려주는 대로 올린다:
+
+```bash
+npx expo install --fix      # expo · expo-router · expo-constants · expo-build-properties · @expo/metro-runtime
+npx expo-doctor             # 21/21
+```
+
+`pnpm-workspace.yaml` 에 `minimumReleaseAgeExclude` 가 있으면 새 버전을 거기 넣는다.
+
+RN 패치(dev 전용 — Element Inspector 의 Touchables 토글이 앱을 리마운트하던 것)는 태그에서 파일을 그대로 받는다:
+
+```bash
+T=https://raw.githubusercontent.com/LESANF/react-native-template-lesa/v0.0.12
+curl -fsSL "$T/patches/react-native@0.86.3.patch" -o "patches/react-native@0.86.3.patch"
+curl -fsSL "$T/patches/README.md" -o patches/README.md
+# pnpm-workspace.yaml 의 patchedDependencies 에:
+#   react-native@0.86.3: patches/react-native@0.86.3.patch
+pnpm install
+grep -c useIsEnabled node_modules/react-native/Libraries/Pressability/PressabilityDebug.js   # 1 이상이면 적용
+```
+
+안 쓰면 안 넣어도 된다 — 인스펙터를 안 쓰는 프로젝트엔 차이가 없다.
 
 ## v0.0.9 에서 올리기 — Input · 탭 색 · 색 규칙
 
