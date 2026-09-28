@@ -9,6 +9,12 @@
 
 ## [Unreleased]
 
+### Added
+
+- **`patches/react-native@0.86.3.patch`** — Element Inspector 의 Touchables 토글이 앱을 리마운트해
+  내비게이션·상태가 날아가던 것을 없앤다(dev 전용). 업스트림 PR facebook/react-native#58705 와 같은 코드,
+  0.88+ 로 올릴 때 제거. 이력·조건은 `patches/README.md`
+
 ### Changed
 
 - Expo SDK 57 패치 버전을 `expo-doctor` 기대치로 올렸다 — `expo`, `expo-router`, `expo-constants`,
