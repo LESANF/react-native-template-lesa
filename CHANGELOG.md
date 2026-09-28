@@ -9,6 +9,8 @@
 
 ## [Unreleased]
 
+## [0.0.12] — 2026-09-28
+
 ### Added
 
 - **`patches/react-native@0.86.3.patch`** — Element Inspector 의 Touchables 토글이 앱을 리마운트해
