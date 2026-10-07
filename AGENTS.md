@@ -216,6 +216,7 @@ OS Linking · 푸시 탭 · 인앱 · 어트리뷰션 SDK — 진입이 어디�
   Conventional Commits, 공개 레포라 영어로 쓴다.
 - **`master` 에 직접 푸시하지 않는다.** `feature/xxx` → PR → 버전 브랜치(`0.0.2`) →
   PR → `master`. **master 로 머지되는 것이 실 배포**이고, 태그는 그 뒤에 master 에서 단다.
+- **커밋 작성자 메일은 `nagong1000@naver.com`(GitHub 계정에 연결된 메일)이어야 한다.** 다른 메일(회사 메일 등)로 만든 커밋은 GitHub 이 계정에 귀속시키지 않아 achievements 에 집계되지 않는다. 세션 시작 시 `git config user.email` 을 확인하고, 아니면 `git config user.email nagong1000@naver.com` 뒤에 커밋한다.
   버전 브랜치는 릴리즈 후에도 **남긴다**(그 버전 패치용). `feature/*` 는 머지되면 지운다.
   머지는 항상 **merge commit**(`gh pr merge --merge`) — squash 는 커밋 단위 이력과
   `Co-Authored-By` 트레일러를 하나로 뭉갠다. 브랜치 이름에는 태그(`v0.0.2`)와 겹치지
