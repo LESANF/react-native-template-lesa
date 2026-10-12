@@ -18,4 +18,5 @@ minimumReleaseAgeExclude:
   - expo-build-properties@57.0.20
 patchedDependencies:
   '@bacons/apple-targets@4.0.6': patches/@bacons__apple-targets@4.0.6.patch
+  expo-dev-menu@57.0.18: patches/expo-dev-menu@57.0.18.patch
   react-native@0.86.3: patches/react-native@0.86.3.patch

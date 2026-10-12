@@ -9,6 +9,12 @@
 
 ## [Unreleased]
 
+### Added
+
+- **`patches/expo-dev-menu@57.0.18.patch`** — Dev Menu 헤더의 앱 아이콘이 홈 화면과 같은 모양으로 나온다.
+  iOS 는 과한 cornerRadius(16/38pt) 가 배지 가장자리를 잘랐고, Android 는 adaptive 레이어를 마스크·크롭
+  없이 겹쳐 배지 위치가 어긋났다(dev 전용). 이력·조건은 `patches/README.md`
+
 ## [0.0.12] — 2026-09-28
 
 ### Added
