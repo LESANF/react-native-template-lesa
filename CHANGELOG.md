@@ -15,7 +15,7 @@
   reanimated 4.7, worklets 0.13, safe-area-context 5.10(iPhone Duo 좌우 inset), screens 4.30. `expo-doctor` 20/20
   (edge-to-edge 의 Directory "unmaintained" 경고는 `expo.doctor` 예외로 둠), `expo install --check` 통과.
   `expo.install.exclude` 의 `jest`·`@types/jest` 는 SDK 58 이 jest 30 을 받으므로 제거. `expo-constants` 는
-  `expo` 가 끌고 오는 내포 의존성이라 package.json 에서 뺐다(expo-router peer 는 그걸로 충족, doctor 20/20). 올리는 절차는 `MIGRATION.md`
+  expo-router 의 required peer 라 직접 의존성으로 유지한다(빼면 doctor 의 peer 검사가 실패). 올리는 절차는 `MIGRATION.md`
 - **푸시 — RNFB 26.3.3 → 27.1.0.** SDK 58 의 scene 기반 AppDelegate 에 `FirebaseApp.configure()` 를 넣는
   플러그인이 27 부터다(26 은 조용히 건너뛴다). Firebase 13 이 SPM 전용이라 `useFrameworks` 를 `static` → `dynamic`
   으로, RNFB 플러그인의 `disableSPM` 과 `$RNFirebaseDisableSPM` 주입(`plugins/with-ios-plugin.ts`)을 지웠다
