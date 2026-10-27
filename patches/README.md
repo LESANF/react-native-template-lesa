@@ -11,8 +11,8 @@ pnpm 패치. `pnpm-workspace.yaml` 의 `patchedDependencies` 에 등록돼 있�
 | ---------- | ----------------------------- | -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
 | 2026-09-15 | `expo@57.0.22`                | Xcode 27 SDK 가 UIScene 을 요구 — AppDelegate 에 scene 진입점 주입                                       | **2026-09-16 제거.** 공식 `expo-build-properties` `ios.enableSceneSupport` 로 대체(v0.0.6) |
 | 2026-09-17 | `@bacons/apple-targets@4.0.6` | 타깃이 이미 있는 prebuild(`--no-clean`)에서 크래시 — 아래 절                                             | **유지 중.** 업스트림 #206 미리뷰, 5.0.0 도 같음                                           |
-| 2026-09-28 | `react-native@0.86.3`         | 인스펙터 Touchables 토글이 앱 트리를 리마운트해 내비게이션·상태가 날아감 — 아래 절                       | **유지 중.** 업스트림 PR #58705 리뷰 대기                                                  |
-| 2026-10-12 | `expo-dev-menu@57.0.18`       | Dev Menu 헤더의 앱 아이콘이 홈 화면과 다르게 그려짐(iOS 과한 모서리, Android 마스크·크롭 없음) — 아래 절 | **유지 중.** 업스트림 미보고                                                               |
+| 2026-09-28 | `react-native@0.86.3`         | 인스펙터 Touchables 토글이 앱 트리를 리마운트해 내비게이션·상태가 날아감 — 아래 절                       | **유지 중.** 업스트림 PR #58705 리뷰 대기. 2026-10-27 `0.88.0` 으로 재타깃(그대로 적용)    |
+| 2026-10-12 | `expo-dev-menu@57.0.18`       | Dev Menu 헤더의 앱 아이콘이 홈 화면과 다르게 그려짐(iOS 과한 모서리, Android 마스크·크롭 없음) — 아래 절 | **유지 중.** 업스트림 미보고. 2026-10-27 `58.0.11` 로 재타깃(그대로 적용)                  |
 
 ## `@bacons/apple-targets@4.0.6`
 
@@ -38,7 +38,7 @@ grep -c previousConfigurationList node_modules/@bacons/apple-targets/build/with-
 **검증** — 푸시가 켜진 상태에서 `npx expo prebuild -p ios --no-install` 을 두 번(두 번째는 `--no-clean`)
 돌려 둘 다 `Finished prebuild` 면 살아 있다.
 
-## `react-native@0.86.3`
+## `react-native@0.88.0` (0.86.3 에서 재타깃)
 
 **무엇** — 인앱 Element Inspector 의 **Touchables** 버튼이 `PressabilityDebug` 플래그를 바꾼 뒤
 `AppContainer` 루트 뷰의 `key` 를 올려 앱 전체를 리마운트한다. JS 번들은 유지되지만 컴포넌트 상태와
@@ -53,8 +53,8 @@ grep -c previousConfigurationList node_modules/@bacons/apple-targets/build/with-
 (누를 수 없으므로).
 
 **업스트림** — PR [#58705](https://github.com/react/react-native/pull/58705)
-(react/react-native, 2026-09-28 올림). 반영돼도 `main` → 0.88+ 이고 0.86/0.87 로는 백포트되지
-않으므로, 그 버전으로 올릴 때까지 패치가 필요하다. 리뷰에서 코드가 바뀌면 이 패치도 맞춰 갱신한다.
+(react/react-native, 2026-09-28 올림). 0.88.0 에도 들어 있지 않다(2026-10-27 확인) — 머지된 뒤의
+버전으로 올릴 때까지 패치가 필요하다. 리뷰에서 코드가 바뀌면 이 패치도 맞춰 갱신한다.
 칼하트 앱에도 같은 패치가 있다.
 
 **지우는 조건** — RN 버전을 올린 뒤 패치 미적용 원본에서 아래가 1 이상이면 수정이 들어온 것이다.
@@ -67,7 +67,7 @@ grep -c useIsEnabled node_modules/react-native/Libraries/Pressability/Pressabili
 **검증** — 시뮬레이터에서 첫 화면이 아닌 화면으로 이동 → Dev Menu → Toggle Element Inspector →
 Touchables. 화면이 그대로 남고 터치 영역에 점선 박스가 나오면 살아 있다(패치 전에는 첫 화면으로 튕긴다).
 
-## `expo-dev-menu@57.0.18`
+## `expo-dev-menu@58.0.11` (57.0.18 에서 재타깃)
 
 **무엇** — Dev Menu(흔들면 뜨는 메뉴) 헤더의 앱 아이콘이 홈 화면 아이콘과 다르게 그려진다.
 
