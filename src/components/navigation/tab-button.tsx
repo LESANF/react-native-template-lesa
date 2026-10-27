@@ -1,5 +1,5 @@
 import { forwardRef, type ComponentType } from 'react';
-import { Pressable, StyleSheet, type PressableProps, type View } from 'react-native';
+import { Pressable, StyleSheet, type PressableProps, type ViewInstance } from 'react-native';
 import type { TabTriggerSlotProps } from 'expo-router/ui';
 
 import { type TabIconProps } from '@/components/icons/tabs';
@@ -17,7 +17,7 @@ export type TabButtonProps = TabTriggerSlotProps & {
   readonly testID?: string;
 };
 
-export const TabButton = forwardRef<View, TabButtonProps>(function TabButton(
+export const TabButton = forwardRef<ViewInstance, TabButtonProps>(function TabButton(
   { href: _href, icon: Icon, isFocused = false, label, style: _style, ...props },
   ref
 ) {

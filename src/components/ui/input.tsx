@@ -1,5 +1,11 @@
 import { useState, type ReactNode, type Ref } from 'react';
-import { StyleSheet, TextInput, View, type TextInputProps } from 'react-native';
+import {
+  StyleSheet,
+  TextInput,
+  View,
+  type TextInputInstance,
+  type TextInputProps,
+} from 'react-native';
 import { tv } from 'tailwind-variants';
 
 import { Text } from './text';
@@ -35,7 +41,7 @@ export type InputProps = Omit<TextInputProps, 'editable'> & {
   /** 비활성 경로는 이것 하나. editable 은 타입에서 뺐다. */
   disabled?: boolean;
   className?: string;
-  ref?: Ref<TextInput>;
+  ref?: Ref<TextInputInstance>;
 };
 
 export function Input({

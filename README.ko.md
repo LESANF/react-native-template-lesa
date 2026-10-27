@@ -22,7 +22,7 @@
 >
 > 문서·README·코드 모두 앞으로 많이 바뀔 수 있습니다.
 
-Expo SDK 57 기준 템플릿입니다. 라우팅·부트 시퀀스·푸시·OTA·딥링크가 이미 배선돼 있고,
+Expo SDK 58 기준 템플릿입니다. 라우팅·부트 시퀀스·푸시·OTA·딥링크가 이미 배선돼 있고,
 **전부 꺼진 채로** 들어 있습니다. 파일을 넣거나 값을 채우면 그때 켜집니다.
 
 ## 시작하기
@@ -44,7 +44,7 @@ CLI 가 앱 이름을 묻고, 이름이 소문자 ASCII 가 아니면 slug 을 �
 
 |                                  |                                                              |
 | -------------------------------- | ------------------------------------------------------------ |
-| Expo SDK 57 · RN 0.86 · React 19 | CNG 우선 — `ios/`·`android/` 는 소스가 아니라 산출물         |
+| Expo SDK 58 · RN 0.88 · React 19 | CNG 우선 — `ios/`·`android/` 는 소스가 아니라 산출물         |
 | expo-router 57                   | 파일 기반 라우팅, NativeTabs(iOS 26 liquid glass)            |
 | Uniwind 1.11                     | 3계층 디자인 토큰(primitive → semantic → utility) + 다크모드 |
 | TanStack Query 5 · Axios         | 명시적 auth, MMKV 토큰 저장                                  |
@@ -194,7 +194,7 @@ MCP 를 같이 등록합니다.
 
 |                                                        |                                                                   |
 | ------------------------------------------------------ | ----------------------------------------------------------------- |
-| [expo](https://docs.expo.dev/mcp/)                     | SDK 57 문서를 직접 읽습니다. 기억으로 답하면 대개 낡은 SDK 입니다 |
+| [expo](https://docs.expo.dev/mcp/)                     | SDK 58 문서를 직접 읽습니다. 기억으로 답하면 대개 낡은 SDK 입니다 |
 | [codegraph](https://github.com/colbymchenry/codegraph) | 심볼·호출 관계 인덱스 — 구조 질문을 grep 없이                     |
 | [context7](https://github.com/upstash/context7)        | 서드파티 라이브러리 문서                                          |
 

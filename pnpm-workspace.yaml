@@ -10,12 +10,7 @@ allowBuilds:
   aws-sdk: false # @hot-updater/aws의 전이 의존. postinstall은 node 버전 경고 출력만 — 불필요
   '@firebase/util': false # RNFB 전이 의존. postinstall은 웹 전용 __FIREBASE_DEFAULTS__ 파일 생성 — RN 미사용
   protobufjs: false # RNFB 전이 의존. postinstall은 CLI 스캐폴딩만 — 런타임 무관
-minimumReleaseAgeExclude:
-  - '@expo/cli@57.0.25'
-  - '@expo/router-server@57.0.10'
-  - babel-preset-expo@57.0.12
-  - expo@57.0.23
-  - expo-build-properties@57.0.20
 patchedDependencies:
   '@bacons/apple-targets@4.0.6': patches/@bacons__apple-targets@4.0.6.patch
-  react-native@0.86.3: patches/react-native@0.86.3.patch
+  expo-dev-menu@58.0.11: patches/expo-dev-menu@58.0.11.patch
+  react-native@0.88.0: patches/react-native@0.88.0.patch

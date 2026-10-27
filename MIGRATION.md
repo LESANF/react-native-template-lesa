@@ -9,6 +9,7 @@
 
 | 무엇이 있나                                                                      | 그 버전                           |
 | -------------------------------------------------------------------------------- | --------------------------------- |
+| `expo` 가 `~58` 이고 `patches/react-native@0.88.0.patch` 가 있다                 | v0.1.0                            |
 | `patches/react-native@0.86.3.patch` 가 있다                                      | v0.0.12                           |
 | `semantic.css` 에 `@variant light` 가 있고 `src/lib/theme/use-colors.ts` 가 있다 | v0.0.11                           |
 | `src/lib/theme/use-colors.ts` 가 있고 `semantic.css` 에 `@variant light` 가 없다 | v0.0.10 (부팅 에러 — 바로 올린다) |
@@ -19,6 +20,42 @@
 | 위 둘 다 없고 `expo` 가 `~57.0.22`                                               | v0.0.3 이하                       |
 
 ---
+
+## v0.0.12 에서 올리기 — SDK 58 (v0.1.0)
+
+SDK 메이저 올림이라 새 네이티브 빌드가 필요하다. 순서대로.
+
+```bash
+# 1. Expo 가 고정하는 것
+npx expo install expo@^58.0.0 --fix          # RN 0.88 · React 19.3 · gesture-handler 3 · 안전영역 5.10
+npx expo install --check                      # "Dependencies are up to date" 까지
+
+# 2. 패치 재타깃 — pnpm-workspace.yaml 의 두 줄을 새 버전으로, 파일도 같이
+#    react-native@0.86.3 → 0.88.0 · expo-dev-menu@57.0.18 → 58.0.11 (두 패치 모두 그대로 적용된다)
+pnpm patch react-native@0.88.0 --edit-dir /tmp/p && (cd /tmp/p && patch -p1 < patches/react-native@0.86.3.patch) && pnpm patch-commit /tmp/p
+
+# 3. 푸시 스택 — RNFB 27 (SDK 58 scene AppDelegate 대응, Firebase 13 = SPM 전용)
+pnpm add @react-native-firebase/app@27.1.0 @react-native-firebase/messaging@27.1.0 --save-exact
+#    app.config.ts: useFrameworks 'static' → 'dynamic', RNFB 플러그인의 { ios: { disableSPM: true } } 제거
+#    plugins/with-ios-plugin.ts($RNFirebaseDisableSPM 주입) 삭제, with-plugin.ts 의 pushEnabled 옵션 제거
+
+# 4. OTA — hot-updater v1 (v0 는 RN 0.88 Android 에서 컴파일 안 됨). v0 서버와 호환되지 않는다.
+pnpm add @hot-updater/react-native@1.1.3 && pnpm add -D hot-updater@1.1.3 @hot-updater/{aws,expo,standalone}@1.1.3
+pnpm remove @expo/fingerprint
+#    app.config.ts 플러그인 '@hot-updater/react-native' → '@hot-updater/expo'
+#    src/lib/ota.ts = HotUpdater.init 인스턴스, lib/preloader/ota.ts 는 그 인스턴스를 쓴다 (템플릿 파일을 가져온다)
+
+# 5. 코드 — SDK 58 breaking
+#    _layout.tsx: <Stack initialRouteName> prop 제거(unstable_settings.anchor 만)
+#    (tabs)/_layout.tsx: 'expo-router/unstable-native-tabs' → 'expo-router/native-tabs'
+#    InteractionManager → requestIdleCallback / cancelIdleCallback
+#    forwardRef<View> → ViewInstance, Ref<TextInput> → TextInputInstance
+#    expo-build-properties: enableSceneSupport 삭제, enableProguardInReleaseBuilds → enableMinifyInReleaseBuilds
+#    app.config.ts plugins 에 'expo-localization' 추가(--fix 가 요구)
+
+# 6. 재생성
+rm -rf ios android && npx expo prebuild
+```
 
 ## v0.0.10 · v0.0.11 에서 올리기 — Expo 패치 버전과 RN 인스펙터 패치
 

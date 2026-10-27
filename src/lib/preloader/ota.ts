@@ -1,7 +1,6 @@
 import type { PreloaderCallbacks } from './types';
 
-import { HotUpdater } from '@hot-updater/react-native';
-import { Env } from '@env';
+import { hotUpdater } from '@/lib/ota';
 
 // 다운로드가 너무 빨리 끝나서 인디케이터가 깜빡 지나가는 걸 방지
 const MIN_INDICATOR_VISIBLE_MS = 1500;
@@ -16,14 +15,15 @@ export async function runOtaStage(onOtaUpdate?: PreloaderCallbacks['onOtaUpdate'
     console.log('[Preloader/ota] skipped (__DEV__)');
     return;
   }
-  if (!Env.urls.ota) {
+  if (!hotUpdater) {
     console.log('[Preloader/ota] skipped (no baseURL)');
     return;
   }
+  const client = hotUpdater;
 
-  let updateInfo: Awaited<ReturnType<typeof HotUpdater.checkForUpdate>>;
+  let updateInfo: Awaited<ReturnType<typeof client.checkForUpdate>>;
   try {
-    updateInfo = await HotUpdater.checkForUpdate({ updateStrategy: 'fingerprint' });
+    updateInfo = await client.checkForUpdate({ updateStrategy: 'fingerprint' });
   } catch (error) {
     // 네트워크 끊김·서버 다운 — 조용히 skip.
     console.warn('[Preloader/ota] checkForUpdate failed:', error);
@@ -50,7 +50,7 @@ export async function runOtaStage(onOtaUpdate?: PreloaderCallbacks['onOtaUpdate'
         // 콜백 컨텍스트를 먼저 resolve 하고 다음 tick 에 reload — 즉시 reload 하면
         // RN bridge teardown 이 콜백 resolve 와 경합해 iOS 에서 앱이 종료된다.
         setTimeout(() => {
-          HotUpdater.reload().catch(() => undefined);
+          client.reload().catch(() => undefined);
         }, 0);
         return true;
       } catch (error) {

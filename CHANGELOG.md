@@ -9,6 +9,33 @@
 
 ## [Unreleased]
 
+## [0.1.0] — 2026-10-27
+
+### Changed
+
+- **Expo SDK 57 → 58.** RN 0.86.3 → 0.88.0, React 19.2.3 → 19.3.0, expo-router 58, gesture-handler 2.32 → 3.3,
+  reanimated 4.7, worklets 0.13, safe-area-context 5.10(iPhone Duo 좌우 inset), screens 4.30. `expo-doctor` 20/20
+  (edge-to-edge 의 Directory "unmaintained" 경고는 `expo.doctor` 예외로 둠), `expo install --check` 통과.
+  `expo.install.exclude` 의 `jest`·`@types/jest` 는 SDK 58 이 jest 30 을 받으므로 제거. `expo-constants` 는
+  expo-router 의 required peer 라 직접 의존성으로 유지한다(빼면 doctor 의 peer 검사가 실패). 올리는 절차는 `MIGRATION.md`
+- **푸시 — RNFB 26.3.3 → 27.1.0.** SDK 58 의 scene 기반 AppDelegate 에 `FirebaseApp.configure()` 를 넣는
+  플러그인이 27 부터다(26 은 조용히 건너뛴다). Firebase 13 이 SPM 전용이라 `useFrameworks` 를 `static` → `dynamic`
+  으로, RNFB 플러그인의 `disableSPM` 과 `$RNFirebaseDisableSPM` 주입(`plugins/with-ios-plugin.ts`)을 지웠다
+- **OTA — hot-updater 0.36 → 1.1.3(v1).** v0 Android 가 RN 0.88(Kotlin 2.2)에서 컴파일되지 않는다. v1 은
+  인스턴스 API(`src/lib/ota.ts` 의 `HotUpdater.init` 1회) · 플러그인 `@hot-updater/expo` · 자체 fingerprint
+  스킴(`@expo/fingerprint` devDep 제거). **v0 서버와 호환되지 않는다** — 별도 엔드포인트와 새 네이티브 빌드
+- SDK 58 breaking 대응: `Stack initialRouteName` prop 제거(`unstable_settings.anchor` 만), `InteractionManager`
+  → `requestIdleCallback`, `expo-router/native-tabs` 경로, RN strict 타입(`ViewInstance`·`TextInputInstance`),
+  `expo-build-properties` `enableSceneSupport` 삭제 · `enableMinifyInReleaseBuilds`, `expo-localization` 플러그인
+- 탭바가 `insets.left/right` 를 먹는다 — iPhone Duo 펼침·가로. 탭 안 화면 규칙은 `edges={['top', 'left', 'right']}`
+- 패치 재타깃: `react-native@0.88.0`(PR #58705 는 0.88.0 에도 미포함) · `expo-dev-menu@58.0.11`. 둘 다 그대로 적용
+
+### Added
+
+- **`patches/expo-dev-menu@58.0.11.patch`** — Dev Menu 헤더의 앱 아이콘이 홈 화면과 같은 모양으로 나온다.
+  iOS 는 과한 cornerRadius(16/38pt) 가 배지 가장자리를 잘랐고, Android 는 adaptive 레이어를 마스크·크롭
+  없이 겹쳐 배지 위치가 어긋났다(dev 전용). 이력·조건은 `patches/README.md`
+
 ## [0.0.12] — 2026-09-28
 
 ### Added
@@ -313,7 +340,11 @@ Team ID)로 `env-candidates.ts` 를 치환하고 216파일을 초기 커밋한�
 
 ---
 
-[unreleased]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.8...HEAD
+[unreleased]: https://github.com/LESANF/react-native-template-lesa/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.12...v0.1.0
+[0.0.12]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.11...v0.0.12
+[0.0.11]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.10...v0.0.11
+[0.0.10]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.9...v0.0.10
 [0.0.9]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.8...v0.0.9
 [0.0.8]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.7...v0.0.8
 [0.0.7]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.6...v0.0.7

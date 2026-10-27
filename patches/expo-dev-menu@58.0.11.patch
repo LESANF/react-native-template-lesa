@@ -1,0 +1,66 @@
+diff --git a/android/src/debug/java/expo/modules/devmenu/compose/primitives/AppIcon.kt b/android/src/debug/java/expo/modules/devmenu/compose/primitives/AppIcon.kt
+index 62355ae84e5f4db1c689180beb0271018a6cb8d0..8ad83bd6ac55e88b2e00504131168a7f21430dc3 100644
+--- a/android/src/debug/java/expo/modules/devmenu/compose/primitives/AppIcon.kt
++++ b/android/src/debug/java/expo/modules/devmenu/compose/primitives/AppIcon.kt
+@@ -1,10 +1,6 @@
+ package expo.modules.devmenu.compose.primitives
+ 
+-import android.graphics.drawable.AdaptiveIconDrawable
+ import android.graphics.drawable.BitmapDrawable
+-import android.graphics.drawable.Drawable
+-import android.graphics.drawable.LayerDrawable
+-import android.os.Build
+ import androidx.compose.foundation.Image
+ import androidx.compose.foundation.background
+ import androidx.compose.foundation.layout.Box
+@@ -44,23 +40,9 @@ fun AppIcon(
+       val image = remember {
+         val sizePx = with(density) { size.toPx() }.toInt()
+         val icon = context.packageManager.getApplicationIcon(context.applicationInfo)
+-        return@remember if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && icon is AdaptiveIconDrawable) {
+-          val backgroundDr = icon.background
+-          val foregroundDr = icon.foreground
+-
+-          val drr = arrayOfNulls<Drawable>(2)
+-          drr[0] = backgroundDr
+-          drr[1] = foregroundDr
+-
+-          val layerDrawable = LayerDrawable(drr)
+-          val sizePx = with(density) { size.toPx() }.toInt()
+-          layerDrawable
+-            .toBitmap(
+-              width = sizePx,
+-              height = sizePx
+-            )
+-            .asImageBitmap()
+-        } else if (icon is BitmapDrawable) {
++        // AdaptiveIconDrawable.draw applies the launcher mask and the 72/108 crop, so the icon
++        // (and any badge on it) lands where it does on the home screen; stacking its layers skips both.
++        return@remember if (icon is BitmapDrawable) {
+           icon.bitmap.asImageBitmap()
+         } else {
+           icon
+diff --git a/ios/SwiftUI/HeaderView.swift b/ios/SwiftUI/HeaderView.swift
+index 56ad6e52f3a32ebce7473e8743c55b807005ac59..3f646ec2c245344e1bf9eeb26e6a337c61c669f6 100644
+--- a/ios/SwiftUI/HeaderView.swift
++++ b/ios/SwiftUI/HeaderView.swift
+@@ -21,7 +21,8 @@ struct HeaderView: View {
+           .resizable()
+           .scaledToFit()
+           .frame(width: 38, height: 38)
+-          .clipShape(RoundedRectangle(cornerRadius: 16))
++          // 38pt × ~0.22 (iOS icon ratio); 16 nearly makes a circle and chops the icon's edges
++          .clipShape(RoundedRectangle(cornerRadius: 8.5, style: .continuous))
+       }
+ #else
+       if let icon = appIcon {
+@@ -29,7 +30,8 @@ struct HeaderView: View {
+           .resizable()
+           .scaledToFit()
+           .frame(width: 38, height: 38)
+-          .clipShape(RoundedRectangle(cornerRadius: 16))
++          // 38pt × ~0.22 (iOS icon ratio); 16 nearly makes a circle and chops the icon's edges
++          .clipShape(RoundedRectangle(cornerRadius: 8.5, style: .continuous))
+       }
+ #endif
+ 
