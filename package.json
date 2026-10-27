@@ -8,12 +8,6 @@
     "pnpm": ">=12"
   },
   "expo": {
-    "install": {
-      "exclude": [
-        "jest",
-        "@types/jest"
-      ]
-    },
     "doctor": {
       "reactNativeDirectoryCheck": {
         "exclude": [
@@ -75,7 +69,6 @@
     "expo": "~58.0.19",
     "expo-blur": "~58.0.5",
     "expo-build-properties": "~58.0.11",
-    "expo-constants": "~58.0.13",
     "expo-dev-client": "~58.0.15",
     "expo-device": "~58.0.5",
     "expo-font": "~58.0.10",
