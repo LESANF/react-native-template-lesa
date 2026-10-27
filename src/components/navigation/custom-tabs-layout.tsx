@@ -24,6 +24,9 @@ export function CustomTabsLayout() {
             backgroundColor: colors.card,
             borderTopColor: colors.border,
             height: TAB_BAR_HEIGHT + insets.bottom,
+            // 가로 inset — iPhone Duo 펼침 등 좌우 safe area 가 있는 기기.
+            paddingLeft: insets.left,
+            paddingRight: insets.right,
           },
         ]}>
         <View style={styles.tabBarContent}>
