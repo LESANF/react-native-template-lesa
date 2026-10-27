@@ -9,6 +9,8 @@
 
 ## [Unreleased]
 
+## [0.1.0] — 2026-10-27
+
 ### Changed
 
 - **Expo SDK 57 → 58.** RN 0.86.3 → 0.88.0, React 19.2.3 → 19.3.0, expo-router 58, gesture-handler 2.32 → 3.3,
@@ -30,7 +32,7 @@
 
 ### Added
 
-- **`patches/expo-dev-menu@57.0.18.patch`** — Dev Menu 헤더의 앱 아이콘이 홈 화면과 같은 모양으로 나온다.
+- **`patches/expo-dev-menu@58.0.11.patch`** — Dev Menu 헤더의 앱 아이콘이 홈 화면과 같은 모양으로 나온다.
   iOS 는 과한 cornerRadius(16/38pt) 가 배지 가장자리를 잘랐고, Android 는 adaptive 레이어를 마스크·크롭
   없이 겹쳐 배지 위치가 어긋났다(dev 전용). 이력·조건은 `patches/README.md`
 
@@ -338,7 +340,11 @@ Team ID)로 `env-candidates.ts` 를 치환하고 216파일을 초기 커밋한�
 
 ---
 
-[unreleased]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.8...HEAD
+[unreleased]: https://github.com/LESANF/react-native-template-lesa/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.12...v0.1.0
+[0.0.12]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.11...v0.0.12
+[0.0.11]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.10...v0.0.11
+[0.0.10]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.9...v0.0.10
 [0.0.9]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.8...v0.0.9
 [0.0.8]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.7...v0.0.8
 [0.0.7]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.6...v0.0.7
