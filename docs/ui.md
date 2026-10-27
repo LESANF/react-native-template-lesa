@@ -187,7 +187,7 @@ resources: { ko: ..., en: { translation: en } }
 이름을 `SafeArea` 로 하지 않은 이유: 라이브러리의 `SafeAreaView` 와 혼동된다.
 
 ```tsx
-<InsetView className="flex-1" edges={['top']}>   // 탭 안의 화면
+<InsetView className="flex-1" edges={['top', 'left', 'right']}>   // 탭 안의 화면
 <InsetView edges={{ bottom: 'maximum' }} minInsets={{ bottom: 16 }} />  // 최소 16, inset 이 크면 inset
 <InsetView edges={['bottom']} mode="margin" />
 ```
@@ -198,9 +198,10 @@ resources: { ko: ..., en: { translation: en } }
 | `mode`      | `'padding'`(기본) · `'margin'`                                        |
 | `minInsets` | 변별 최소값. `additive` 면 더하고 `maximum` 이면 `Math.max`           |
 
-**탭 안의 화면은 `edges={['top']}` 만 쓴다.** 하단 inset 은 탭바가 이미 먹는다
+**탭 안의 화면은 `edges={['top', 'left', 'right']}` 로 쓴다.** 하단 inset 은 탭바가 이미 먹는다
 (`custom-tabs-layout` 의 `height: TAB_BAR_HEIGHT + insets.bottom`). `bottom` 을 또 주면
-이중 여백이 된다.
+이중 여백이 된다. 좌우를 빼지 않는 이유: iPhone Duo 펼침·가로 모드에서 `insets.left/right` 가
+0 이 아니다(SDK 58 변경 노트). 탭바 자체는 `paddingLeft/Right` 로 좌우 inset 을 먹는다.
 
 ### 왜 네이티브 SafeAreaView 를 안 쓰나
 

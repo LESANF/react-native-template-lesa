@@ -25,7 +25,7 @@ lib/push/
   taps.ts                capturePushColdStart(RNFB + notifee getInitialNotification → 'cold') · subscribePush(onMessage→포그라운드 배너·onNotificationOpenedApp·onForegroundEvent)
   token-sync.ts          PushTokenSyncAdapter(TODO 스텁) · startPushTokenSync(싱글턴) · unregisterPushToken
 index.js · firebase.json · firebase/README.md   entry · RNFB 네이티브 설정 · Firebase 파일 두는 곳
-app.config.ts            파일 존재 → RNFB·notify-kit 플러그인·googleServicesFile·aps 주입. static + $RNFirebaseDisableSPM은 무조건
+app.config.ts            파일 존재 → RNFB·notify-kit 플러그인·googleServicesFile·aps 주입. useFrameworks dynamic 은 무조건(RNFB 27 = Firebase SPM 전용)
 ```
 
 방향: `lib/push → lib/deep-link(dispatcher·extractors) · stores/auth-store · constants`, `features/splash·home → lib/push`, `hooks/use-deep-link → lib/push/taps`. `background.ts` 는 React·화면만 금지.
@@ -61,8 +61,12 @@ app.config.ts            파일 존재 → RNFB·notify-kit 플러그인·google
   아카이브(2026-04, 마지막 릴리스 2024-12) + SDK 54+ Android 빌드 이슈 + Expo 플러그인 부재다.
   notify-kit 은 같은 API 의 유지보수 fork 이고 FCM Mode 는 opt-in 이라 안 쓰면 그만이다.
   쓰는 것은 Android 채널 생성과 로컬/포그라운드 알림 표시뿐.
-- **RNFB 26.3.3 exact** — sub-package 가 app 을 exact peer-pin 한다. RN 0.86 에서 CI 검증된
-  유일한 라인. 모듈러 API 만 있다(`messaging()` 네임스페이스 삭제).
+- **RNFB 27.1.0 exact** — sub-package 가 app 을 exact peer-pin 한다. SDK 58 의 scene 기반 AppDelegate 에
+  `FirebaseApp.configure()` 를 넣는 플러그인은 27.0.0 부터다(26 은 앵커 `factory.startReactNative(` 를 못 찾고
+  **조용히 건너뛴다** — 빌드는 되고 Firebase 가 초기화되지 않는다). Firebase 13 이 SPM 전용이라
+  `useFrameworks: 'dynamic'` 이 따라온다 — `'static'`·`disableSPM`·`$RNFirebaseDisableSPM` 은 pod install 에서 throw.
+  모듈러 API 만 있다(`messaging()` 네임스페이스 삭제). 27 의 메시징 페이로드 변화(`sentTime` 숫자화 ·
+  `aps.badge` 문자열 · `onMessageSent` 인자)는 템플릿 extractors 가 읽지 않는 필드다.
 - **`onBackgroundEvent` 는 로컬·포그라운드 배너 탭 전용.** notify-kit 의 background 는
   "백그라운드 또는 종료" 둘 다를 뜻한다(iOS 는 탭 시점 `applicationState` 가 `Inactive`).
   OS 가 그린 FCM 알림의 탭은 여기 오지 않는다.
@@ -101,6 +105,7 @@ KR 대조에서 **템플릿이 빠뜨린 KR 보호 두 개**를 찾아 이식했
 - `@notifee/react-native` 9.1.8 유지 → 아카이브(2026-04), 2024-12 마지막 릴리즈, SDK 54+ Android 빌드 이슈(#1284), Expo 플러그인 없음.
 - RNFB 23.x 유지 → RN 0.86 검증 없음. 템플릿은 레거시가 없어 26으로 바로.
 - `useFrameworks: 'static'`을 푸시 on일 때만 → 푸시 off 빌드에서 RNFB가 SPM 기본으로 떨어져 static과 충돌(또는 SPM 경로 미검증). 무조건이 맞다.
+- (SDK 58 · RNFB 27 이후) `useFrameworks: 'static'` 유지 → Firebase 13 SPM 제품은 automatic linkage 라 static pod 와 링크 충돌. RNFB 가 pod install 에서 throw 한다. **dynamic 무조건**으로 바뀌었고, 이에 따라 `$RNFirebaseDisableSPM` 주입(`with-ios-plugin`)도 지웠다(2026-10-27).
 - `react-native.config.js`로 푸시 off 시 RNFB 언링크 → JS import 시 네이티브 부재로 throw 위험, 게이트 두 겹. `getApps()`로 충분.
 - 토큰 동기화용 프리로더 스테이지 추가 → 프리로더 완료 후 호출 한 줄로 같은 순서 보장.
 - `suspended` 플래그로 D2 해결 → deleteToken을 전이 뒤 구독에서 호출하면 플래그가 필요 없다.
@@ -164,4 +169,7 @@ iOS 는 백그라운드·종료 상태에서 이미지가 든 푸시를 앱이 �
 - dev client 부팅: 커스텀 엔트리(`index.js`)로 번들 로드 · headless `[push] disabled — Firebase 미구성(getApps()=0)` 출력 · 크래시 없음. 그 뒤 화면이 흰색으로 남는 문제는 `main`을 `expo-router/entry`로 되돌려도 동일해 **푸시와 무관**. 시뮬 QA는 사용자 몫.
 - **확인(2026-09-17)**: 푸시 on 에서 NSE 타깃 생성 → `xcodebuild` 성공 → `.app/PlugIns/ImageNotification.appex`
   임베드(`com.apple.usernotifications.service`). prebuild 2회차(`--no-clean`)도 패치로 통과. 푸시 off 는 타깃 0.
+- **확인(2026-10-27, SDK 58 · RNFB 27.1.0 · dynamic)**: 푸시 off `prebuild -p ios` pod install 통과(350 pods, DisableSPM 없이 SPM 경로) ·
+  더미 Firebase 파일로 푸시 on prebuild → SDK 58 AppDelegate 에 `FirebaseApp.configure()` 주입 확인 · NSE 타깃 생성 · `--no-clean` 2회차 통과(apple-targets 패치 유효).
+  xcodebuild 컴파일은 디스크 부족으로 중단 — 사용자 빌드에서 확인.
 - **미검증**: 실기 FCM 수신·APNs·NSE 이미지 표시(Firebase 프로젝트 + NSE 프로비저닝 필요 — 앱 몫) · 서버 SDK 페이로드 · 푸시 on 빌드(사용자가 dev 설정 파일을 제공할 때만)

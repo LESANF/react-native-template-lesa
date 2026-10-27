@@ -22,7 +22,7 @@
 >
 > The docs, this README and the code itself can all change substantially.
 
-An opinionated Expo SDK 57 template: routing, boot sequence, push, OTA and deep
+An opinionated Expo SDK 58 template: routing, boot sequence, push, OTA and deep
 links are already wired — and shipped **switched off**. Filling in a file or
 dropping in a config turns each one on.
 
@@ -46,7 +46,7 @@ the first commit. Cloning this repo directly works too, but then you fill in
 
 |                                  |                                                                    |
 | -------------------------------- | ------------------------------------------------------------------ |
-| Expo SDK 57 · RN 0.86 · React 19 | CNG-first — `ios/` and `android/` are build artifacts, not source  |
+| Expo SDK 58 · RN 0.88 · React 19 | CNG-first — `ios/` and `android/` are build artifacts, not source  |
 | expo-router 57                   | file-based routing, NativeTabs with iOS 26 liquid glass            |
 | Uniwind 1.11                     | 3-layer design tokens (primitive → semantic → utility) + dark mode |
 | TanStack Query 5 · Axios         | explicit auth, MMKV token storage                                  |
@@ -207,7 +207,7 @@ servers in one step through the [official Expo plugin](https://docs.expo.dev/age
 
 |                                                        |                                                                                  |
 | ------------------------------------------------------ | -------------------------------------------------------------------------------- |
-| [expo](https://docs.expo.dev/mcp/)                     | Reads the SDK 57 docs directly. Answering from memory usually means an older SDK |
+| [expo](https://docs.expo.dev/mcp/)                     | Reads the SDK 58 docs directly. Answering from memory usually means an older SDK |
 | [codegraph](https://github.com/colbymchenry/codegraph) | Symbol and call-graph index — structural questions without grep                  |
 | [context7](https://github.com/upstash/context7)        | Third-party library docs                                                         |
 
