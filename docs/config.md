@@ -524,7 +524,7 @@ AppDelegate 가 깨지기 때문이다. 런타임은 `expo@57.0.23`, 스위치�
 블록을 빼고 Info.plist 에 `EXExpoAppSceneDelegate` 를 가리키는 manifest 를 넣는다.
 
 **SDK 58 부터는 기본이라 이 줄을 지운다.** 켜둔 채로 올리면 prebuild 가 "더 이상 필요
-없다" 고 경고한다. 57.0.22 이하에서 켜면 throw 한다. **v0.1.0(SDK 58)에서 지웠다** — prebuild 가
+없다" 고 경고한다. 57.0.22 이하에서 켜면 throw 한다. **v0.0.13(SDK 58)에서 지웠다** — prebuild 가
 `SceneDelegate.swift` 와 scene manifest 를 직접 만든다. 아래 절은 57 유지 브랜치용 기록이다.
 
 scene 생명주기에서는 **링크가 AppDelegate 로 오지 않는다.** `SceneEventForwarder` 가

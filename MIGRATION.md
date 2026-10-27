@@ -9,7 +9,7 @@
 
 | 무엇이 있나                                                                      | 그 버전                           |
 | -------------------------------------------------------------------------------- | --------------------------------- |
-| `expo` 가 `~58` 이고 `patches/react-native@0.88.0.patch` 가 있다                 | v0.1.0                            |
+| `expo` 가 `~58` 이고 `patches/react-native@0.88.0.patch` 가 있다                 | v0.0.13                           |
 | `patches/react-native@0.86.3.patch` 가 있다                                      | v0.0.12                           |
 | `semantic.css` 에 `@variant light` 가 있고 `src/lib/theme/use-colors.ts` 가 있다 | v0.0.11                           |
 | `src/lib/theme/use-colors.ts` 가 있고 `semantic.css` 에 `@variant light` 가 없다 | v0.0.10 (부팅 에러 — 바로 올린다) |
@@ -21,7 +21,7 @@
 
 ---
 
-## v0.0.12 에서 올리기 — SDK 58 (v0.1.0)
+## v0.0.12 에서 올리기 — SDK 58 (v0.0.13)
 
 SDK 메이저 올림이라 새 네이티브 빌드가 필요하다. 순서대로.
 
