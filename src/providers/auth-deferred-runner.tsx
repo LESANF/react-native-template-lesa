@@ -1,6 +1,5 @@
 import { useSegments } from 'expo-router';
 import { useEffect } from 'react';
-import { InteractionManager } from 'react-native';
 
 import { AUTH_ROUTE_GROUP } from '@/constants/deep-link';
 import { pendingDeepLinkIntent } from '@/lib/deep-link/pending-intent';
@@ -8,7 +7,7 @@ import { useAuthStore } from '@/stores/auth-store';
 
 /**
  * 미인증 딥링크의 deferred 진입. RootLayout 에 1회 mount.
- * `runAfterInteractions` 로 미루는 이유: 모달 닫힘 애니메이션과의 race.
+ * `requestIdleCallback` 으로 미루는 이유: 모달 닫힘 애니메이션과의 race(RN 0.88 에서 InteractionManager 제거).
  */
 export function AuthDeferredRunner() {
   const isSignedIn = useAuthStore(state => state.status === 'signedIn');
@@ -22,8 +21,8 @@ export function AuthDeferredRunner() {
     const intent = pendingDeepLinkIntent.consume();
     if (!intent) return;
 
-    const handle = InteractionManager.runAfterInteractions(intent);
-    return () => handle.cancel();
+    const handle = requestIdleCallback(() => intent());
+    return () => cancelIdleCallback(handle);
   }, [isSignedIn, isOnAuth]);
 
   return null;

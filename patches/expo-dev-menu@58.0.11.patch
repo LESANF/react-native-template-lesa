@@ -41,7 +41,7 @@ index 62355ae84e5f4db1c689180beb0271018a6cb8d0..8ad83bd6ac55e88b2e00504131168a7f
          } else {
            icon
 diff --git a/ios/SwiftUI/HeaderView.swift b/ios/SwiftUI/HeaderView.swift
-index 5de3ceabd515a961e6758ed720a2be317d095c26..4089ff1a7d6f3e067394336f630fd8cf67ca7e37 100644
+index 56ad6e52f3a32ebce7473e8743c55b807005ac59..3f646ec2c245344e1bf9eeb26e6a337c61c669f6 100644
 --- a/ios/SwiftUI/HeaderView.swift
 +++ b/ios/SwiftUI/HeaderView.swift
 @@ -21,7 +21,8 @@ struct HeaderView: View {

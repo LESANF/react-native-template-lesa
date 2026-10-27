@@ -8,7 +8,7 @@
 ```
 ① 동기 모듈 로드   app/_layout.tsx 모듈 스코프 — React 렌더 전. splash를 거치지 않는 진입(딥링크·푸시)에도 실행
                     loadSelectedTheme · setupReactQueryNativeListeners · hydrateAuth(MMKV 동기)
-                    SplashScreen.preventAutoHideAsync() · initHotUpdater()
+                    SplashScreen.preventAutoHideAsync() · `lib/ota` import(HotUpdater.init 1회)
 ② 비동기 프리로더   app/splash → lib/preloader — 네이티브 splash 뒤에서 순차 스테이지, 끝나면 (tabs)로
 ```
 
@@ -33,7 +33,8 @@ lib/preloader/                                 KR `lib/preloader` verbatim 이�
   core.ts           runPreloader: hydrate → forced-update-check → ota-check → permissions-check 순차, 스테이지별 try/catch 격리, progress n/4
   hydrate.ts        auth 복원 상태 로그(복원 자체는 _layout 모듈 스코프 hydrateAuth)
   forced-update.ts  getAppForceUpdate(api/app — TODO 스텁) → semver → 팝업 → 'update' 면 never-resolve 블록
-  ota.ts            HotUpdater.checkForUpdate({fingerprint}) → 팝업 → updateBundle → 1.5s 플로어 → setTimeout(reload,0). __DEV__·urls.ota 비면 스킵
+  ota.ts            hotUpdater.checkForUpdate({fingerprint}) → 팝업 → updateBundle → 1.5s 플로어 → setTimeout(reload,0). __DEV__·urls.ota 비면(인스턴스 null) 스킵
+lib/ota.ts          HotUpdater.init({ baseURL }) 인스턴스(v1 은 인스턴스 API). urls.ota 비면 null
   permissions/      react-native-permissions 기반 requestAllPermissions(알림) — KR 그대로, AppPermission 확장점
   splash-initializer.tsx  useSplashInitializer(): prefetchOnSplash → runPreloader(팝업·권한 내부 배선) → finally hideAsync()
 lib/api/prefetch.ts · utils/show-*-popup.ts    KR 위치 그대로(팝업만 overlay-kit → popup.confirm)
@@ -72,7 +73,7 @@ hot-updater.config.ts · scripts/ota-deploy.mjs CLI 전용(번들 밖). 배포 �
 
 ## 확정 결정
 
-- **OTA = hot-updater 0.36(자체 서버), expo-updates 아님.** KR/JP 모두 hot-updater + 자체 서버. `updateStrategy: 'fingerprint'`, 채널 `production` 고정 — 환경 분리는 서버 URL·버킷. 프리로더는 엔진을 모르고 `OtaAdapter`만 본다 → 엔진 교체는 `lib/ota/` 파일 하나.
+- **OTA = hot-updater 1.1(v1, 자체 서버), expo-updates 아님.** v1 은 v0 서버와 호환되지 않는다 — 별도 엔드포인트·새 네이티브 빌드가 필요하다(hot-updater.dev `upgrade-to-v1`). 0.36 에서 올린 이유는 RN 0.88(Kotlin 2.2)에서 v0 Android 가 컴파일되지 않기 때문(v1.1.1 수정). 플러그인은 `@hot-updater/expo`, fingerprint 는 hot-updater 자체 스킴(`@expo/fingerprint` 의존 제거). KR/JP 모두 hot-updater + 자체 서버. `updateStrategy: 'fingerprint'`, 채널 `production` 고정 — 환경 분리는 서버 URL·버킷. 프리로더는 엔진을 모르고 `OtaAdapter`만 본다 → 엔진 교체는 `lib/ota/` 파일 하나.
 - **`Env.urls.ota`가 비면 OTA 전부 비활성.** init도 체크도 안 한다("주입=활성화"). 템플릿엔 서버가 없으니 기본이 비활성이 맞다.
 - **사용자 동의형 OTA.** 조용히 다음 부팅에 적용(expo-updates 기본)이 아니라 팝업 → 지금 업데이트 → reload. 두 앱 UX. 체크 실패는 failures에도 안 남기고 조용히 넘어간다 — OTA는 부팅을 막을 이유가 없다.
 - **프리로더는 KR 그대로.** 2026-09-03 사용자 지시("가볍지 않은 시스템, 그대로 이식")로 템플릿 재구현(선언형 스테이지·스테이지 타임아웃·OtaAdapter·콜백 주입 옵션)을 걷어내고 KR 파일을 옮겼다. 허용 변경은 Env 접근·auth `status`·강제 업데이트 API 스텁·popup.confirm 팝업·OTA URL 빈 값 가드뿐. KR 과 같은 알려진 성질: 스테이지 타임아웃 없음(서버 행이면 splash 대기 — 그래서 스테이지 안의 네트워크 호출은 자기 타임아웃을 가져야 한다. `getAppForceUpdate` 의 TODO 가 api client 를 쓰라고 하는 이유다), hideAsync 는 initializer finally + 두 팝업 유틸이 호출.
@@ -168,4 +169,4 @@ hot-updater.config.ts · scripts/ota-deploy.mjs CLI 전용(번들 밖). 배포 �
 
 - 스크래치 하네스(커밋 안 함): preloader 13/13(격리·타임아웃·스킵/카운트·강제 업데이트 사다리·OTA 어댑터 흐름) · deep-link 10/10(parser·matcher·콜드 홀드·즉시 처리·dedup·reopen·sources·native-intent)
 - `check-all`(tsc 6) · Expo Doctor 18/18(hot-updater 플러그인 포함) · frozen install · `hot-updater.config.ts` tsx 로드 스모크
-- **미검증**: RN 0.86 네이티브 빌드에서 hot-updater 컴파일(`pnpm ios` 1회 필요) · 실제 OTA 서버 배포/롤백(서버 없음) · 시뮬 콜드 딥링크(`xcrun simctl openurl booted <scheme>://menu-4/42`). 푸시 탭 딥링크는 docs/push.md 검증 상태 참고
+- **미검증**: RN 0.88 네이티브 빌드에서 hot-updater 1.1.3 컴파일(pod install 은 통과, 컴파일은 `pnpm ios` 1회 필요) · 실제 OTA 서버 배포/롤백(서버 없음) · 시뮬 콜드 딥링크(`xcrun simctl openurl booted <scheme>://menu-4/42`). 푸시 탭 딥링크는 docs/push.md 검증 상태 참고

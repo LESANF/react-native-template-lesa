@@ -79,7 +79,7 @@ const nseEnabled = pushEnabled && existsSync('./targets/notification-service');
 const PUSH_PLUGINS: NonNullable<ExpoConfig['plugins']> = pushEnabled
   ? [
       ...(nseEnabled ? ['@bacons/apple-targets' as const] : []),
-      ['@react-native-firebase/app', { ios: { disableSPM: true } }],
+      '@react-native-firebase/app',
       '@react-native-firebase/messaging',
       'react-native-notify-kit',
     ]
@@ -139,10 +139,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   plugins: [
     'expo-router',
     // 채널은 production 고정. 환경 분리는 서버 URL·버킷.
-    ['@hot-updater/react-native', { channel: 'production' }],
+    ['@hot-updater/expo', { channel: 'production' }],
     'expo-font',
     'expo-image',
     'expo-web-browser',
+    'expo-localization',
     [
       'react-native-edge-to-edge',
       {
@@ -161,19 +162,17 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         imageWidth: 76,
       },
     ],
-    // static 은 무조건 — RNFB 는 푸시 off 에도 컴파일된다.
+    // dynamic 은 무조건 — RNFB 27 은 Firebase 를 SPM 으로만 받고 dynamic 링크를 요구하며, 푸시 off 에도 컴파일된다.
     [
       'expo-build-properties',
       {
-        // iOS 27 SDK 는 UIScene 을 요구한다 — 끄면 빌드는 되고 실행에서 죽는다.
-        // SDK 58 부터는 기본이라 이 줄을 지운다(켜둔 채로 두면 경고만 나온다).
-        ios: { useFrameworks: 'static', enableSceneSupport: true },
-        android: { enableProguardInReleaseBuilds: true },
+        ios: { useFrameworks: 'dynamic' },
+        android: { enableMinifyInReleaseBuilds: true },
       },
     ],
     ['react-native-permissions', { iosPermissions: ['Notifications'] }],
-    // 자체 플러그인 — 폴더블 · release 서명 · Podfile DisableSPM.
-    ['./plugins/with-plugin', { pushEnabled, displayName: Env.identity.displayName }],
+    // 자체 플러그인 — 폴더블 · release 서명 · 표시명.
+    ['./plugins/with-plugin', { displayName: Env.identity.displayName }],
     ['app-icon-badge', appIconBadgeConfig],
     // 어트리뷰션 SDK(선택) 자리. 접점은 lib/deep-link/attribution.ts.
     ...PUSH_PLUGINS,

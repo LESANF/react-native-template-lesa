@@ -540,8 +540,9 @@ specifics evolved during implementation. Verified in the iOS simulator.
 
 ### anchor — 루트 레이아웃의 `unstable_settings` 는 Stack prop 과 같은 값이어야 한다 (2026-09-07)
 
-`src/app/_layout.tsx` 는 `export const unstable_settings = { anchor: 'splash' }` 와
-`<Stack initialRouteName="splash">` 를 **둘 다** 둔다. 한때 anchor 를 통째로 지웠는데
+`src/app/_layout.tsx` 는 `export const unstable_settings = { anchor: 'splash' }` 를 둔다.
+(SDK 57 까지는 `<Stack initialRouteName="splash">` 도 같이 뒀다 — SDK 58 이 그 prop 을 제거했고
+`unstable_settings` 가 유일한 출처다. 아래 분석은 57 기준이지만 결론은 같다.) 한때 anchor 를 통째로 지웠는데
 (사유: `anchor: '(tabs)'` 가 splash 를 건너뛴다) 관찰은 맞았지만 결론이 틀렸다 —
 **고칠 것은 값이었지 메커니즘이 아니었다.**
 

@@ -13,7 +13,6 @@ app.config.ts       위 값에서 네이티브 설정을 파생. 빌드 시크�
 plugins/
   with-plugin.ts        진입점(app.config 에 이것만 등록)
   with-android-plugin   폴더블 · release 서명(Gradle env) · app_name(표시명)
-  with-ios-plugin       Podfile $RNFirebaseDisableSPM
 scripts/load-build-env.cjs   CLI 스크립트용 .env 로드(process.loadEnvFile)
 hot-updater.config.ts        OTA 배포(S3) — boot.md
 ```
@@ -174,12 +173,12 @@ an optional later add-on, not a default.
 
 | KR/JP 항목                                                                                                                                                           | 템플릿                                                                                                                             |
 | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| `expo-build-properties.ios.useFrameworks: 'static'`                                                                                                                  | ✅ 무조건(RNFB 26 SPM 비활성과 짝, docs/push.md)                                                                                   |
+| `expo-build-properties.ios.useFrameworks: 'static'`                                                                                                                  | ✅ 값은 `'dynamic'`(SDK 58 · RNFB 27 SPM 전용과 짝, docs/push.md)                                                                  |
 | `forceStaticLinking` RNFB 5종                                                                                                                                        | ⏸ 중복 심볼이 날 때만(문서에 폴백으로)                                                                                             |
 | `ios.deploymentTarget: '16.0'`                                                                                                                                       | ❌ SDK 57 기본 16.4 — 낮게 두면 pod 경고/실패                                                                                      |
-| `android.enableProguardInReleaseBuilds`                                                                                                                              | ✅                                                                                                                                 |
+| `android.enableMinifyInReleaseBuilds`(SDK 58 이름, 기본 on)                                                                                                          | ✅                                                                                                                                 |
 | `android.usesCleartextTraffic` · `extraMavenRepos`(notifee/naver)                                                                                                    | ❌ http API 는 앱 전용 · notify-kit 은 Maven 불필요                                                                                |
-| `@hot-updater/react-native` `{ channel }`                                                                                                                            | ✅                                                                                                                                 |
+| `@hot-updater/expo` `{ channel }`(v1)                                                                                                                                | ✅                                                                                                                                 |
 | `expo-splash-screen`(흰 배경 + 1px, 인트로 영상용)                                                                                                                   | ↔ 템플릿은 배경색 + 로고(image 는 루트에 — boot.md)                                                                                |
 | `react-native-permissions` Notifications                                                                                                                             | ✅                                                                                                                                 |
 | RNFB app/messaging                                                                                                                                                   | ✅ `firebase/` 파일 존재 게이트                                                                                                    |
@@ -483,8 +482,8 @@ npm 에 더 높은 버전이 있어도 SDK 가 고정한 것과 다르면 올리
 0.87 로 손수 올리면 네이티브 코드젠·Podspec 이 expo 모듈들과 어긋난다. SDK 단위 업그레이드는
 `upgrading-expo` 스킬로 한다.
 
-`jest`·`@types/jest` 는 `expo.install.exclude` 에 있다. Expo 는 29 를 기대하지만 이 템플릿은
-30 을 쓴다 — 안 빼면 `expo install --fix` 마다 되돌린다.
+`expo.install.exclude` 는 비어 있다. SDK 57 까지는 Expo 가 jest 29 를 기대해 `jest`·`@types/jest` 를
+빼 두었지만, SDK 58 의 `expo install --check` 는 jest 30 을 그대로 받는다.
 
 ### Xcode 27 · iOS 27 SDK
 
@@ -525,7 +524,8 @@ AppDelegate 가 깨지기 때문이다. 런타임은 `expo@57.0.23`, 스위치�
 블록을 빼고 Info.plist 에 `EXExpoAppSceneDelegate` 를 가리키는 manifest 를 넣는다.
 
 **SDK 58 부터는 기본이라 이 줄을 지운다.** 켜둔 채로 올리면 prebuild 가 "더 이상 필요
-없다" 고 경고한다. 57.0.22 이하에서 켜면 throw 한다.
+없다" 고 경고한다. 57.0.22 이하에서 켜면 throw 한다. **v0.1.0(SDK 58)에서 지웠다** — prebuild 가
+`SceneDelegate.swift` 와 scene manifest 를 직접 만든다. 아래 절은 57 유지 브랜치용 기록이다.
 
 scene 생명주기에서는 **링크가 AppDelegate 로 오지 않는다.** `SceneEventForwarder` 가
 넘기므로 콜드 `Linking.getInitialURL()` 이 첫 실행에서 확인해야 할 항목이다.

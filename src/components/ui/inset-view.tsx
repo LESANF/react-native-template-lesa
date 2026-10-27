@@ -31,7 +31,7 @@ function toEdgeRecord(edges: Edges): EdgeModes {
  * safe area inset 을 **일반 View 의 스타일로** 적용한다. 네이티브 `SafeAreaView` 는 화면이
  * 애니메이션하는 동안 영역을 다시 재서 탭 전환에서 덜컹거린다 — 사유는 `docs/ui.md`.
  *
- * 탭 안의 화면은 `edges={['top']}` 만 쓴다. 하단 inset 은 탭바가 이미 먹는다.
+ * 탭 안의 화면은 `edges={['top', 'left', 'right']}` — 하단은 탭바가 먹고, 좌우는 iPhone Duo 펼침에서 0 이 아니다.
  */
 export function InsetView({
   className,

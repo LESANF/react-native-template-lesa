@@ -1,7 +1,7 @@
 # 이 프로젝트에서 일하는 법
 
-Expo SDK 57 · React Native 0.86 · New Architecture. **버전이 박혀 있다** —
-https://docs.expo.dev/versions/v57.0.0/ 의 그 버전 문서를 보고 쓴다.
+Expo SDK 58 · React Native 0.88 · New Architecture. **버전이 박혀 있다** —
+https://docs.expo.dev/versions/v58.0.0/ 의 그 버전 문서를 보고 쓴다.
 
 순서는 이렇다. **① 도구를 고르고 → ② 섹션 문서를 읽고 → ③ 규칙을 지키고 → ④ 검증을 사용자에게 넘긴다.**
 
@@ -18,7 +18,7 @@ https://docs.expo.dev/versions/v57.0.0/ 의 그 버전 문서를 보고 쓴다.
 | 서드파티 라이브러리 문서                                      | **context7 MCP**                                                                                |
 | 문자열·주석·로그 메시지 찾기                                  | grep (이때만 grep 이 맞다)                                                                      |
 
-**Expo 사실을 기억으로 답하지 않는다.** SDK 57 은 이전 버전과 다르고, 기억은 대개 낡았다.
+**Expo 사실을 기억으로 답하지 않는다.** SDK 58 은 이전 버전과 다르고, 기억은 대개 낡았다.
 구조 질문에 grep + read 루프를 돌리지 않는다 — codegraph 가 이미 인덱싱한 것을 다시 만드는
 일이고 더 비싸다.
 
@@ -177,7 +177,7 @@ OS Linking · 푸시 탭 · 인앱 · 어트리뷰션 SDK — 진입이 어디�
 
 네이티브 `SafeAreaView` 를 쓰지 않는다. 화면이 애니메이션하는 동안 영역을 재측정해서 탭
 전환에서 덜컹거린다. `InsetView` 가 inset 을 일반 `View` 의 스타일로 넣는다.
-**탭 안의 화면은 `edges={['top']}` 만** — 하단은 탭바가 이미 먹는다. 상세는 `docs/ui.md`.
+**탭 안의 화면은 `edges={['top', 'left', 'right']}`** — 하단은 탭바가 이미 먹는다. 좌우는 iPhone Duo 펼침·가로에서 0 이 아니다. 상세는 `docs/ui.md`.
 
 ## 네이티브는 산출물
 
