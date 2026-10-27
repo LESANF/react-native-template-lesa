@@ -1,4 +1,3 @@
-import { HotUpdater } from '@hot-updater/react-native';
 import { Stack, type ErrorBoundaryProps } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
@@ -9,7 +8,7 @@ import { enableFreeze } from 'react-native-screens';
 
 import '@/global.css';
 import '@/lib/i18n';
-import { Env } from '@env';
+import '@/lib/ota';
 import { ErrorFallback } from '@/components/ui';
 import { useDismissKeyboardOnBackground } from '@/hooks/use-dismiss-keyboard-on-background';
 import { useNavigationReset } from '@/hooks/use-navigation-reset';
@@ -35,10 +34,8 @@ hydrateAuth();
 
 // 여기서 잡아야 한다 — 훅 안은 늦다. 해제는 useSplashInitializer 의 finally.
 SplashScreen.preventAutoHideAsync();
-// URL 이 비면 건너뛴다.
-if (Env.urls.ota) HotUpdater.init({ baseURL: Env.urls.ota });
 
-// 아래 Stack 의 initialRouteName 과 **같아야** 한다. expo-router 는 여기서만 읽는다.
+// 첫 화면은 여기서만 정한다 — SDK 58 에서 Stack 의 initialRouteName prop 은 제거됐다.
 export const unstable_settings = { anchor: 'splash' };
 
 export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
@@ -64,7 +61,7 @@ export default function RootLayout() {
     <AppProviders>
       {Platform.OS === 'android' && <SystemBars style="dark" />}
       {/* 라우트는 파일시스템 자동 등록. 옵션이 필요한 화면만 Stack.Screen으로 추가한다. */}
-      <Stack initialRouteName="splash" screenOptions={{ headerShown: false }} />
+      <Stack screenOptions={{ headerShown: false }} />
       <GlobalOverlays />
       {/* 헤드리스 러너 — QueryProvider 안쪽이어야 한다. 딥링크 큐 바인딩·콜드 URL 캡처 */}
       <DeepLinkRunner />

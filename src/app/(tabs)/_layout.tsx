@@ -1,4 +1,4 @@
-import { NativeTabs } from 'expo-router/unstable-native-tabs';
+import { NativeTabs } from 'expo-router/native-tabs';
 
 import { CustomTabsLayout } from '@/components/navigation/custom-tabs-layout';
 import { useColors } from '@/lib/theme/use-colors';
