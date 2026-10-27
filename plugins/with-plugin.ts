@@ -1,5 +1,4 @@
 import withAndroidPlugin from './with-android-plugin';
-import withIosPlugin from './with-ios-plugin';
 
 import type { ConfigPlugin } from 'expo/config-plugins';
 
@@ -8,16 +7,12 @@ import type { ConfigPlugin } from 'expo/config-plugins';
  * 옵션은 JSON 직렬화 가능한 값만 넘긴다.
  */
 export type PluginOptions = {
-  /** iOS Podfile 처리가 이 값으로 갈린다. */
-  pushEnabled: boolean;
   /** 비면 Expo 기본(`name`)을 둔다. Android strings.xml 만 여기서 고친다. */
   displayName: string;
 };
 
-const withPlugin: ConfigPlugin<PluginOptions> = (config, options) => {
-  config = withAndroidPlugin(config, options);
-  config = withIosPlugin(config, options);
-  return config;
-};
+// iOS 보정은 없다 — RNFB 27 이 SPM 전용이 되면서 `$RNFirebaseDisableSPM` 주입이 사라졌다(docs/push.md).
+const withPlugin: ConfigPlugin<PluginOptions> = (config, options) =>
+  withAndroidPlugin(config, options);
 
 export default withPlugin;
