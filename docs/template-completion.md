@@ -217,7 +217,7 @@
 
 ### C4. 자동화와 릴리즈
 
-- [x] **결정 — CI 워크플로는 넣지 않는다(2026-09-07, 사용자 지시).** 게이트는 로컬 `pnpm run check-all`. 받는 팀이 자기 파이프라인을 붙인다.
+- [x] ~~결정 — CI 워크플로는 넣지 않는다(2026-09-07)~~ → 번복. `ci.yml`(check-all, 2026-09-21) 과 `expo-doctor.yml`(KR/JP 이식, 2026-10-28) 두 개를 둔다. 네이티브 빌드는 여전히 CI 에서 하지 않는다.
 - [ ] CHANGELOG와 tag 기반 릴리즈 절차
 - [x] **clean clone 전체 검증(2026-09-07)** — 새 폴더에 clone → frozen install → check-all → doctor → iOS export.
       `ios`/`android`/`.env`/`node_modules`/`.expo`/`fingerprint.json` 이 clone 에 없는 것 확인,
