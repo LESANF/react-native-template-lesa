@@ -9,6 +9,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- **`.github/workflows/expo-doctor.yml`** — KR/JP 앱의 expo-doctor 워크플로 이식. 의존성·`app.config.ts` 가 바뀌는 PR 에서 prebuild 뒤 `expo-doctor` 를 돌리고 결과를 PR 댓글로 남긴다(`.github/scripts/expo-doctor.sh`)
+
 ## [0.0.13] — 2026-10-27
 
 ### Changed
