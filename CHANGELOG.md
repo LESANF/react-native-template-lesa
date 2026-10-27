@@ -9,7 +9,7 @@
 
 ## [Unreleased]
 
-## [0.1.0] — 2026-10-27
+## [0.0.13] — 2026-10-27
 
 ### Changed
 
@@ -340,8 +340,8 @@ Team ID)로 `env-candidates.ts` 를 치환하고 216파일을 초기 커밋한�
 
 ---
 
-[unreleased]: https://github.com/LESANF/react-native-template-lesa/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.12...v0.1.0
+[unreleased]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.13...HEAD
+[0.0.13]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.12...v0.0.13
 [0.0.12]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.11...v0.0.12
 [0.0.11]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.10...v0.0.11
 [0.0.10]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.9...v0.0.10
