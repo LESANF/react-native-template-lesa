@@ -42,6 +42,10 @@ pnpm add -D hot-updater@1.1.8 @hot-updater/{aws,expo,standalone}@1.1.8
 
 # 4. 재생성 — --no-clean 은 쓰지 않는다(apple-targets 크래시)
 npx expo prebuild
+
+# 5. (임시·선택) pod install 이나 Gradle 이 RN 산출물 다운로드에서 멈추면 — README 상단 경고
+#    package.json prebuild 스크립트의 ENTERPRISE_REPOSITORY, plugins/with-rn-maven-mirror.ts,
+#    with-plugin.ts 의 한 줄을 템플릿에서 가져온다. 프록시가 정상화되면 셋 다 지운다
 ```
 
 ## v0.0.12 에서 올리기 — SDK 58 (v0.0.13)
