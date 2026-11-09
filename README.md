@@ -27,7 +27,7 @@
 > React Native 0.88 downloads its prebuilt iOS artifacts (ReactNativeCore · ReactNativeDependencies · Hermes,
 > ~250 MB per RN version) from `repo.reactnative.dev`. Maven Central 301-redirects to the same host, and that
 > proxy currently crawls at 100–200 KB/s and stalls outright, so a cold `pod install` takes 30+ minutes or never
-> finishes ([react-native#58427](https://github.com/react/react-native/issues/58427) has the background).
+> finishes ([react-native#58427](https://github.com/facebook/react-native/issues/58427) has the background).
 > Until it recovers, the `prebuild` script pins `ENTERPRISE_REPOSITORY` to Google's Maven Central mirror
 > (`https://maven-central.storage-download.googleapis.com/maven2`), which serves the same files and `.sha1`
 > checksums at ~3 MB/s. If you run `pod install` by hand, export the same variable first. Remove the pin from
