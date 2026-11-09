@@ -148,8 +148,9 @@ iOS 는 백그라운드·종료 상태에서 이미지가 든 푸시를 앱이 �
   포그라운드 경로(`lib/push/taps.ts`)와 같은 계약이다. 서버 페이로드 절 참고.
 - **번들·서명** — `<bundleId>.ImageNotification`, 팀은 `ios.appleTeamId` 를 따라간다. 실기·배포는
   이 번들의 프로비저닝 프로필이 **따로** 필요하다(config.md "EAS 없이 운영").
-- **패치가 필요하다** — `@bacons/apple-targets@4.0.6` 은 타깃이 이미 있는 상태의 prebuild(`--no-clean`)
-  에서 죽는다. `patches/` 의 pnpm 패치가 고친다. 지우는 조건과 업스트림은 `patches/README.md`.
+- **`--no-clean` 으로 prebuild 하지 않는다** — `@bacons/apple-targets` 는 타깃이 이미 있으면
+  `reading 'removeFromProject'` 로 죽는다(업스트림 #201·#206 미머지, 5.0.0 도 같다). 기본 prebuild 는
+  재생성이라 무관하다. 패치로 고치지 않는다(config.md "거부된 대안").
 - `targets/**/generated.entitlements` 는 prebuild 산출물이라 gitignore 다.
 
 ## 운영
