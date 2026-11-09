@@ -10,6 +10,7 @@ Each section records: the decision, the reasoning, and what is deferred.
 | ---------- | ------------------------------------------------------------------ | -------------------------------------------------------- |
 | 2026-06-10 | 환경 설정 — `defineEnv`, 루트 flat 파일, 시크릿 정책               | [config.md](config.md)                                   |
 | 2026-10-27 | SDK 58 — RNFB 27(SPM·dynamic) · hot-updater v1 · Duo 좌우 inset    | [push.md](push.md) · [boot.md](boot.md) · [ui.md](ui.md) |
+| 2026-11-09 | 서드파티 패치 폐기 — 최신 안정 SDK 를 따라가고 땜질·고정하지 않는다 | [config.md](config.md)                                   |
 | 2026-06-10 | 스타일링 1차 — 2026-06-16 에 Uniwind 로 대체됨(폐기)               | —                                                        |
 | 2026-06-11 | 폴더 구조·라우팅 — zone, 단방향 import, `app/` 규칙, 에러 처리     | [routing.md](routing.md)                                 |
 | 2026-06-11 | 배럴 정책 · 컴포넌트 승격(Rule of Three)                           | [ui.md](ui.md)                                           |

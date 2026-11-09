@@ -14,6 +14,13 @@
 - **`.github/workflows/expo-doctor.yml`** — KR/JP 앱의 expo-doctor 워크플로 이식. 의존성·`app.config.ts` 가 바뀌는 PR 에서 prebuild 뒤 `expo-doctor` 를 돌리고 결과를 PR 댓글로 남긴다(`.github/scripts/expo-doctor.sh`)
 - **`ci.yml` 에 `pnpm run doctor`** — 모든 PR 에서 돈다. 코드가 그대로여도 SDK 패치가 나오면 실패해 밀린 `expo install --fix` 를 잡는다
 
+### Removed
+
+- **`patches/` 전부** — `react-native`(인스펙터 Touchables 리마운트) · `expo-dev-menu`(Dev Menu 아이콘 모양) ·
+  `@bacons/apple-targets`(`--no-clean` prebuild 크래시). 패치는 정확한 버전에 묶여 `expo install --fix` 를 막는다.
+  템플릿은 최신 안정 SDK 를 따라가고 땜질하지 않는다. 앞의 둘은 dev 전용이고 RN 수정은 0.89 에 들어 있다.
+  apple-targets 는 `--no-clean` 만 피하면 된다(기본 prebuild 는 재생성)
+
 ## [0.0.13] — 2026-10-27
 
 ### Changed
