@@ -22,6 +22,10 @@
   `@bacons/apple-targets` 는 4.0.6 에 둔다 — KR 참조 앱이 `^4.0.6` 이고, 5.0.0 은 SDK 55 의 `@expo/prebuild-config` 를
   런타임 의존성으로 끌고 와 SDK 58 것과 두 벌이 된다(푸시 off 라 검증 불가)
 
+- **임시 — iOS prebuilt 산출물을 Google Maven 미러에서 받는다.** `repo.reactnative.dev` 프록시가 100–200 KB/s 로
+  기다 멈춰 첫 `pod install` 이 끝나지 않아, `prebuild` 스크립트에 `ENTERPRISE_REPOSITORY` 를 고정했다. 같은
+  파일·`.sha1` 을 ~3 MB/s 로 받는다. 프록시가 복구되면 지운다. 자세한 건 README 상단 경고와 `docs/config.md`
+
 ### Removed
 
 - **`patches/` 전부** — `react-native`(인스펙터 Touchables 리마운트) · `expo-dev-menu`(Dev Menu 아이콘 모양) ·

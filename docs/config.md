@@ -183,7 +183,7 @@ an optional later add-on, not a default.
 | `react-native-permissions` Notifications                                                                                                                             | ✅                                                                                                                                 |
 | RNFB app/messaging                                                                                                                                                   | ✅ `firebase/` 파일 존재 게이트                                                                                                    |
 | RNFB auth/crashlytics/analytics                                                                                                                                      | ❌ 범위 밖 — 붙일 땐 같은 게이트 안에                                                                                              |
-| `@bacons/apple-targets` NSE                                                                                                                                          | ✅ `targets/notification-service/` verbatim · 푸시 게이트 안 · `--no-clean` 금지(push.md)                              |
+| `@bacons/apple-targets` NSE                                                                                                                                          | ✅ `targets/notification-service/` verbatim · 푸시 게이트 안 · `--no-clean` 금지(push.md)                                          |
 | `with-android-plugin`: 폴더블(configChanges·resizeableActivity)                                                                                                      | ✅ `plugins/with-plugin.ts`(→ `with-android-plugin.ts` · `with-ios-plugin.ts`)                                                     |
 | `with-android-plugin`: release 서명(Gradle env, production 만)                                                                                                       | ✅ 같은 파일. 키스토어 기본 경로 `<repo>/upload.jks`, 값은 `ANDROID_UPLOAD_*` 환경 변수                                            |
 | `with-android-plugin`: 결제 앱 query(`auwallet`) · Analytics 메타데이터                                                                                              | ❌ 앱 전용                                                                                                                         |
@@ -247,6 +247,14 @@ Xcode 프로젝트·스킴·`PRODUCT_NAME` 을 파생하는데, `sanitizedName()
 기본(EAS 미연결) 경로:
 
 - **프리빌드** — `pnpm prebuild:<env>` (`expo prebuild`, `STRICT_ENV_VALIDATION=1`. 재생성이 기본 — 아래 "prebuild clean" 절)
+- **임시(2026-11-09): `ENTERPRISE_REPOSITORY`** — `prebuild` 스크립트가 RN iOS prebuilt 산출물의 Maven 저장소를
+  Google 의 Central 미러로 바꾼다. RN 0.88 의 `scripts/cocoapods/utils.rb` · `hermes-utils.rb` 가 이 env 하나로
+  저장소 목록을 통째로 대체하고(폴백 없음), 체크섬은 같은 URL 의 `.sha1` 로 검증한다. 기본 경로
+  `repo.reactnative.dev`(Central 도 거기로 301)가 100–200 KB/s 로 기다 멈추는 동안만 둔다 — 측정: 프록시 115 KB/s,
+  Google 미러 3.2–3.8 MB/s, 같은 6개 파일 + `.sha1` 모두 200. Android 는 Gradle 플러그인의
+  `react.exclusiveEnterpriseRepository` 가 **모든** 저장소를 대체해 androidx 가 깨지므로 손대지 않았다 — 필요하면
+  `com.facebook.(react|hermes).*` 로 스코프한 저장소를 앞에 두는 config plugin 으로 한다. Expo CLI 는 `pod install`
+  을 부모 env 그대로 spawn 하므로(`@expo/cli` `utils/cocoapods.js`) 스크립트의 cross-env 한 줄이면 된다.
 - **빌드** — `pnpm ios:release` · `pnpm android:release`
   (`expo run:ios --configuration Release` · `expo run:android --variant release`)
 - **Android release 서명** — `plugins/with-android-plugin.ts` 가 production 프리빌드에서만
