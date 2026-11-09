@@ -27,7 +27,7 @@
 > React Native 0.88 은 iOS prebuilt 산출물(ReactNativeCore · ReactNativeDependencies · Hermes, RN 버전당
 > 약 250 MB)을 `repo.reactnative.dev` 에서 받습니다. Maven Central 도 그 호스트로 301 리다이렉트하는데,
 > 지금 그 프록시가 100–200 KB/s 로 기어가다 아예 멈춰서 첫 `pod install` 이 30분 이상 걸리거나 끝나지
-> 않습니다(배경은 [react-native#58427](https://github.com/react/react-native/issues/58427)).
+> 않습니다(배경은 [react-native#58427](https://github.com/facebook/react-native/issues/58427)).
 > 복구될 때까지 `prebuild` 스크립트가 `ENTERPRISE_REPOSITORY` 를 Google 의 Maven Central 미러
 > (`https://maven-central.storage-download.googleapis.com/maven2`)로 고정합니다 — 같은 파일과 `.sha1`
 > 체크섬을 약 3 MB/s 로 줍니다. `pod install` 을 직접 돌리면 같은 변수를 먼저 export 하세요. 프록시가
