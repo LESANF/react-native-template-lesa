@@ -34,3 +34,6 @@ jobs:
       - run: pnpm run check-all
         env:
           CI: true
+
+      # 코드가 그대로여도 SDK 패치가 나오면 실패한다 — 밀린 `expo install --fix` 를 여기서 잡는다.
+      - run: pnpm run doctor
