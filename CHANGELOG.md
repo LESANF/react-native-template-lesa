@@ -9,6 +9,8 @@
 
 ## [Unreleased]
 
+## [0.0.14] — 2026-11-09
+
 ### Added
 
 - **`.github/workflows/expo-doctor.yml`** — KR/JP 앱의 expo-doctor 워크플로 이식. 의존성·`app.config.ts` 가 바뀌는 PR 에서 prebuild 뒤 `expo-doctor` 를 돌리고 결과를 PR 댓글로 남긴다(`.github/scripts/expo-doctor.sh`)
@@ -367,6 +369,7 @@ Team ID)로 `env-candidates.ts` 를 치환하고 216파일을 초기 커밋한�
 ---
 
 [unreleased]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.13...HEAD
+[0.0.14]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.13...v0.0.14
 [0.0.13]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.12...v0.0.13
 [0.0.12]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.11...v0.0.12
 [0.0.11]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.10...v0.0.11
