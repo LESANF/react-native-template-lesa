@@ -20,8 +20,8 @@ const run = promisify(execFile);
 const TEMPLATE_DIR = process.cwd();
 const CLI_DIR = process.env.LESA_CLI_DIR ?? path.resolve(TEMPLATE_DIR, '../create-lesa-app');
 
-const ok = (v) => `\x1b[32m✓\x1b[0m ${v}`;
-const bad = (v) => `\x1b[31m✗\x1b[0m ${v}`;
+const ok = v => `\x1b[32m✓\x1b[0m ${v}`;
+const bad = v => `\x1b[31m✗\x1b[0m ${v}`;
 
 async function git(dir, args) {
   const { stdout } = await run('git', ['-C', dir, ...args]);
@@ -39,7 +39,7 @@ function collate(tag) {
   return major * 1e6 + minor * 1e3 + patch;
 }
 
-const pkgVersion = (dir) => JSON.parse(readFileSync(path.join(dir, 'package.json'), 'utf8')).version;
+const pkgVersion = dir => JSON.parse(readFileSync(path.join(dir, 'package.json'), 'utf8')).version;
 
 function templateRef(dir) {
   const source = readFileSync(path.join(dir, 'src/fetch-template.ts'), 'utf8');
@@ -66,10 +66,10 @@ async function npmLatest(name) {
 
 async function tarballStatus(repo, tag) {
   try {
-    const response = await fetch(
-      `https://codeload.github.com/${repo}/tar.gz/refs/tags/${tag}`,
-      { method: 'HEAD', redirect: 'follow' }
-    );
+    const response = await fetch(`https://codeload.github.com/${repo}/tar.gz/refs/tags/${tag}`, {
+      method: 'HEAD',
+      redirect: 'follow',
+    });
     return response.status;
   } catch {
     return 0;

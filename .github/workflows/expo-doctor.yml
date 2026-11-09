@@ -1,0 +1,65 @@
+# KR/JP 앱의 expo-doctor 워크플로(obytes 템플릿 기원)를 그대로 가져왔다. 의존성·app config 가
+# 바뀌는 PR 에서만 돌고, 결과를 PR 댓글 하나(sticky)로 남긴다. prebuild 를 먼저 돌려
+# config plugin 이 끊기지 않았는지도 같이 본다 — 러너에서는 푸시가 꺼져 있어(firebase/ 없음) 통과한다.
+name: Expo Doctor (expo)
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - package.json
+      - pnpm-lock.yaml
+      - pnpm-workspace.yaml
+      - app.config.ts
+  pull_request:
+    paths:
+      - package.json
+      - pnpm-lock.yaml
+      - pnpm-workspace.yaml
+      - app.config.ts
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  doctor:
+    name: Expo Doctor (expo)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # ci.yml 과 같은 셋업. 메이저를 올릴 때 package.json engines.pnpm 과 같이 올린다.
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Run prebuild
+        run: pnpm run prebuild
+        env:
+          CI: true
+
+      # 리포트는 .expo/expo-doctor.md 에 쓴다. 산출물은 지우고 돈다 — doctor 는 소스만 본다.
+      - name: Run Doctor Checks
+        run: |
+          rm -rf ios android
+          mkdir -p .expo
+          .github/scripts/expo-doctor.sh
+
+      - name: Add doctor report as comment on PR
+        if: github.event_name == 'pull_request' && always()
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: expo-doctor
+          path: .expo/expo-doctor.md

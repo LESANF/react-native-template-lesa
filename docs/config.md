@@ -183,7 +183,7 @@ an optional later add-on, not a default.
 | `react-native-permissions` Notifications                                                                                                                             | ✅                                                                                                                                 |
 | RNFB app/messaging                                                                                                                                                   | ✅ `firebase/` 파일 존재 게이트                                                                                                    |
 | RNFB auth/crashlytics/analytics                                                                                                                                      | ❌ 범위 밖 — 붙일 땐 같은 게이트 안에                                                                                              |
-| `@bacons/apple-targets` NSE                                                                                                                                          | ✅ `targets/notification-service/` verbatim · 푸시 게이트 안 · `patches/` 의 4.0.6 패치 필수(push.md)                              |
+| `@bacons/apple-targets` NSE                                                                                                                                          | ✅ `targets/notification-service/` verbatim · 푸시 게이트 안 · `--no-clean` 금지(push.md)                                          |
 | `with-android-plugin`: 폴더블(configChanges·resizeableActivity)                                                                                                      | ✅ `plugins/with-plugin.ts`(→ `with-android-plugin.ts` · `with-ios-plugin.ts`)                                                     |
 | `with-android-plugin`: release 서명(Gradle env, production 만)                                                                                                       | ✅ 같은 파일. 키스토어 기본 경로 `<repo>/upload.jks`, 값은 `ANDROID_UPLOAD_*` 환경 변수                                            |
 | `with-android-plugin`: 결제 앱 query(`auwallet`) · Analytics 메타데이터                                                                                              | ❌ 앱 전용                                                                                                                         |
@@ -247,6 +247,16 @@ Xcode 프로젝트·스킴·`PRODUCT_NAME` 을 파생하는데, `sanitizedName()
 기본(EAS 미연결) 경로:
 
 - **프리빌드** — `pnpm prebuild:<env>` (`expo prebuild`, `STRICT_ENV_VALIDATION=1`. 재생성이 기본 — 아래 "prebuild clean" 절)
+- **임시(2026-11-09): `ENTERPRISE_REPOSITORY`** — `prebuild` 스크립트가 RN iOS prebuilt 산출물의 Maven 저장소를
+  Google 의 Central 미러로 바꾼다. RN 0.88 의 `scripts/cocoapods/utils.rb` · `hermes-utils.rb` 가 이 env 하나로
+  저장소 목록을 통째로 대체하고(폴백 없음), 체크섬은 같은 URL 의 `.sha1` 로 검증한다. 기본 경로
+  `repo.reactnative.dev`(Central 도 거기로 301)가 100–200 KB/s 로 기다 멈추는 동안만 둔다 — 측정: 프록시 115 KB/s,
+  Google 미러 3.2–3.8 MB/s, 같은 6개 파일 + `.sha1` 모두 200. Expo CLI 는 `pod install` 을 부모 env 그대로
+  spawn 하므로(`@expo/cli` `utils/cocoapods.js`) 스크립트의 cross-env 한 줄이면 된다. Android 는 같은 env 로
+  `plugins/with-rn-maven-mirror.ts` 가 루트 `allprojects.repositories` **맨 앞**에 `com.facebook.(react|hermes).*`
+  로 스코프한 저장소를 넣는다 — Gradle 은 선언 순서대로 찾으므로 미러가 먼저, 폴백은 Central(→ 프록시)로 남는다.
+  Gradle 플러그인의 `react.exclusiveEnterpriseRepository` 는 **모든** 저장소를 대체해 androidx 가 깨지므로 쓰지
+  않는다. 되돌릴 때 지우는 곳은 셋 — `prebuild` 스크립트의 env, 이 플러그인 파일, `with-plugin.ts` 의 한 줄.
 - **빌드** — `pnpm ios:release` · `pnpm android:release`
   (`expo run:ios --configuration Release` · `expo run:android --variant release`)
 - **Android release 서명** — `plugins/with-android-plugin.ts` 가 production 프리빌드에서만
@@ -260,9 +270,10 @@ Xcode 프로젝트·스킴·`PRODUCT_NAME` 을 파생하는데, `sanitizedName()
 - **pnpm 버전** — `packageManager` 로 정확한 버전을 박지 않는다. corepack 심이 그 버전으로 내려가
   전역에 올려둔 pnpm 을 무력화한다(실제로 전역 12 인 머신이 프로젝트 안에서 11 로 돌았다).
   `engines.pnpm` 이 하한(로컬에서 불일치면 pnpm 이 실패한다), `preinstall` 의 `only-allow` 가 pnpm 강제.
-  CI 는 `pnpm/action-setup` 의 `version: 12`. 메이저를 올릴 때 `package.json`·`ci.yml` 두 곳을 같이 올린다.
-- **pnpm 패치** — `patches/` 에 있고 `pnpm-workspace.yaml` 의 `patchedDependencies` 가 등록이다.
-  버전에 묶이니 그 패키지를 올리면 같이 다시 만든다. 지우는 조건은 `patches/README.md`.
+  CI 는 `pnpm/action-setup` 의 `version: 12`. 메이저를 올릴 때 `package.json`·`ci.yml`·`expo-doctor.yml` 세 곳을 같이 올린다.
+  `expo-doctor.yml` 은 KR/JP 앱의 워크플로를 그대로 가져온 것이다 — `package.json`·lockfile·`pnpm-workspace.yaml`·`app.config.ts` 가
+  바뀌는 PR 에서 prebuild 뒤 `expo-doctor` 를 돌리고 결과를 PR 댓글 하나로 남긴다(`.github/scripts/expo-doctor.sh`).
+- **서드파티 패치 없음** — `pnpm patch`·`patch-package` 를 쓰지 않는다(아래 "거부된 대안").
 - **OTA** — hot-updater 자체 서버라 EAS 연결 여부와 무관하다(위 OTA 결정).
 
 **CNG 는 EAS 와 무관하게 그대로다.** EAS 를 안 붙였다고 네이티브를 커밋하는 게 아니다 —
@@ -617,6 +628,9 @@ Metro 가 리로드한다 — 에디터가 테스트를 자동 실행하는 환�
 - 코드 출처 값에 zod 런타임 검증 → 타입 체커가 이미 잡는다(위 "Safety rules").
 - `prebuild` 앞에 `rm -rf ios android` → 재생성이 기본이라 잉여이고 `-p`·`--no-clean` 을 깨뜨린다
   (위 "prebuild clean").
+- `pnpm patch` 로 서드파티 버그 땜질 → 패치는 정확한 버전에 묶여 SDK 패치 업데이트(`expo install --fix`)를
+  `ERR_PNPM_UNUSED_PATCH` 로 막는다. 템플릿은 최신 안정 SDK 를 따라간다 — 정식 수정을 기다리거나 업스트림에
+  PR 을 낸다. 2026-11-09 에 셋 다 지웠다(RN 인스펙터 Touchables 리마운트 · dev-menu 아이콘 · apple-targets `--no-clean`).
 - `eas.json` 을 템플릿에 포함 → EAS 는 파일 존재로 갈리는 opt-in(위 "EAS").
 - `plugins/with-display-name.ts` 를 따로 두기 → Android mod 한 개라 `with-android-plugin` 안.
 - `ios.deploymentTarget: '16.0'` → SDK 57 기본이 16.4. 낮추면 pod 경고·실패.

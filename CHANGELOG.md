@@ -9,6 +9,34 @@
 
 ## [Unreleased]
 
+## [0.0.14] — 2026-11-09
+
+### Added
+
+- **`.github/workflows/expo-doctor.yml`** — KR/JP 앱의 expo-doctor 워크플로 이식. 의존성·`app.config.ts` 가 바뀌는 PR 에서 prebuild 뒤 `expo-doctor` 를 돌리고 결과를 PR 댓글로 남긴다(`.github/scripts/expo-doctor.sh`)
+- **`ci.yml` 에 `pnpm run doctor`** — 모든 PR 에서 돈다. 코드가 그대로여도 SDK 패치가 나오면 실패해 밀린 `expo install --fix` 를 잡는다
+
+### Changed
+
+- **SDK 58 패치 업데이트(`expo install --fix`).** expo 58.0.19 → 58.0.23, react-native 0.88.0 → 0.88.1,
+  expo-router 58.0.26 → 58.0.30, safe-area-context 5.10.1 → 5.11.1, screens 4.30.0 → 4.30.1 외 11개(expo-\*·@expo/metro-runtime·jest-expo)
+- hot-updater 1.1.3 → 1.1.8 — 1.1.6 이 `useFrameworks: 'dynamic'`(이 템플릿의 설정)에서 iOS 링크를 고쳤다.
+  `@bacons/apple-targets` 는 4.0.6 에 둔다 — KR 참조 앱이 `^4.0.6` 이고, 5.0.0 은 SDK 55 의 `@expo/prebuild-config` 를
+  런타임 의존성으로 끌고 와 SDK 58 것과 두 벌이 된다(푸시 off 라 검증 불가)
+
+- **임시 — RN prebuilt 산출물을 Google Maven 미러에서 받는다.** `repo.reactnative.dev` 프록시가 100–200 KB/s 로
+  기다 멈춰 첫 `pod install`·Gradle 동기화가 끝나지 않아, `prebuild` 스크립트에 `ENTERPRISE_REPOSITORY` 를
+  고정했다. iOS 는 RN 의 cocoapods 스크립트가 그 env 를 읽고, Android 는 새 `plugins/with-rn-maven-mirror.ts` 가
+  같은 env 로 `com.facebook.(react|hermes).*` 한정 저장소를 `android/build.gradle` 맨 앞에 넣는다. 같은
+  파일·`.sha1` 을 ~3 MB/s 로 받는다. 프록시가 복구되면 지운다. 자세한 건 README 상단 경고와 `docs/config.md`
+
+### Removed
+
+- **`patches/` 전부** — `react-native`(인스펙터 Touchables 리마운트) · `expo-dev-menu`(Dev Menu 아이콘 모양) ·
+  `@bacons/apple-targets`(`--no-clean` prebuild 크래시). 패치는 정확한 버전에 묶여 `expo install --fix` 를 막는다.
+  템플릿은 최신 안정 SDK 를 따라가고 땜질하지 않는다. 앞의 둘은 dev 전용이고 RN 수정은 0.89 에 들어 있다.
+  apple-targets 는 `--no-clean` 만 피하면 된다(기본 prebuild 는 재생성)
+
 ## [0.0.13] — 2026-10-27
 
 ### Changed
@@ -341,6 +369,7 @@ Team ID)로 `env-candidates.ts` 를 치환하고 216파일을 초기 커밋한�
 ---
 
 [unreleased]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.13...HEAD
+[0.0.14]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.13...v0.0.14
 [0.0.13]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.12...v0.0.13
 [0.0.12]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.11...v0.0.12
 [0.0.11]: https://github.com/LESANF/react-native-template-lesa/compare/v0.0.10...v0.0.11

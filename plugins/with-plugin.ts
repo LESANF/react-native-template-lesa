@@ -1,4 +1,5 @@
 import withAndroidPlugin from './with-android-plugin';
+import withRnMavenMirror from './with-rn-maven-mirror';
 
 import type { ConfigPlugin } from 'expo/config-plugins';
 
@@ -12,7 +13,8 @@ export type PluginOptions = {
 };
 
 // iOS 보정은 없다 — RNFB 27 이 SPM 전용이 되면서 `$RNFirebaseDisableSPM` 주입이 사라졌다(docs/push.md).
+// withRnMavenMirror 는 임시다(README 상단 경고) — 프록시가 정상화되면 이 한 줄과 그 파일을 지운다.
 const withPlugin: ConfigPlugin<PluginOptions> = (config, options) =>
-  withAndroidPlugin(config, options);
+  withRnMavenMirror(withAndroidPlugin(config, options));
 
 export default withPlugin;

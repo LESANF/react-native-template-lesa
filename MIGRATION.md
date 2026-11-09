@@ -9,6 +9,7 @@
 
 | 무엇이 있나                                                                      | 그 버전                           |
 | -------------------------------------------------------------------------------- | --------------------------------- |
+| `expo` 가 `~58` 이고 `patches/` 가 없다                                          | v0.0.14                           |
 | `expo` 가 `~58` 이고 `patches/react-native@0.88.0.patch` 가 있다                 | v0.0.13                           |
 | `patches/react-native@0.86.3.patch` 가 있다                                      | v0.0.12                           |
 | `semantic.css` 에 `@variant light` 가 있고 `src/lib/theme/use-colors.ts` 가 있다 | v0.0.11                           |
@@ -20,6 +21,32 @@
 | 위 둘 다 없고 `expo` 가 `~57.0.22`                                               | v0.0.3 이하                       |
 
 ---
+
+## v0.0.13 에서 올리기 — SDK 58 패치 · 패치 제거 (v0.0.14)
+
+RN 0.88.0 → 0.88.1 이라 새 네이티브 빌드가 필요하다.
+
+```bash
+# 1. 패치 제거 — 버전에 묶여 있어 두면 2 가 ERR_PNPM_UNUSED_PATCH 로 실패한다
+rm -rf patches
+#    pnpm-workspace.yaml 에서 patchedDependencies 블록을 지운다
+
+# 2. Expo 가 고정하는 것
+npx expo install --fix
+pnpm update @react-native/metro-config --depth Infinity   # RN 0.88.1 과 맞춘다(peer 경고)
+npx expo install --check                                  # "Dependencies are up to date" 까지
+
+# 3. Expo 밖
+pnpm add @hot-updater/react-native@1.1.8
+pnpm add -D hot-updater@1.1.8 @hot-updater/{aws,expo,standalone}@1.1.8
+
+# 4. 재생성 — --no-clean 은 쓰지 않는다(apple-targets 크래시)
+npx expo prebuild
+
+# 5. (임시·선택) pod install 이나 Gradle 이 RN 산출물 다운로드에서 멈추면 — README 상단 경고
+#    package.json prebuild 스크립트의 ENTERPRISE_REPOSITORY, plugins/with-rn-maven-mirror.ts,
+#    with-plugin.ts 의 한 줄을 템플릿에서 가져온다. 프록시가 정상화되면 셋 다 지운다
+```
 
 ## v0.0.12 에서 올리기 — SDK 58 (v0.0.13)
 
