@@ -31,4 +31,3 @@ export function subscribeLinking(): () => void {
 export function emitInApp(url: string) {
   deepLinkDispatcher.enqueue(url, 'in-app');
 }
-

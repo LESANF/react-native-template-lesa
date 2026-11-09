@@ -15,12 +15,13 @@ import path from 'node:path';
 const ROOT = process.env.CLAUDE_PROJECT_DIR ?? process.env.CODEX_PROJECT_DIR ?? process.cwd();
 /** Claude Code 만 PreToolUse 에서 JSON 계약을 요구한다. */
 const IS_CLAUDE = Boolean(process.env.CLAUDE_PROJECT_DIR);
-const read = () => new Promise(r => {
-  let s = '';
-  process.stdin.setEncoding('utf8');
-  process.stdin.on('data', d => (s += d));
-  process.stdin.on('end', () => r(s));
-});
+const read = () =>
+  new Promise(r => {
+    let s = '';
+    process.stdin.setEncoding('utf8');
+    process.stdin.on('data', d => (s += d));
+    process.stdin.on('end', () => r(s));
+  });
 
 /**
  * 설치된 스킬 이름. 하네스마다 스킬이 따로 설치되므로(Claude 는 `~/.agents/skills` 를
@@ -63,27 +64,33 @@ const ROUTES = [
       const web = have('animate', 'motion-react', 'css-animations', 'animation-performance');
       const lines = rn.length
         ? [`애니메이션·제스처 → ${rn.map(s => `\`${s}\``).join(' · ')} 스킬.`]
-        : ['애니메이션·제스처 → **RN 애니메이션 스킬이 이 하네스에 없다.** Reanimated 는 UI 스레드에서 돌고 `useSharedValue`/`useAnimatedStyle` 로 JS 왕복을 없앤다는 것만 지키고, 확실하지 않으면 expo MCP 로 확인한다.'];
+        : [
+            '애니메이션·제스처 → **RN 애니메이션 스킬이 이 하네스에 없다.** Reanimated 는 UI 스레드에서 돌고 `useSharedValue`/`useAnimatedStyle` 로 JS 왕복을 없앤다는 것만 지키고, 확실하지 않으면 expo MCP 로 확인한다.',
+          ];
       if (web.length)
-        lines.push(`⚠ ${web.map(s => `\`${s}\``).join(' · ')} 는 **웹 전용**(CSS·Framer Motion)이다. RN 에 그 조언을 쓰면 안 된다 — \`will-change\`·GPU 레이어 같은 건 없다.`);
+        lines.push(
+          `⚠ ${web.map(s => `\`${s}\``).join(' · ')} 는 **웹 전용**(CSS·Framer Motion)이다. RN 에 그 조언을 쓰면 안 된다 — \`will-change\`·GPU 레이어 같은 건 없다.`
+        );
       return lines.join('\n  ');
     },
   },
   {
     re: /키보드|keyboard|TextInput|소프트\s*키|입력\s*필드|(폼|form)[^.]{0,20}(가림|가려|키보드|스크롤|포커스)/i,
-    say: () => have('rn-keyboard-handling').length
-      ? '키보드 회피 → `rn-keyboard-handling` 스킬 (KeyboardAvoidingView vs avoid-softinput 선택, iOS/Android 차이).'
-      : '키보드 회피 → 전용 스킬이 이 하네스에 없다. iOS 는 KeyboardAvoidingView, Android 는 `adjustResize` 가 기본이고 바텀시트·포털 안에서는 둘 다 어긋난다 — 실기로 확인한다.',
+    say: () =>
+      have('rn-keyboard-handling').length
+        ? '키보드 회피 → `rn-keyboard-handling` 스킬 (KeyboardAvoidingView vs avoid-softinput 선택, iOS/Android 차이).'
+        : '키보드 회피 → 전용 스킬이 이 하네스에 없다. iOS 는 KeyboardAvoidingView, Android 는 `adjustResize` 가 기본이고 바텀시트·포털 안에서는 둘 다 어긋난다 — 실기로 확인한다.',
   },
   {
     re: /\bOTA\b|hot-?updater|번들\s*배포|롤백|rollback|핫픽스|hotfix/i,
-    say: () => have('hot-updater').length
-      ? 'OTA → `hot-updater` 스킬. 이 템플릿의 OTA 엔진이다. 흐름은 `docs/boot.md`.'
-      : 'OTA → `hot-updater`(이 템플릿의 엔진). 전용 스킬이 없으니 `docs/boot.md` 와 `scripts/ota-deploy.mjs` 를 읽는다.',
+    say: () =>
+      have('hot-updater').length
+        ? 'OTA → `hot-updater` 스킬. 이 템플릿의 OTA 엔진이다. 흐름은 `docs/boot.md`.'
+        : 'OTA → `hot-updater`(이 템플릿의 엔진). 전용 스킬이 없으니 `docs/boot.md` 와 `scripts/ota-deploy.mjs` 를 읽는다.',
   },
   {
     re: /safe\s*area|인셋|inset|노치|notch|SafeAreaView|하단\s*여백/i,
-    say: 'safe area → `InsetView`(components/ui). 네이티브 `SafeAreaView` 는 쓰지 않는다. 탭 안 화면은 `edges={[\'top\']}` 만 — `docs/ui.md`.',
+    say: "safe area → `InsetView`(components/ui). 네이티브 `SafeAreaView` 는 쓰지 않는다. 탭 안 화면은 `edges={['top']}` 만 — `docs/ui.md`.",
   },
   {
     re: /prebuild|app\.config|config\s*plugin|네이티브\s*(설정|수정)|entitlement|Info\.plist|build\.gradle|Podfile/i,
@@ -108,9 +115,10 @@ const ROUTES = [
   },
   {
     re: /SDK\s*업그레이드|expo\s*upgrade|버전\s*올리|sdk\s*5[89]/i,
-    say: () => have('upgrading-expo').length
-      ? 'SDK 업그레이드 → `upgrading-expo` 스킬 + **expo MCP** 로 해당 버전 문서 확인.'
-      : 'SDK 업그레이드 → `npx expo install --check` 로 시작하고 해당 버전 문서를 **expo MCP** 로 확인한다.',
+    say: () =>
+      have('upgrading-expo').length
+        ? 'SDK 업그레이드 → `upgrading-expo` 스킬 + **expo MCP** 로 해당 버전 문서 확인.'
+        : 'SDK 업그레이드 → `npx expo install --check` 로 시작하고 해당 버전 문서를 **expo MCP** 로 확인한다.',
   },
   {
     re: /색상?|컬러|colou?r|hex|(디자인|색상?|컬러)\s*토큰|design\s*token|테마|theme|다크\s*모드|css\.create|useCSSVariable|getCSSVariable/i,
@@ -126,7 +134,9 @@ function routePrompt(text) {
   );
   // Expo 를 언급했는데 위에 안 걸렸으면 MCP 만 짚는다.
   if (!lines.length && EXPO_RE.test(text)) {
-    lines.push('- Expo 사실은 **expo MCP**(`search_documentation` → `read_documentation`)로 확인한다. 기억으로 답하지 않는다.');
+    lines.push(
+      '- Expo 사실은 **expo MCP**(`search_documentation` → `read_documentation`)로 확인한다. 기억으로 답하지 않는다.'
+    );
   }
   return lines;
 }
@@ -136,14 +146,24 @@ function projectState() {
   const out = [];
   const at = p => path.join(ROOT, p);
 
-  out.push(existsSync(at('.codegraph')) ? 'codegraph: 인덱스 있음 — 구조 질문은 `codegraph_explore`' : 'codegraph: 미초기화 — 구조 질문 전에 `codegraph init -i` 를 안내한다');
+  out.push(
+    existsSync(at('.codegraph'))
+      ? 'codegraph: 인덱스 있음 — 구조 질문은 `codegraph_explore`'
+      : 'codegraph: 미초기화 — 구조 질문 전에 `codegraph init -i` 를 안내한다'
+  );
 
   try {
     const files = readdirSync(at('firebase'));
     const envs = ['development', 'preview', 'production'].filter(
-      e => files.some(f => f === `GoogleService-Info.${e}.plist`) && files.some(f => f === `google-services.${e}.json`)
+      e =>
+        files.some(f => f === `GoogleService-Info.${e}.plist`) &&
+        files.some(f => f === `google-services.${e}.json`)
     );
-    out.push(envs.length ? `푸시: ${envs.join('·')} 켜짐` : '푸시: 꺼짐 (firebase/ 에 plist+json 쌍이 없다)');
+    out.push(
+      envs.length
+        ? `푸시: ${envs.join('·')} 켜짐`
+        : '푸시: 꺼짐 (firebase/ 에 plist+json 쌍이 없다)'
+    );
   } catch {
     out.push('푸시: 꺼짐 (firebase/ 없음)');
   }
@@ -199,7 +219,11 @@ if (mode === 'grep') {
 }
 
 if (mode === 'state') {
-  console.log(`[템플릿 현재 상태]\n${projectState().map(l => `- ${l}`).join('\n')}`);
+  console.log(
+    `[템플릿 현재 상태]\n${projectState()
+      .map(l => `- ${l}`)
+      .join('\n')}`
+  );
   process.exit(0);
 }
 
