@@ -14,6 +14,14 @@
 - **`.github/workflows/expo-doctor.yml`** — KR/JP 앱의 expo-doctor 워크플로 이식. 의존성·`app.config.ts` 가 바뀌는 PR 에서 prebuild 뒤 `expo-doctor` 를 돌리고 결과를 PR 댓글로 남긴다(`.github/scripts/expo-doctor.sh`)
 - **`ci.yml` 에 `pnpm run doctor`** — 모든 PR 에서 돈다. 코드가 그대로여도 SDK 패치가 나오면 실패해 밀린 `expo install --fix` 를 잡는다
 
+### Changed
+
+- **SDK 58 패치 업데이트(`expo install --fix`).** expo 58.0.19 → 58.0.23, react-native 0.88.0 → 0.88.1,
+  expo-router 58.0.26 → 58.0.30, safe-area-context 5.10.1 → 5.11.1, screens 4.30.0 → 4.30.1 외 11개(expo-\*·@expo/metro-runtime·jest-expo)
+- hot-updater 1.1.3 → 1.1.8 — 1.1.6 이 `useFrameworks: 'dynamic'`(이 템플릿의 설정)에서 iOS 링크를 고쳤다.
+  `@bacons/apple-targets` 는 4.0.6 에 둔다 — KR 참조 앱이 `^4.0.6` 이고, 5.0.0 은 SDK 55 의 `@expo/prebuild-config` 를
+  런타임 의존성으로 끌고 와 SDK 58 것과 두 벌이 된다(푸시 off 라 검증 불가)
+
 ### Removed
 
 - **`patches/` 전부** — `react-native`(인스펙터 Touchables 리마운트) · `expo-dev-menu`(Dev Menu 아이콘 모양) ·
