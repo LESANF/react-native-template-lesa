@@ -9,6 +9,13 @@
 
 ## [Unreleased]
 
+### Changed
+
+- **시스템 바를 `expo-status-bar` + `expo-navigation-bar` 로.** `react-native-edge-to-edge` 가 폐기됐다(RN 0.86+ 가 edge-to-edge 를
+  내장, Expo 가 `edgeToEdgeEnabled=true` 와 `Theme.EdgeToEdge` 를 prebuild 에서 쓴다). `ScreenSystemBars` 의 props(`style`·`hidden`)는
+  그대로고 Android 내비게이션 바도 같은 `style` 을 따른다. 플러그인 옵션 `enforceNavigationBarContrast: false` 는
+  `expo-navigation-bar` 의 `enforceContrast: false` 로, `expo.doctor` 의 Directory 예외는 지웠다
+
 ### Removed
 
 - **임시 RN Maven 미러(0.0.14)** — `repo.reactnative.dev` 프록시가 복구돼(2026-11-11 측정 3.2–3.8 MB/s, 0.0.14 때 100–200 KB/s)

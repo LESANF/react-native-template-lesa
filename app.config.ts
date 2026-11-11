@@ -144,15 +144,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     'expo-image',
     'expo-web-browser',
     'expo-localization',
-    [
-      'react-native-edge-to-edge',
-      {
-        android: {
-          parentTheme: 'Default',
-          enforceNavigationBarContrast: false,
-        },
-      },
-    ],
+    // 내비게이션 바 반투명 스크림을 끈다 — 스타일은 ScreenSystemBars 가 화면마다 정한다.
+    ['expo-navigation-bar', { enforceContrast: false }],
     [
       'expo-splash-screen',
       {

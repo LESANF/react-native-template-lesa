@@ -2,7 +2,8 @@ import { Stack, type ErrorBoundaryProps } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { Platform } from 'react-native';
-import { SystemBars } from 'react-native-edge-to-edge';
+import { NavigationBar } from 'expo-navigation-bar';
+import { StatusBar } from 'expo-status-bar';
 import { configureReanimatedLogger, ReanimatedLogLevel } from 'react-native-reanimated';
 import { enableFreeze } from 'react-native-screens';
 
@@ -59,7 +60,12 @@ export default function RootLayout() {
 
   return (
     <AppProviders>
-      {Platform.OS === 'android' && <SystemBars style="dark" />}
+      {Platform.OS === 'android' && (
+        <>
+          <StatusBar style="dark" />
+          <NavigationBar style="dark" />
+        </>
+      )}
       {/* 라우트는 파일시스템 자동 등록. 옵션이 필요한 화면만 Stack.Screen으로 추가한다. */}
       <Stack screenOptions={{ headerShown: false }} />
       <GlobalOverlays />
