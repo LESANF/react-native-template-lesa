@@ -9,6 +9,11 @@
 
 ## [Unreleased]
 
+### Removed
+
+- **임시 RN Maven 미러(0.0.14)** — `repo.reactnative.dev` 프록시가 복구돼(2026-11-11 측정 3.2–3.8 MB/s, 0.0.14 때 100–200 KB/s)
+  `prebuild` 스크립트의 `ENTERPRISE_REPOSITORY`, `plugins/with-rn-maven-mirror.ts`, `with-plugin.ts` 의 한 줄, README 상단 경고를 지웠다
+
 ## [0.0.14] — 2026-11-09
 
 ### Added

@@ -22,20 +22,6 @@
 >
 > The docs, this README and the code itself can all change substantially.
 
-> [!CAUTION]
-> **Temporary workaround (2026-11-09) — not part of the template's design.**
-> React Native 0.88 downloads its prebuilt iOS artifacts (ReactNativeCore · ReactNativeDependencies · Hermes,
-> ~250 MB per RN version) from `repo.reactnative.dev`. Maven Central 301-redirects to the same host, and that
-> proxy currently crawls at 100–200 KB/s and stalls outright, so a cold `pod install` takes 30+ minutes or never
-> finishes ([react-native#58427](https://github.com/facebook/react-native/issues/58427) has the background).
-> Until it recovers, the `prebuild` script pins `ENTERPRISE_REPOSITORY` to Google's Maven Central mirror
-> (`https://maven-central.storage-download.googleapis.com/maven2`), which serves the same files and `.sha1`
-> checksums at ~3 MB/s. If you run `pod install` by hand, export the same variable first. On Android the same
-> variable makes `plugins/with-rn-maven-mirror.ts` list that mirror first in `android/build.gradle`, scoped to
-> `com.facebook.react.*` / `com.facebook.hermes.*` only (Gradle's own `react.exclusiveEnterpriseRepository`
-> would replace _every_ repository and break androidx). Once the proxy is back to normal, remove the pin from
-> `package.json` and delete that plugin.
-
 An opinionated Expo SDK 58 template: routing, boot sequence, push, OTA and deep
 links are already wired — and shipped **switched off**. Filling in a file or
 dropping in a config turns each one on.

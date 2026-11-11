@@ -20,7 +20,7 @@
     "preinstall": "npx only-allow pnpm",
     "postinstall": "[ -f .env ] || cp .env.example .env",
     "start": "expo start",
-    "prebuild": "cross-env EXPO_NO_GIT_STATUS=1 ENTERPRISE_REPOSITORY=https://maven-central.storage-download.googleapis.com/maven2 expo prebuild",
+    "prebuild": "cross-env EXPO_NO_GIT_STATUS=1 expo prebuild",
     "android": "expo run:android",
     "ios": "expo run:ios",
     "xcode": "xed -b ios",

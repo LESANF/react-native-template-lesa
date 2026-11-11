@@ -22,20 +22,6 @@
 >
 > 문서·README·코드 모두 앞으로 많이 바뀔 수 있습니다.
 
-> [!CAUTION]
-> **임시 우회 (2026-11-09) — 이 템플릿의 설계가 아닙니다.**
-> React Native 0.88 은 iOS prebuilt 산출물(ReactNativeCore · ReactNativeDependencies · Hermes, RN 버전당
-> 약 250 MB)을 `repo.reactnative.dev` 에서 받습니다. Maven Central 도 그 호스트로 301 리다이렉트하는데,
-> 지금 그 프록시가 100–200 KB/s 로 기어가다 아예 멈춰서 첫 `pod install` 이 30분 이상 걸리거나 끝나지
-> 않습니다(배경은 [react-native#58427](https://github.com/facebook/react-native/issues/58427)).
-> 복구될 때까지 `prebuild` 스크립트가 `ENTERPRISE_REPOSITORY` 를 Google 의 Maven Central 미러
-> (`https://maven-central.storage-download.googleapis.com/maven2`)로 고정합니다 — 같은 파일과 `.sha1`
-> 체크섬을 약 3 MB/s 로 줍니다. `pod install` 을 직접 돌리면 같은 변수를 먼저 export 하세요. Android 는 같은
-> 변수로 `plugins/with-rn-maven-mirror.ts` 가 `android/build.gradle` 저장소 맨 앞에 그 미러를
-> `com.facebook.react.*` / `com.facebook.hermes.*` 한정으로 넣습니다(Gradle 의 `react.exclusiveEnterpriseRepository`
-> 는 저장소 *전체*를 바꿔 androidx 가 깨집니다). 프록시가 정상화되면 `package.json` 의 그 값과 이 플러그인을
-> 지우면 됩니다.
-
 Expo SDK 58 기준 템플릿입니다. 라우팅·부트 시퀀스·푸시·OTA·딥링크가 이미 배선돼 있고,
 **전부 꺼진 채로** 들어 있습니다. 파일을 넣거나 값을 채우면 그때 켜집니다.
 
