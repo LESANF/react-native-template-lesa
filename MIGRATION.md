@@ -22,6 +22,17 @@
 
 ---
 
+## v0.0.14 에서 올리기 — 시스템 바 (Unreleased)
+
+```bash
+npx expo install expo-status-bar expo-navigation-bar
+pnpm remove react-native-edge-to-edge
+#  app.config.ts: react-native-edge-to-edge 플러그인 → ['expo-navigation-bar', { enforceContrast: false }]
+#  package.json: expo.doctor.reactNativeDirectoryCheck.exclude 블록 삭제
+#  src/components/ui/screen-system-bars.tsx 와 src/app/_layout.tsx 를 템플릿에서 복사(SystemBars → StatusBar + NavigationBar)
+npx expo prebuild
+```
+
 ## v0.0.13 에서 올리기 — SDK 58 패치 · 패치 제거 (v0.0.14)
 
 RN 0.88.0 → 0.88.1 이라 새 네이티브 빌드가 필요하다.
